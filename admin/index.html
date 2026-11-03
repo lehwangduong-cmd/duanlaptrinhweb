@@ -3,28 +3,154 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin – SportZone</title>
-  <!-- [SHARED] CSS Variables -->
+  <meta name="description" content="Bảng điều khiển quản trị SportZone." />
+  <title>Quản trị – SportZone</title>
   <link rel="stylesheet" href="../css/variables.css" />
-  <!-- [TV5] Admin CSS – TV5 phụ trách -->
   <link rel="stylesheet" href="../css/tv5-admin.css" />
 </head>
 <body>
-  <!--
-    ============================================================
-    [TV5] Trang Admin – Dashboard
-    Phụ trách: TV5
-    Bao gồm: Quản lý sản phẩm, kho hàng, khách hàng,
-             đơn hàng, thống kê doanh thu
-    ============================================================
-  -->
-  <h1 style="padding:40px;font-family:sans-serif;color:#0082c3">
-    [TV5] Trang Admin – Đang xây dựng
-  </h1>
+  <div class="admin-shell">
+    <aside class="sidebar">
+      <a class="brand" href="../index.html" aria-label="SportZone - Trang chủ">
+        <span class="brand__mark">S</span>
+        <span>SportZone <small>QUẢN TRỊ</small></span>
+      </a>
+      <nav class="sidebar-nav" aria-label="Điều hướng quản trị">
+        <button class="nav-link is-active" type="button" data-view="dashboard"><span aria-hidden="true">▦</span>Tổng quan</button>
+        <button class="nav-link" type="button" data-view="products"><span aria-hidden="true">◈</span>Sản phẩm & kho</button>
+        <button class="nav-link" type="button" data-view="orders"><span aria-hidden="true">▤</span>Đơn hàng</button>
+        <button class="nav-link" type="button" data-view="customers"><span aria-hidden="true">♙</span>Khách hàng</button>
+        <button class="nav-link" type="button" data-view="revenue"><span aria-hidden="true">▥</span>Doanh thu</button>
+      </nav>
+      <a class="sidebar-home" href="../index.html">← Về trang bán hàng</a>
+      <p class="sidebar-note">Dữ liệu quản trị được lưu trên trình duyệt này.</p>
+    </aside>
 
-  <!-- [SHARED] JavaScript dùng chung -->
+    <main class="admin-main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">SPORTZONE · TRUNG TÂM ĐIỀU HÀNH</p>
+          <h1 id="pageTitle">Tổng quan</h1>
+        </div>
+        <span class="demo-badge"><span aria-hidden="true">●</span> Chế độ trình duyệt</span>
+      </header>
+
+      <section class="admin-view is-active" data-view-panel="dashboard">
+        <div class="welcome-row">
+          <div>
+            <h2 id="adminGreeting">Xin chào, quản trị viên</h2>
+            <p>Theo dõi hoạt động kinh doanh và xử lý công việc hôm nay.</p>
+          </div>
+            <div class="welcome-actions">
+              <button class="button button--secondary" type="button" id="adminLogout">Đăng xuất</button>
+              <button class="button button--primary" type="button" data-open-view="orders">Xem đơn hàng</button>
+            </div>
+        </div>
+        <div class="stat-grid">
+          <article class="stat-card"><span>Tổng sản phẩm</span><strong id="statProducts">0</strong><small id="statLowStock">0 sản phẩm sắp hết hàng</small></article>
+          <article class="stat-card"><span>Tổng đơn hàng</span><strong id="statOrders">0</strong><small id="statPending">0 đơn chờ xác nhận</small></article>
+          <article class="stat-card"><span>Khách hàng</span><strong id="statCustomers">0</strong><small>Khách từng đặt hàng</small></article>
+          <article class="stat-card stat-card--accent"><span>Doanh thu đã giao</span><strong id="statRevenue">0 ₫</strong><small>Tính từ đơn đã giao hàng</small></article>
+        </div>
+        <div class="panel-grid">
+          <section class="panel">
+            <div class="panel-heading"><div><h2>Doanh thu 6 tháng</h2><p>Chỉ tính đơn hàng đã giao</p></div><button class="text-button" type="button" data-open-view="revenue">Chi tiết →</button></div>
+            <div class="chart" id="dashboardChart" aria-label="Biểu đồ doanh thu 6 tháng gần nhất"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading"><div><h2>Tình trạng kho</h2><p>Sản phẩm có số lượng thấp</p></div><button class="text-button" type="button" data-open-view="products">Quản lý →</button></div>
+            <div id="lowStockList" class="compact-list"></div>
+          </section>
+        </div>
+        <section class="panel">
+          <div class="panel-heading"><div><h2>Đơn hàng gần đây</h2><p>Các đơn mới nhất từ lịch sử mua hàng</p></div><button class="text-button" type="button" data-open-view="orders">Tất cả đơn hàng →</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Ngày đặt</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead><tbody id="recentOrders"></tbody></table></div>
+          <p class="empty-inline" id="recentOrdersEmpty" hidden>Chưa có đơn hàng.</p>
+        </section>
+      </section>
+
+      <section class="admin-view" data-view-panel="products" hidden>
+        <div class="section-toolbar">
+          <div><h2>Danh sách sản phẩm</h2><p>Quản lý sản phẩm và theo dõi tồn kho.</p></div>
+          <button class="button button--primary" type="button" id="addProductButton">＋ Thêm sản phẩm</button>
+        </div>
+        <div class="filter-row">
+          <label class="search-box"><span class="sr-only">Tìm sản phẩm</span><span aria-hidden="true">⌕</span><input id="productSearch" type="search" placeholder="Tìm tên hoặc danh mục..." autocomplete="off"></label>
+          <label class="select-box"><span class="sr-only">Lọc tồn kho</span><select id="stockFilter"><option value="all">Tất cả tồn kho</option><option value="low">Sắp hết (≤ 5)</option><option value="out">Hết hàng</option></select></label>
+        </div>
+        <section class="panel"><div class="table-wrap"><table><thead><tr><th>Sản phẩm</th><th>Danh mục</th><th>Giá bán</th><th>Tồn kho</th><th></th></tr></thead><tbody id="productsTable"></tbody></table></div><p class="empty-inline" id="productsEmpty" hidden>Chưa có sản phẩm. Hãy thêm sản phẩm để bắt đầu quản lý kho.</p></section>
+      </section>
+
+      <section class="admin-view" data-view-panel="orders" hidden>
+        <div class="section-toolbar"><div><h2>Quản lý đơn hàng</h2><p>Cập nhật trạng thái theo tiến trình xử lý.</p></div></div>
+        <div class="filter-row">
+          <label class="search-box"><span class="sr-only">Tìm đơn hàng</span><span aria-hidden="true">⌕</span><input id="orderSearch" type="search" placeholder="Tìm mã đơn, tên, email hoặc số điện thoại..." autocomplete="off"></label>
+          <label class="select-box"><span class="sr-only">Lọc trạng thái đơn hàng</span><select id="orderStatusFilter"><option value="all">Tất cả trạng thái</option><option>Chờ xác nhận</option><option>Đã xác nhận</option><option>Đang chuẩn bị hàng</option><option>Đang giao hàng</option><option>Đã giao hàng</option><option>Đã hủy</option></select></label>
+        </div>
+        <section class="panel"><div class="table-wrap"><table><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Ngày đặt</th><th>Sản phẩm</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead><tbody id="ordersTable"></tbody></table></div><p class="empty-inline" id="ordersEmpty" hidden>Không tìm thấy đơn hàng.</p></section>
+      </section>
+
+      <section class="admin-view" data-view-panel="customers" hidden>
+        <div class="section-toolbar"><div><h2>Khách hàng</h2><p>Thông tin được tổng hợp từ khách đã đặt đơn hàng.</p></div></div>
+        <div class="filter-row"><label class="search-box"><span class="sr-only">Tìm khách hàng</span><span aria-hidden="true">⌕</span><input id="customerSearch" type="search" placeholder="Tìm tên, email hoặc số điện thoại..." autocomplete="off"></label></div>
+        <section class="panel"><div class="table-wrap"><table><thead><tr><th>Khách hàng</th><th>Liên hệ</th><th>Địa chỉ gần nhất</th><th>Số đơn</th><th>Chi tiêu</th></tr></thead><tbody id="customersTable"></tbody></table></div><p class="empty-inline" id="customersEmpty" hidden>Chưa có dữ liệu khách hàng từ đơn hàng.</p></section>
+      </section>
+
+      <section class="admin-view" data-view-panel="revenue" hidden>
+        <div class="section-toolbar"><div><h2>Báo cáo doanh thu</h2><p>Dữ liệu lấy từ Quản lý đơn hàng Cửa Hàng; chỉ tính đơn đã giao thành công.</p></div></div>
+        <section class="panel revenue-search">
+          <div class="revenue-search__fields">
+            <label>Thống kê theo
+              <select id="revenuePeriod">
+                <option value="day">Ngày</option>
+                <option value="month">Tháng</option>
+                <option value="year">Năm</option>
+              </select>
+            </label>
+            <label id="revenueMonthField">Chọn tháng
+              <input id="revenueMonth" type="month">
+            </label>
+            <label id="revenueYearField" hidden>Chọn năm
+              <input id="revenueYear" type="number" min="2000" max="2100" step="1">
+            </label>
+            <div class="revenue-year-range" id="revenueYearRange" hidden>
+              <label for="revenueYearFrom">Từ năm
+                <input id="revenueYearFrom" type="number" min="2000" max="2100" step="1">
+              </label>
+              <label for="revenueYearTo">Đến năm
+                <input id="revenueYearTo" type="number" min="2000" max="2100" step="1">
+              </label>
+            </div>
+            <button class="button button--primary" type="button" id="searchRevenue">Tra cứu doanh thu</button>
+          </div>
+          <p class="revenue-search__hint" id="revenueSearchHint">Chọn tháng để xem doanh thu từng ngày trong tháng đó.</p>
+        </section>
+        <div class="stat-grid stat-grid--single"><article class="stat-card stat-card--accent"><span>Tổng doanh thu đã giao</span><strong id="revenueTotal">0 ₫</strong><small id="deliveredCount">0 đơn hoàn tất</small></article></div>
+        <section class="panel"><div class="panel-heading"><div><h2 id="revenueChartTitle">Doanh thu theo ngày</h2><p id="revenueChartSubtitle"></p></div></div><div class="chart-scroll"><div class="chart chart--large" id="revenueChart" aria-label="Biểu đồ doanh thu"></div></div></section>
+        <section class="panel"><div class="panel-heading"><div><h2 id="revenueTableTitle">Chi tiết doanh thu theo ngày</h2></div></div><div class="table-wrap"><table><thead><tr><th id="revenuePeriodHeader">Ngày</th><th>Số đơn đã giao</th><th>Doanh thu</th></tr></thead><tbody id="revenueTable"></tbody></table></div><p class="empty-inline" id="revenueEmpty" hidden>Không có doanh thu trong khoảng thời gian này.</p></section>
+      </section>
+
+      <p class="storage-notice" id="storageNotice" role="alert" hidden></p>
+      <footer class="admin-footer">SportZone Admin · Các thay đổi lưu cục bộ trên thiết bị hiện tại.</footer>
+    </main>
+  </div>
+
+  <dialog class="admin-dialog" id="productDialog">
+    <form id="productForm">
+      <div class="dialog-heading"><div><p class="eyebrow">KHO SẢN PHẨM</p><h2 id="productDialogTitle">Thêm sản phẩm</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Đóng">×</button></div>
+      <input id="productId" type="hidden">
+      <label>Tên sản phẩm<input id="productName" name="name" required maxlength="100"></label>
+      <div class="form-grid">
+        <label>Danh mục<select id="productCategory" name="category" required><option value="">Chọn danh mục</option><option>Áo thể thao</option><option>Quần thể thao</option><option>Giày thể thao</option><option>Phụ kiện</option><option>Dụng cụ thể thao</option><option>Khác</option></select></label>
+        <label>Giá bán (₫)<input id="productPrice" name="price" type="number" min="0" step="1000" required></label>
+      </div>
+      <div class="form-grid"><label>Số lượng tồn<input id="productStock" name="stock" type="number" min="0" step="1" required></label><label>Mã sản phẩm<input id="productSku" name="sku" maxlength="40"></label></div>
+      <div class="dialog-actions"><button class="button button--secondary" type="button" data-close-dialog>Hủy</button><button class="button button--primary" type="submit">Lưu sản phẩm</button></div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="adminToast" role="status" aria-live="polite"></div>
   <script src="../js/shared.js"></script>
-  <!-- [TV5] Admin JavaScript – TV5 phụ trách -->
   <script src="../js/tv5-admin.js"></script>
 </body>
 </html>
