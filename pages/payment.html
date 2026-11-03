@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Xác nhận phương thức thanh toán cho đơn hàng SportZone.">
+    <title>Thanh toán - SportZone</title>
+    <link rel="stylesheet" href="../css/payment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container site-header__inner">
+            <a class="brand" href="../index.html" aria-label="SportZone - Trang chủ">
+                <span class="brand__mark" aria-hidden="true">S</span>
+                <span>SportZone</span>
+            </a>
+            <a class="header-link" href="cart.html">
+                <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i>
+                Giỏ hàng
+            </a>
+        </div>
+    </header>
+
+    <main class="container payment-main">
+        <nav class="breadcrumbs" aria-label="Điều hướng">
+            <a href="cart.html">Giỏ hàng</a>
+            <span aria-hidden="true">/</span>
+            <a href="checkout.html">Checkout</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Thanh toán</span>
+        </nav>
+
+        <div class="page-heading">
+            <div>
+                <p class="eyebrow">SPORTZONE · THANH TOÁN AN TOÀN</p>
+                <h1>Hoàn tất đơn hàng</h1>
+                <p class="page-heading__description">Kiểm tra đơn hàng và xác nhận phương thức thanh toán.</p>
+            </div>
+            <span class="secure-label"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Thanh toán bảo mật</span>
+        </div>
+
+        <section class="notice notice--error" id="missingOrder" role="alert" hidden>
+            <span class="notice__icon" aria-hidden="true"><i class="fa-solid fa-circle-exclamation"></i></span>
+            <div>
+                <h2>Không tìm thấy đơn hàng</h2>
+                <p>Đơn hàng có thể không còn trong lịch sử trên thiết bị này. Vui lòng quay lại Checkout để kiểm tra.</p>
+                <a class="button button--secondary" href="checkout.html">Quay lại Checkout</a>
+            </div>
+        </section>
+
+        <div class="payment-layout" id="paymentContent" hidden>
+            <div class="payment-main-column">
+                <section class="panel order-panel" aria-labelledby="orderHeading">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">THÔNG TIN ĐƠN HÀNG</p>
+                            <h2 id="orderHeading">Đơn hàng của bạn</h2>
+                        </div>
+                        <span class="order-status" id="orderStatus">Chờ xác nhận</span>
+                    </div>
+
+                    <div class="order-meta">
+                        <div>
+                            <span class="meta-label">Mã đơn hàng</span>
+                            <strong class="order-code" id="orderCode">—</strong>
+                        </div>
+                        <div>
+                            <span class="meta-label">Người nhận</span>
+                            <strong id="customerName">—</strong>
+                        </div>
+                    </div>
+
+                    <div class="product-list" id="productList" aria-live="polite"></div>
+                </section>
+
+                <section class="panel method-panel" aria-labelledby="methodHeading">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">BƯỚC CUỐI</p>
+                            <h2 id="methodHeading">Phương thức thanh toán</h2>
+                        </div>
+                    </div>
+
+                    <fieldset class="method-options" id="methodOptions">
+                        <legend class="sr-only">Chọn phương thức thanh toán</legend>
+                        <label class="method-option" for="methodCod">
+                            <input type="radio" name="paymentMethod" id="methodCod" value="cod">
+                            <span class="method-option__radio" aria-hidden="true"></span>
+                            <span class="method-option__icon method-option__icon--cod" aria-hidden="true">
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                            </span>
+                            <span class="method-option__text">
+                                <strong>Thanh toán khi nhận hàng</strong>
+                                <small>Thanh toán tiền mặt cho nhân viên giao hàng.</small>
+                            </span>
+                            <span class="method-option__tag">COD</span>
+                        </label>
+
+                        <label class="method-option" for="methodTransfer">
+                            <input type="radio" name="paymentMethod" id="methodTransfer" value="transfer">
+                            <span class="method-option__radio" aria-hidden="true"></span>
+                            <span class="method-option__icon method-option__icon--transfer" aria-hidden="true">
+                                <i class="fa-solid fa-building-columns"></i>
+                            </span>
+                            <span class="method-option__text">
+                                <strong>Chuyển khoản ngân hàng</strong>
+                                <small>Đơn hàng được xử lý sau khi xác nhận nhận tiền.</small>
+                            </span>
+                            <span class="method-option__tag">Chuyển khoản</span>
+                        </label>
+                    </fieldset>
+
+                    <section class="bank-details" id="bankDetails" aria-labelledby="bankHeading" hidden>
+                        <div class="bank-details__heading">
+                            <span class="bank-details__icon" aria-hidden="true"><i class="fa-solid fa-building-columns"></i></span>
+                            <div>
+                                <h3 id="bankHeading">Thông tin nhận chuyển khoản</h3>
+                                <p>Vui lòng nhập chính xác nội dung chuyển khoản bên dưới.</p>
+                            </div>
+                        </div>
+                        <div class="bank-transfer-layout">
+                            <dl class="bank-data">
+                                <div><dt>Ngân hàng</dt><dd id="bankName">MB Bank</dd></div>
+                                <div><dt>Số tài khoản</dt><dd class="bank-data__account"><span id="bankAccount">ACCOUNT_NUMBER</span><button type="button" class="copy-button" id="copyAccount" aria-label="Sao chép số tài khoản"><i class="fa-regular fa-copy" aria-hidden="true"></i></button></dd></div>
+                                <div><dt>Chủ tài khoản</dt><dd id="bankOwner">ACCOUNT_HOLDER</dd></div>
+                                <div><dt>Số tiền</dt><dd class="bank-data__amount" id="bankAmount">0 ₫</dd></div>
+                                <div><dt>Nội dung chuyển khoản</dt><dd class="bank-data__reference"><code id="transferContent">SPORTZONE</code><button type="button" class="copy-button" id="copyReference" aria-label="Sao chép nội dung chuyển khoản"><i class="fa-regular fa-copy" aria-hidden="true"></i></button></dd></div>
+                            </dl>
+                            <figure class="bank-qr">
+                                <figcaption>Thêm mã QR nhận tiền sau khi cấu hình thông tin ngân hàng riêng cho môi trường triển khai.</figcaption>
+                            </figure>
+                        </div>
+                        <p class="bank-warning"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Chuyển khoản thử nghiệm: nếu mã QR không điền đúng số tiền hoặc nội dung, hãy nhập theo thông tin đơn hàng ở bên trái. Hệ thống không tự xác nhận tiền đã về tài khoản.</p>
+                    </section>
+
+                    <div class="payment-state" id="paymentState" role="status" aria-live="polite"></div>
+                </section>
+            </div>
+
+            <aside class="summary-column">
+                <section class="panel summary-panel" aria-labelledby="summaryHeading">
+                    <p class="eyebrow">TÓM TẮT</p>
+                    <h2 id="summaryHeading">Tổng thanh toán</h2>
+                    <div class="summary-line"><span>Tạm tính</span><strong id="subtotal">0 ₫</strong></div>
+                    <div class="summary-line"><span>Phí vận chuyển</span><strong id="shipping">0 ₫</strong></div>
+                    <div class="summary-line summary-line--discount" id="discountLine" hidden><span>Giảm giá</span><strong id="discount">0 ₫</strong></div>
+                    <div class="summary-total"><span>Cần thanh toán</span><strong id="total">0 ₫</strong></div>
+                    <p class="summary-note" id="summaryPaymentStatus"></p>
+                    <button class="button button--primary button--full" type="button" id="confirmPayment">
+                        <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                        <span id="confirmLabel">Xác nhận thanh toán</span>
+                    </button>
+                    <a class="button button--secondary button--full" href="checkout.html" id="backToCheckout">
+                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                        Quay lại Checkout
+                    </a>
+                    <p class="secure-note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Thông tin đơn hàng được lưu trên thiết bị này.</p>
+                </section>
+            </aside>
+        </div>
+
+        <section class="notice notice--success" id="paymentResult" role="status" aria-live="polite" hidden>
+            <span class="notice__icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>
+            <div>
+                <h2 id="resultHeading">Đã ghi nhận đơn hàng</h2>
+                <p id="resultMessage"></p>
+                <a class="button button--primary" id="historyLink" href="my-orders.html">Đến lịch sử đơn hàng</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container site-footer__inner">
+            <span>© 2026 SportZone</span>
+            <span>Đồng hành cùng mọi môn thể thao</span>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="../js/payment.js"></script>
+</body>
+</html>

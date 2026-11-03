@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ Hàng - SportZone</title>
+
+    <!-- Liên kết file CSS của module giỏ hàng -->
+    <link rel="stylesheet" href="../css/cart.css">
+
+    <!-- Icon từ Font Awesome (CDN, không cần cài) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER - Đầu trang
+     Chứa: Logo | Thanh tìm kiếm | Icon giỏ hàng
+     Dùng chung cho toàn bộ dự án (thống nhất với các thành viên khác)
+     ============================================================ -->
+<header class="header">
+    <div class="container header__inner">
+
+        <!-- Logo thương hiệu -->
+        <a href="../index.html" class="header__logo">
+            <span class="logo__icon">⚡</span>
+            <span class="logo__text">SportZone</span>
+        </a>
+
+        <!-- Thanh tìm kiếm -->
+        <div class="header__search">
+            <input type="text" placeholder="Tìm kiếm sản phẩm thể thao..." class="search__input" id="searchInput">
+            <button class="search__btn" aria-label="Tìm kiếm">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
+        <!-- Nhóm icon bên phải -->
+        <div class="header__actions">
+            <!-- Icon tài khoản -->
+            <a href="#" class="header__action-btn" title="Tài khoản">
+                <i class="fas fa-user"></i>
+                <span>Tài khoản</span>
+            </a>
+
+            <!-- Icon giỏ hàng - hiển thị số lượng sản phẩm -->
+            <a href="cart.html" class="header__action-btn header__cart-btn active" title="Giỏ hàng">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Giỏ hàng</span>
+                <!-- Badge số lượng sản phẩm, cập nhật qua JavaScript -->
+                <span class="cart-badge" id="cartBadge">0</span>
+            </a>
+        </div>
+
+    </div>
+</header>
+
+<!-- ============================================================
+     MAIN CONTENT - Nội dung chính
+     ============================================================ -->
+<main class="main">
+    <div class="container">
+
+        <!-- Breadcrumb điều hướng -->
+        <nav class="breadcrumb" aria-label="Điều hướng">
+            <a href="../index.html" class="breadcrumb__link">
+                <i class="fas fa-home"></i> Trang chủ
+            </a>
+            <span class="breadcrumb__separator"><i class="fas fa-chevron-right"></i></span>
+            <span class="breadcrumb__current">Giỏ hàng</span>
+        </nav>
+
+        <!-- Tiêu đề trang -->
+        <div class="page-title">
+            <h1 class="page-title__text">
+                <i class="fas fa-shopping-cart"></i>
+                Giỏ hàng của bạn
+            </h1>
+            <!-- Số sản phẩm hiện tại, cập nhật qua JS -->
+            <span class="page-title__count" id="cartItemCount">0 sản phẩm</span>
+        </div>
+
+        <!-- ============================================================
+             TRẠNG THÁI TRỐNG - Hiển thị khi không có sản phẩm nào
+             Ẩn/hiện qua JavaScript dựa trên dữ liệu localStorage
+             ============================================================ -->
+        <div class="cart-empty" id="cartEmpty">
+            <div class="cart-empty__icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <h2 class="cart-empty__title">Giỏ hàng của bạn đang trống</h2>
+            <p class="cart-empty__desc">
+                Hãy khám phá các sản phẩm thể thao chất lượng của chúng tôi
+            </p>
+            <a href="../index.html" class="btn btn--primary btn--large">
+                <i class="fas fa-arrow-left"></i>
+                Tiếp tục mua sắm
+            </a>
+        </div>
+
+        <!-- ============================================================
+             NỘI DUNG GIỎ HÀNG - Hiển thị khi có sản phẩm
+             Layout 2 cột: Danh sách sản phẩm (trái) + Tổng kết (phải)
+             ============================================================ -->
+        <div class="cart-layout" id="cartContent">
+
+            <!-- === CỘT TRÁI: Danh sách sản phẩm === -->
+            <div class="cart-left">
+
+                <!-- Thanh công cụ: Chọn tất cả + Xóa đã chọn -->
+                <div class="cart-toolbar">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="selectAll" class="checkbox-input">
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-text">Chọn tất cả (<span id="totalItemsCount">0</span> sản phẩm)</span>
+                    </label>
+                    <button class="btn btn--danger-outline btn--sm" id="deleteSelectedBtn" title="Xóa sản phẩm đã chọn">
+                        <i class="fas fa-trash"></i>
+                        Xóa đã chọn
+                    </button>
+                </div>
+
+                <!-- Danh sách sản phẩm - render động bởi cart.js -->
+                <div class="cart-items" id="cartItems">
+                    <!-- Sản phẩm sẽ được render vào đây bởi JavaScript -->
+                </div>
+
+                <!-- Nút tiếp tục mua sắm -->
+                <div class="cart-continue">
+                    <a href="../index.html" class="btn btn--outline">
+                        <i class="fas fa-arrow-left"></i>
+                        Tiếp tục mua sắm
+                    </a>
+                </div>
+
+            </div><!-- end cart-left -->
+
+            <!-- === CỘT PHẢI: Tổng kết đơn hàng === -->
+            <div class="cart-right">
+
+                <!-- Ô nhập mã giảm giá -->
+                <div class="coupon-box">
+                    <h3 class="coupon-box__title">
+                        <i class="fas fa-tag"></i>
+                        Mã giảm giá
+                    </h3>
+                    <div class="coupon-box__input-row">
+                        <input
+                            type="text"
+                            id="couponInput"
+                            class="coupon-box__input"
+                            placeholder="Nhập mã giảm giá..."
+                            autocomplete="off"
+                        >
+                        <button class="btn btn--primary" id="applyCouponBtn">
+                            Áp dụng
+                        </button>
+                    </div>
+                    <!-- Thông báo kết quả mã giảm giá -->
+                    <div class="coupon-message" id="couponMessage"></div>
+                    <!-- Danh sách gợi ý mã -->
+                    <div class="coupon-hints">
+                        <span>Gợi ý:</span>
+                        <button class="coupon-hint-tag" onclick="fillCoupon('SPORT10')">SPORT10</button>
+                        <button class="coupon-hint-tag" onclick="fillCoupon('SAVE20')">SAVE20</button>
+                        <button class="coupon-hint-tag" onclick="fillCoupon('VIP50')">VIP50</button>
+                    </div>
+                </div>
+
+                <!-- Bảng tổng kết chi phí -->
+                <div class="order-summary">
+                    <h3 class="order-summary__title">Tổng kết đơn hàng</h3>
+
+                    <div class="order-summary__rows">
+
+                        <!-- Tổng tiền hàng -->
+                        <div class="summary-row">
+                            <span class="summary-row__label">
+                                Tạm tính (<span id="selectedCount">0</span> sản phẩm)
+                            </span>
+                            <span class="summary-row__value" id="subtotalDisplay">0 ₫</span>
+                        </div>
+
+                        <!-- Phí vận chuyển -->
+                        <div class="summary-row">
+                            <span class="summary-row__label">
+                                Phí vận chuyển
+                                <span class="shipping-note" id="shippingNote"></span>
+                            </span>
+                            <span class="summary-row__value summary-row__value--shipping" id="shippingDisplay">
+                                0 ₫
+                            </span>
+                        </div>
+
+                        <!-- Giảm giá từ coupon -->
+                        <div class="summary-row summary-row--discount" id="discountRow" style="display:none;">
+                            <span class="summary-row__label">
+                                <i class="fas fa-tag"></i>
+                                Giảm giá (<span id="discountPercent">0</span>%)
+                            </span>
+                            <span class="summary-row__value summary-row__value--red" id="discountDisplay">-0 ₫</span>
+                        </div>
+
+                        <!-- Đường kẻ phân cách -->
+                        <div class="summary-divider"></div>
+
+                        <!-- Tổng thanh toán -->
+                        <div class="summary-row summary-row--total">
+                            <span class="summary-row__label">Tổng thanh toán</span>
+                            <span class="summary-row__value summary-row__value--total" id="totalDisplay">0 ₫</span>
+                        </div>
+
+                    </div>
+
+                    <!-- Thông tin tiết kiệm -->
+                    <div class="savings-badge" id="savingsBadge" style="display:none;">
+                        <i class="fas fa-piggy-bank"></i>
+                        Bạn đã tiết kiệm được <strong id="savingsAmount">0 ₫</strong>
+                    </div>
+
+                    <!-- Nút thanh toán chính -->
+                    <button class="btn btn--checkout" id="checkoutBtn" onclick="proceedToCheckout()">
+                        <i class="fas fa-lock"></i>
+                        Tiến hành đặt hàng
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+
+                    <!-- Thông tin bảo mật -->
+                    <div class="security-info">
+                        <div class="security-info__item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Thanh toán an toàn & bảo mật</span>
+                        </div>
+                        <div class="security-info__item">
+                            <i class="fas fa-undo"></i>
+                            <span>Đổi trả miễn phí trong 30 ngày</span>
+                        </div>
+                        <div class="security-info__item">
+                            <i class="fas fa-truck"></i>
+                            <span>Miễn phí vận chuyển đơn từ 500.000 ₫</span>
+                        </div>
+                    </div>
+                </div><!-- end order-summary -->
+
+            </div><!-- end cart-right -->
+
+        </div><!-- end cart-layout -->
+
+    </div><!-- end container -->
+</main>
+
+<!-- ============================================================
+     FOOTER - Chân trang
+     ============================================================ -->
+<footer class="footer">
+    <div class="container footer__inner">
+        <div class="footer__brand">
+            <span class="logo__icon">⚡</span>
+            <span class="logo__text">SportZone</span>
+            <p>Đồ thể thao chất lượng cao cho mọi vận động viên</p>
+        </div>
+        <div class="footer__links">
+            <h4>Liên kết nhanh</h4>
+            <a href="../index.html">Trang chủ</a>
+            <a href="#">Sản phẩm</a>
+            <a href="cart.html">Giỏ hàng</a>
+            <a href="#">Liên hệ</a>
+        </div>
+        <div class="footer__contact">
+            <h4>Liên hệ</h4>
+            <p><i class="fas fa-phone"></i> 1800 6789</p>
+            <p><i class="fas fa-envelope"></i> support@sportzone.vn</p>
+            <p><i class="fas fa-map-marker-alt"></i> TP. Hồ Chí Minh</p>
+        </div>
+    </div>
+    <div class="footer__bottom">
+        <p>© 2024 SportZone. Bản quyền thuộc nhóm phát triển web.</p>
+    </div>
+</footer>
+
+<!-- ============================================================
+     TOAST NOTIFICATION - Thông báo nổi (popup nhỏ)
+     Hiển thị khi: thêm SP, xóa SP, áp dụng mã giảm giá, v.v.
+     ============================================================ -->
+<div class="toast" id="toast">
+    <div class="toast__icon" id="toastIcon"></div>
+    <div class="toast__message" id="toastMessage"></div>
+</div>
+
+<!-- Liên kết file JavaScript xử lý giỏ hàng -->
+<!-- Đặt cuối body để HTML load xong mới chạy JS -->
+<script src="../js/cart.js"></script>
+
+</body>
+</html>
