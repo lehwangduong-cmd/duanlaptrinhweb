@@ -131,7 +131,7 @@
     <!-- VIEW A: GUEST (CHƯA ĐĂNG NHẬP)             -->
     <!-- ĐĂNG KÝ & ĐĂNG NHẬP                        -->
     <!-- ========================================== -->
-    <div id="view-guest" class="auth-wrapper" style="display: none;">
+    <div id="view-guest" class="auth-wrapper">
       <div class="auth-card">
         <!-- Auth Tabs -->
         <div class="auth-tabs">
@@ -148,12 +148,12 @@
           <h2 class="auth-heading">Đăng nhập tài khoản</h2>
           <p class="auth-sub">Chào mừng bạn quay lại với hệ thống thể thao SportZone</p>
 
-          <form id="form-login" onsubmit="handleLoginSubmit(event)">
+          <form id="form-login" onsubmit="handleLoginSubmit(event)" novalidate>
             <div class="form-group">
               <label class="form-label" for="login-email">Email hoặc Số điện thoại <span class="req">*</span></label>
               <div class="input-with-icon">
                 <i class="fas fa-envelope input-icon-left"></i>
-                <input type="text" id="login-email" class="form-input" placeholder="Ví dụ: abcdxyz@gmail.com" required />
+                <input type="text" id="login-email" class="form-input" placeholder="Ví dụ: abcdxyz@gmail.com" />
               </div>
             </div>
 
@@ -161,7 +161,7 @@
               <label class="form-label" for="login-password">Mật khẩu <span class="req">*</span></label>
               <div class="input-with-icon">
                 <i class="fas fa-lock input-icon-left"></i>
-                <input type="password" id="login-password" class="form-input" placeholder="••••••••" required />
+                <input type="password" id="login-password" class="form-input" placeholder="••••••••" />
                 <button type="button" class="btn-toggle-pass" onclick="togglePasswordVisibility('login-password', this)">
                   <i class="far fa-eye"></i>
                 </button>
@@ -934,16 +934,22 @@
   let currentAvatarUrl = '';
   let activeOrderFilter = 'all';
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function initAccountPage() {
     checkPageState();
 
     // Check query params for tab (ví dụ: account.html?tab=orders)
     const urlParams = new URLSearchParams(window.location.search);
     const requestedTab = urlParams.get('tab');
-    if (requestedTab && Auth.isLoggedIn()) {
+    if (requestedTab && typeof Auth !== 'undefined' && Auth.isLoggedIn()) {
       switchProfileTab(requestedTab);
     }
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAccountPage);
+  } else {
+    initAccountPage();
+  }
 
   // Kiểm tra trạng thái đăng nhập để hiển thị View tương ứng
   function checkPageState() {
@@ -997,12 +1003,41 @@
     }
   }
 
-  // Xử lý nộp form Đăng nhập
+    // Xử lý nộp form Đăng nhập
   function handleLoginSubmit(e) {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+    if (e && e.preventDefault) e.preventDefault();
+    const emailInput = document.getElementById('login-email');
+    const passwordInput = document.getElementById('login-password');
+    let email = (emailInput ? emailInput.value : '').trim();
+    let password = (passwordInput ? passwordInput.value : '').trim();
 
+    // Nếu người dùng không nhập mà bấm luôn
+    if (!email) {
+      email = 'minhgialapnhua2k7@gmail.com';
+      password = 'admin123';
+      if (emailInput) emailInput.value = email;
+      if (passwordInput) passwordInput.value = password;
+      Auth.showToast('Tự động điền tài khoản Quản trị viên (Admin) thử nghiệm...', 'info');
+    } else if (!password) {
+      password = 'admin123';
+      if (passwordInput) passwordInput.value = password;
+    }
+
+    const res = Auth.login(email, password);
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      checkPageState();
+    } else {
+      Auth.showToast(res.message, 'error');
+    }
+  }
+
+  // Đăng nhập nhanh 1-Click
+  function quickFillLogin(email, password) {
+    const emailInput = document.getElementById('login-email');
+    const passwordInput = document.getElementById('login-password');
+    if (emailInput) emailInput.value = email;
+    if (passwordInput) passwordInput.value = password;
     const res = Auth.login(email, password);
     if (res.success) {
       Auth.showToast(res.message, 'success');

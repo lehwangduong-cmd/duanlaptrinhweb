@@ -16,10 +16,10 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-  <!-- [SHARED] CSS Variables dung chung toan du an -->
-  <link rel="stylesheet" href="css/variables.css" />
-  <!-- [TV1] Layout CSS: Navbar, Footer, Banner, Trang chu -->
-  <link rel="stylesheet" href="css/tv1-layout.css" />
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Account & Auth CSS (TV3) -->
+  <link rel="stylesheet" href="css/account.css" />
 
   <style>
     body { font-family: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif; }
@@ -92,7 +92,7 @@
       <a href="wishlist.html" class="nav-action-btn" aria-label="Yêu thích">
         <i class="far fa-heart"></i>
         <span>Yêu thích</span>
-        <span class="badge">3</span>
+        <span class="badge" id="wishlist-count">0</span>
       </a>
       <a href="cart.html" class="nav-action-btn" aria-label="Giỏ hàng">
         <i class="fas fa-shopping-cart"></i>
@@ -718,9 +718,9 @@
 <!-- Back to top -->
 <button id="back-to-top" aria-label="Lên đầu trang"><i class="fas fa-chevron-up"></i></button>
 
+<!-- Shared API & Auth (TV3) -->
+<script src="js/shared.js"></script>
 <!-- Main JS -->
-<script src="js/shared.js"></script>
-<!-- [TV1] JavaScript: Slider, Countdown, Hamburger, Back-to-top -->
-<script src="js/tv1-main.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
