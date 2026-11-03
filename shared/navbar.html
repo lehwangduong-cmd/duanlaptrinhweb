@@ -1,0 +1,123 @@
+<!--
+  ============================================================
+  SHARED NAVBAR - SportZone
+  TV1 phụ trách. Các TV2, TV3, TV4, TV5 copy nguyên khối này
+  vào đầu trang HTML của mình (sau <body>).
+  
+  HƯỚNG DẪN:
+  - Đổi class "active" sang đúng mục của trang mình
+  - Giữ nguyên href (sửa nếu đường dẫn khác nhau)
+  - Link CSS & JS theo đường dẫn tương đối từ file của bạn
+  ============================================================
+-->
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="container">
+    <div class="topbar-left">
+      <span><i class="fas fa-phone-alt"></i> 1800 9999</span>
+      <span class="extra"><i class="fas fa-envelope"></i> support@sportzone.vn</span>
+      <span class="extra"><i class="fas fa-map-marker-alt"></i> 150+ Cửa hàng toàn quốc</span>
+    </div>
+    <div class="topbar-right">
+      <a href="#"><i class="fas fa-truck"></i> Miễn phí vận chuyển &gt;499K</a>
+      <a href="#"><i class="fas fa-globe"></i> VI</a>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<header class="navbar" id="navbar">
+  <div class="container">
+    <a href="../index.html" class="navbar-logo">
+      <div class="logo-icon">SZ</div>
+      <div class="logo-text">
+        <span class="logo-name">SportZone</span>
+        <span class="logo-sub">Sport for all</span>
+      </div>
+    </a>
+
+    <div class="navbar-search">
+      <form action="../products.html" role="search" aria-label="Tìm kiếm sản phẩm">
+        <input type="search" name="q" placeholder="Tìm sản phẩm, môn thể thao..." aria-label="Tìm kiếm" />
+        <button class="search-btn" type="submit" aria-label="Tìm kiếm">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+
+    <nav class="navbar-actions" aria-label="Tài khoản và giỏ hàng">
+      <button class="nav-action-btn" id="search-toggle" aria-label="Tìm kiếm">
+        <i class="fas fa-search"></i>
+      </button>
+      <a href="../account.html" class="nav-action-btn" aria-label="Tài khoản">
+        <i class="far fa-user"></i>
+        <span>Tài khoản</span>
+      </a>
+      <a href="../wishlist.html" class="nav-action-btn" aria-label="Yêu thích">
+        <i class="far fa-heart"></i>
+        <span>Yêu thích</span>
+        <span class="badge" id="wishlist-count">0</span>
+      </a>
+      <a href="../cart.html" class="nav-action-btn" aria-label="Giỏ hàng">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Giỏ hàng</span>
+        <span class="badge" id="cart-count">0</span>
+      </a>
+    </nav>
+
+    <button class="hamburger" id="hamburger" aria-label="Mở menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Overlay for mobile menu -->
+<div class="nav-menu-overlay" id="nav-overlay"></div>
+
+<!-- NAV MENU -->
+<!-- Thêm class "active" vào <li> tương ứng với trang hiện tại -->
+<nav class="nav-menu" id="nav-menu" aria-label="Menu chính">
+  <div class="container">
+    <ul>
+      <li><a href="../index.html"><i class="fas fa-home"></i> Trang chủ</a></li>
+      <li class="has-dropdown">
+        <a href="#"><i class="fas fa-running"></i> Chạy bộ <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <ul class="dropdown">
+          <li><a href="../products.html?cat=giay-chay-bo"><i class="fas fa-shoe-prints"></i> Giày chạy bộ</a></li>
+          <li><a href="../products.html?cat=ao-chay-bo"><i class="fas fa-tshirt"></i> Áo chạy bộ</a></li>
+          <li><a href="../products.html?cat=dong-ho-the-thao"><i class="fas fa-stopwatch"></i> Đồng hồ thể thao</a></li>
+          <li><a href="../products.html?cat=phu-kien-chay-bo"><i class="fas fa-socks"></i> Phụ kiện chạy bộ</a></li>
+        </ul>
+      </li>
+      <li class="has-dropdown">
+        <a href="#"><i class="fas fa-futbol"></i> Bóng đá <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <ul class="dropdown">
+          <li><a href="../products.html?cat=bong-thi-dau"><i class="fas fa-futbol"></i> Bóng thi đấu</a></li>
+          <li><a href="../products.html?cat=giay-bong-da"><i class="fas fa-shoe-prints"></i> Giày bóng đá</a></li>
+          <li><a href="../products.html?cat=ao-thi-dau"><i class="fas fa-tshirt"></i> Áo thi đấu</a></li>
+          <li><a href="../products.html?cat=bao-ho"><i class="fas fa-shield-alt"></i> Bảo hộ</a></li>
+        </ul>
+      </li>
+      <li class="has-dropdown">
+        <a href="#"><i class="fas fa-swimmer"></i> Bơi lội <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <ul class="dropdown">
+          <li><a href="../products.html?cat=do-boi"><i class="fas fa-swimmer"></i> Đồ bơi</a></li>
+          <li><a href="../products.html?cat=kinh-boi"><i class="fas fa-glasses"></i> Kính bơi</a></li>
+          <li><a href="../products.html?cat=mu-boi"><i class="fas fa-hat-cowboy"></i> Mũ bơi</a></li>
+        </ul>
+      </li>
+      <li class="has-dropdown">
+        <a href="#"><i class="fas fa-dumbbell"></i> Gym & Fitness <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <ul class="dropdown">
+          <li><a href="../products.html?cat=ta-may-tap"><i class="fas fa-dumbbell"></i> Tạ & Máy tập</a></li>
+          <li><a href="../products.html?cat=yoga-pilates"><i class="fas fa-tape"></i> Yoga & Pilates</a></li>
+          <li><a href="../products.html?cat=quan-ao-gym"><i class="fas fa-tshirt"></i> Quần áo gym</a></li>
+        </ul>
+      </li>
+      <li><a href="../products.html?cat=xe-dap"><i class="fas fa-bicycle"></i> Xe đạp</a></li>
+      <li><a href="../products.html?cat=ngoai-troi"><i class="fas fa-mountain"></i> Ngoài trời</a></li>
+      <li class="sale"><a href="../products.html?sale=1"><i class="fas fa-tags"></i> Khuyến mãi</a></li>
+    </ul>
+  </div>
+</nav>

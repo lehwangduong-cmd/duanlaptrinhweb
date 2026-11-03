@@ -945,6 +945,7 @@ button { cursor: pointer; font-family: inherit; }
   /* Navbar */
   .navbar .container { height: 60px; }
   .navbar-search { display: none; }
+  #search-toggle { display: flex; }   /* ← hiện icon search mobile */
   .navbar-actions .nav-action-btn span { display: none; }
   .nav-action-btn { padding: 6px 8px; }
   .hamburger { display: flex; }
