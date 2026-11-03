@@ -1,11 +1,722 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SportZone - Cửa hàng đồ thể thao đa môn hàng đầu Việt Nam. Mua sắm thiết bị thể thao chính hãng: bóng đá, chạy bộ, bơi lội, yoga và hơn thế nữa." />
+  <title>SportZone – Đồ Thể Thao Đa Môn</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230082c3'/><text y='.9em' font-size='72' font-family='Arial' font-weight='900' fill='white' x='50%' text-anchor='middle'>S</text></svg>" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    body { font-family: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif; }
+    /* Extra: search mobile open */
+    @media (max-width: 768px) {
+      .navbar-search.mobile-open {
+        display: flex;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        padding: 10px 16px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        z-index: 200;
+      }
+      .navbar-search.mobile-open form { width: 100%; }
+    }
+    .navbar.scrolled { box-shadow: 0 4px 18px rgba(0,0,0,0.13); }
+  </style>
 </head>
 <body>
-    
+
+<!-- ========== TOP BAR ========== -->
+<div class="topbar">
+  <div class="container">
+    <div class="topbar-left">
+      <span><i class="fas fa-phone-alt"></i> 1800 9999</span>
+      <span class="extra"><i class="fas fa-envelope"></i> support@sportzone.vn</span>
+      <span class="extra"><i class="fas fa-map-marker-alt"></i> 150+ Cửa hàng toàn quốc</span>
+    </div>
+    <div class="topbar-right">
+      <a href="#"><i class="fas fa-truck"></i> Miễn phí vận chuyển &gt;499K</a>
+      <a href="#"><i class="fas fa-globe"></i> VI</a>
+    </div>
+  </div>
+</div>
+
+<!-- ========== NAVBAR ========== -->
+<header class="navbar" id="navbar">
+  <div class="container">
+    <!-- Logo -->
+    <a href="index.html" class="navbar-logo">
+      <div class="logo-icon">SZ</div>
+      <div class="logo-text">
+        <span class="logo-name">SportZone</span>
+        <span class="logo-sub">Sport for all</span>
+      </div>
+    </a>
+
+    <!-- Search Bar -->
+    <div class="navbar-search">
+      <form action="#" role="search" aria-label="Tìm kiếm sản phẩm">
+        <input type="search" placeholder="Tìm sản phẩm, môn thể thao..." aria-label="Tìm kiếm" />
+        <button class="search-btn" type="submit" aria-label="Tìm kiếm">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Actions -->
+    <nav class="navbar-actions" aria-label="Tài khoản và giỏ hàng">
+      <button class="nav-action-btn" id="search-toggle" aria-label="Tìm kiếm">
+        <i class="fas fa-search"></i>
+      </button>
+      <a href="account.html" class="nav-action-btn" aria-label="Tài khoản">
+        <i class="far fa-user"></i>
+        <span>Tài khoản</span>
+      </a>
+      <a href="wishlist.html" class="nav-action-btn" aria-label="Yêu thích">
+        <i class="far fa-heart"></i>
+        <span>Yêu thích</span>
+        <span class="badge">3</span>
+      </a>
+      <a href="cart.html" class="nav-action-btn" aria-label="Giỏ hàng">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Giỏ hàng</span>
+        <span class="badge">5</span>
+      </a>
+    </nav>
+
+    <!-- Hamburger -->
+    <button class="hamburger" id="hamburger" aria-label="Mở menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Overlay for mobile menu -->
+<div class="nav-menu-overlay" id="nav-overlay"></div>
+
+<!-- ========== NAV MENU ========== -->
+<nav class="nav-menu" id="nav-menu" aria-label="Menu chính">
+  <div class="container">
+    <ul>
+      <li class="active">
+        <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
+      </li>
+      <li class="has-dropdown">
+        <a href="#"><i class="fas fa-running"></i> Chạy bộ <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <ul class="dropdown">
+          <li><a href="#"><i class="fas fa-shoe-prints"></i> Giày chạy bộ</a></li>
+          <li><a href="#"><i class="fas fa-tshirt"></i> Áo chạy bộ</a></li>
+          <li><a href="#"><i class="fas fa-stopwatch"></i> Đồng hồ thể thao</a></li>
+          <li><a href="#"><i class="fas fa-socks"></i> Phụ kiện chạy bộ</a></li>
+        </ul>
+      </li>
+      <li class="has-dropdown">
+        <a href="#"><i class="fas fa-futbol"></i> Bóng đá <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <ul class="dropdown">
+          <li><a href="#"><i class="fas fa-futbol"></i> Bóng thi đấu</a></li>
+          <li><a href="#"><i class="fas fa-shoe-prints"></i> Giày bóng đá</a></li>
+          <li><a href="#"><i class="fas fa-tshirt"></i> Áo thi đấu</a></li>
+          <li><a href="#"><i class="fas fa-shield-alt"></i> Bảo hộ</a></li>
+        </ul>
+      </li>
+      <li class="has-dropdown">
+        <a href="#"><i class="fas fa-swimmer"></i> Bơi lội <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <ul class="dropdown">
+          <li><a href="#"><i class="fas fa-swimmer"></i> Đồ bơi</a></li>
+          <li><a href="#"><i class="fas fa-glasses"></i> Kính bơi</a></li>
+          <li><a href="#"><i class="fas fa-hat-cowboy"></i> Mũ bơi</a></li>
+        </ul>
+      </li>
+      <li class="has-dropdown">
+        <a href="#"><i class="fas fa-dumbbell"></i> Gym & Fitness <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <ul class="dropdown">
+          <li><a href="#"><i class="fas fa-dumbbell"></i> Tạ & Máy tập</a></li>
+          <li><a href="#"><i class="fas fa-tape"></i> Yoga & Pilates</a></li>
+          <li><a href="#"><i class="fas fa-tshirt"></i> Quần áo gym</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#"><i class="fas fa-bicycle"></i> Xe đạp</a>
+      </li>
+      <li>
+        <a href="#"><i class="fas fa-mountain"></i> Ngoài trời</a>
+      </li>
+      <li class="sale">
+        <a href="#"><i class="fas fa-tags"></i> Khuyến mãi</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ========== HERO BANNER ========== -->
+<section class="hero" aria-label="Banner quảng cáo">
+  <div class="hero-slider">
+
+    <!-- Slide 1 -->
+    <div class="hero-slide" style="background: linear-gradient(135deg,#003c64 0%,#0082c3 100%);">
+      <div class="hero-overlay">
+        <div class="hero-content">
+          <span class="hero-badge">🔥 Bộ sưu tập mới 2025</span>
+          <h1 class="hero-title">Chinh phục<br/>mọi đường chạy</h1>
+          <p class="hero-desc">Giày chạy bộ công nghệ tiên tiến, đế EVA siêu nhẹ — tối ưu hiệu suất từng bước chạy.</p>
+          <div class="hero-actions">
+            <a href="products.html" class="btn btn-primary"><i class="fas fa-shopping-bag"></i> Mua ngay</a>
+            <a href="#categories" class="btn btn-outline">Khám phá thêm</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="hero-slide" style="background: linear-gradient(135deg,#1b5e20 0%,#43a047 100%);">
+      <div class="hero-overlay">
+        <div class="hero-content">
+          <span class="hero-badge">⚽ Mùa giải 2025</span>
+          <h1 class="hero-title">Trang phục<br/>bóng đá chính hãng</h1>
+          <p class="hero-desc">Áo thi đấu, giày đinh cao cấp từ các thương hiệu hàng đầu thế giới.</p>
+          <div class="hero-actions">
+            <a href="products.html" class="btn btn-primary"><i class="fas fa-futbol"></i> Xem bộ sưu tập</a>
+            <a href="#" class="btn btn-outline">Flash Sale –40%</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="hero-slide" style="background: linear-gradient(135deg,#4a148c 0%,#7b1fa2 60%,#e91e63 100%);">
+      <div class="hero-overlay">
+        <div class="hero-content">
+          <span class="hero-badge">🧘 Yoga & Wellness</span>
+          <h1 class="hero-title">Cân bằng<br/>cơ thể & tâm trí</h1>
+          <p class="hero-desc">Thảm yoga, dụng cụ Pilates và trang phục co giãn 4 chiều thoải mái tuyệt đối.</p>
+          <div class="hero-actions">
+            <a href="products.html" class="btn btn-primary"><i class="fas fa-spa"></i> Khám phá</a>
+            <a href="#" class="btn btn-outline">Ưu đãi thành viên</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /hero-slider -->
+
+  <button class="slider-btn prev" aria-label="Slide trước"><i class="fas fa-chevron-left"></i></button>
+  <button class="slider-btn next" aria-label="Slide tiếp theo"><i class="fas fa-chevron-right"></i></button>
+  <div class="slider-dots" role="tablist">
+    <button class="slider-dot active" role="tab" aria-label="Slide 1"></button>
+    <button class="slider-dot" role="tab" aria-label="Slide 2"></button>
+    <button class="slider-dot" role="tab" aria-label="Slide 3"></button>
+  </div>
+</section>
+
+<!-- ========== PROMO STRIP ========== -->
+<div class="promo-strip">
+  <div class="container">
+    <div class="promo-item">
+      <i class="fas fa-shipping-fast"></i>
+      <span>Miễn phí vận chuyển đơn &gt; 499.000đ</span>
+    </div>
+    <div class="promo-item">
+      <i class="fas fa-undo-alt"></i>
+      <span>Đổi trả miễn phí 30 ngày</span>
+    </div>
+    <div class="promo-item">
+      <i class="fas fa-shield-alt"></i>
+      <span>Hàng chính hãng 100%</span>
+    </div>
+    <div class="promo-item">
+      <i class="fas fa-headset"></i>
+      <span>Hỗ trợ 24/7 – 1800 9999</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CATEGORIES ========== -->
+<section class="section" id="categories" style="background:#fff;">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Danh mục thể thao</h2>
+      <a href="products.html" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="categories-grid">
+      <a href="products.html?cat=chay-bo" class="cat-card">
+        <div class="cat-icon"><i class="fas fa-running"></i></div>
+        <h3>Chạy bộ</h3>
+        <p>328 sản phẩm</p>
+      </a>
+      <a href="products.html?cat=bong-da" class="cat-card">
+        <div class="cat-icon"><i class="fas fa-futbol"></i></div>
+        <h3>Bóng đá</h3>
+        <p>215 sản phẩm</p>
+      </a>
+      <a href="products.html?cat=gym" class="cat-card">
+        <div class="cat-icon"><i class="fas fa-dumbbell"></i></div>
+        <h3>Gym & Fitness</h3>
+        <p>187 sản phẩm</p>
+      </a>
+      <a href="products.html?cat=boi-loi" class="cat-card">
+        <div class="cat-icon"><i class="fas fa-swimmer"></i></div>
+        <h3>Bơi lội</h3>
+        <p>142 sản phẩm</p>
+      </a>
+      <a href="products.html?cat=yoga" class="cat-card">
+        <div class="cat-icon"><i class="fas fa-spa"></i></div>
+        <h3>Yoga</h3>
+        <p>96 sản phẩm</p>
+      </a>
+      <a href="products.html?cat=xe-dap" class="cat-card">
+        <div class="cat-icon"><i class="fas fa-bicycle"></i></div>
+        <h3>Xe đạp</h3>
+        <p>78 sản phẩm</p>
+      </a>
+      <a href="products.html?cat=bong-ro" class="cat-card">
+        <div class="cat-icon"><i class="fas fa-basketball-ball"></i></div>
+        <h3>Bóng rổ</h3>
+        <p>64 sản phẩm</p>
+      </a>
+      <a href="products.html?cat=cau-long" class="cat-card">
+        <div class="cat-icon"><i class="fas fa-feather-alt"></i></div>
+        <h3>Cầu lông</h3>
+        <p>110 sản phẩm</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FLASH SALE ========== -->
+<section class="flash-sale">
+  <div class="container">
+    <div class="flash-sale-info">
+      <div class="label"><i class="fas fa-bolt"></i> Flash Sale hôm nay</div>
+      <h2>Giảm đến 50%<br/>Hàng nghìn sản phẩm</h2>
+      <p>Nhanh tay! Số lượng có hạn.</p>
+    </div>
+    <div class="countdown" aria-live="polite" aria-label="Đếm ngược Flash Sale">
+      <div class="count-box">
+        <div class="num" id="cd-h">11</div>
+        <div class="lbl">giờ</div>
+      </div>
+      <span class="count-sep">:</span>
+      <div class="count-box">
+        <div class="num" id="cd-m">45</div>
+        <div class="lbl">phút</div>
+      </div>
+      <span class="count-sep">:</span>
+      <div class="count-box">
+        <div class="num" id="cd-s">30</div>
+        <div class="lbl">giây</div>
+      </div>
+    </div>
+    <a href="products.html?sale=1" class="btn" style="background:#fff;color:var(--primary);font-weight:800;">
+      <i class="fas fa-fire"></i> Xem ngay
+    </a>
+  </div>
+</section>
+
+<!-- ========== SẢN PHẨM NỔI BẬT ========== -->
+<section class="section" style="background:var(--bg-light);">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Sản phẩm nổi bật</h2>
+      <a href="products.html" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="product-grid">
+
+      <!-- Product 1 -->
+      <div class="product-card">
+        <span class="product-badge">-30%</span>
+        <div class="product-img" style="background:linear-gradient(135deg,#e3f2fd,#bbdefb);">
+          <i class="fas fa-shoe-prints" style="font-size:64px;color:#0082c3;opacity:0.5;"></i>
+        </div>
+        <div class="product-body">
+          <div class="product-brand">Kalenji</div>
+          <div class="product-name">Giày chạy bộ Run Active Pro</div>
+          <div class="product-price">
+            <span class="price-current">699.000đ</span>
+            <span class="price-old">999.000đ</span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <button class="btn-add-cart"><i class="fas fa-cart-plus"></i> Thêm giỏ</button>
+          <button class="btn-wishlist" aria-label="Yêu thích"><i class="far fa-heart"></i></button>
+        </div>
+      </div>
+
+      <!-- Product 2 -->
+      <div class="product-card">
+        <span class="product-badge">Mới</span>
+        <div class="product-img" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);">
+          <i class="fas fa-tshirt" style="font-size:64px;color:#43a047;opacity:0.5;"></i>
+        </div>
+        <div class="product-body">
+          <div class="product-brand">Kipsta</div>
+          <div class="product-name">Áo bóng đá thi đấu CLB 2025</div>
+          <div class="product-price">
+            <span class="price-current">349.000đ</span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <button class="btn-add-cart"><i class="fas fa-cart-plus"></i> Thêm giỏ</button>
+          <button class="btn-wishlist" aria-label="Yêu thích"><i class="far fa-heart"></i></button>
+        </div>
+      </div>
+
+      <!-- Product 3 -->
+      <div class="product-card">
+        <span class="product-badge">-40%</span>
+        <div class="product-img" style="background:linear-gradient(135deg,#f3e5f5,#e1bee7);">
+          <i class="fas fa-tape" style="font-size:64px;color:#7b1fa2;opacity:0.5;"></i>
+        </div>
+        <div class="product-body">
+          <div class="product-brand">Domyos</div>
+          <div class="product-name">Thảm Yoga TPE 6mm cao cấp</div>
+          <div class="product-price">
+            <span class="price-current">299.000đ</span>
+            <span class="price-old">499.000đ</span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <button class="btn-add-cart"><i class="fas fa-cart-plus"></i> Thêm giỏ</button>
+          <button class="btn-wishlist" aria-label="Yêu thích"><i class="far fa-heart"></i></button>
+        </div>
+      </div>
+
+      <!-- Product 4 -->
+      <div class="product-card">
+        <div class="product-img" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);">
+          <i class="fas fa-glasses" style="font-size:64px;color:#f57c00;opacity:0.5;"></i>
+        </div>
+        <div class="product-body">
+          <div class="product-brand">Nabaiji</div>
+          <div class="product-name">Kính bơi chống tia UV Easy</div>
+          <div class="product-price">
+            <span class="price-current">179.000đ</span>
+            <span class="price-old">229.000đ</span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <button class="btn-add-cart"><i class="fas fa-cart-plus"></i> Thêm giỏ</button>
+          <button class="btn-wishlist" aria-label="Yêu thích"><i class="far fa-heart"></i></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== PROMO BANNER 2-col ========== -->
+<section class="promo-banners">
+  <div class="container">
+    <a href="products.html?cat=chay-bo" class="promo-banner-card">
+      <div class="bg" style="background:linear-gradient(135deg,#003c64 0%,#0082c3 100%);"></div>
+      <div class="overlay"></div>
+      <div class="content">
+        <div class="tag">Chạy bộ</div>
+        <h3>Giày mới<br/>giảm đến 35%</h3>
+        <span class="cta">Mua ngay <i class="fas fa-arrow-right"></i></span>
+      </div>
+    </a>
+    <a href="products.html?cat=gym" class="promo-banner-card">
+      <div class="bg" style="background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%);"></div>
+      <div class="overlay"></div>
+      <div class="content">
+        <div class="tag">Gym & Fitness</div>
+        <h3>Dụng cụ tập<br/>giá tốt nhất</h3>
+        <span class="cta">Khám phá <i class="fas fa-arrow-right"></i></span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ========== SẢN PHẨM MỚI ========== -->
+<section class="section" style="background:#fff;">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Hàng mới về</h2>
+      <a href="products.html?sort=newest" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="product-grid">
+
+      <div class="product-card">
+        <span class="product-badge" style="background:var(--green);">Mới</span>
+        <div class="product-img" style="background:linear-gradient(135deg,#e0f2f1,#b2dfdb);">
+          <i class="fas fa-bicycle" style="font-size:64px;color:#00796b;opacity:0.5;"></i>
+        </div>
+        <div class="product-body">
+          <div class="product-brand">B'Twin</div>
+          <div class="product-name">Xe đạp đô thị Riverside 100</div>
+          <div class="product-price">
+            <span class="price-current">3.990.000đ</span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <button class="btn-add-cart"><i class="fas fa-cart-plus"></i> Thêm giỏ</button>
+          <button class="btn-wishlist" aria-label="Yêu thích"><i class="far fa-heart"></i></button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <span class="product-badge" style="background:var(--green);">Mới</span>
+        <div class="product-img" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0);">
+          <i class="fas fa-dumbbell" style="font-size:64px;color:#c2185b;opacity:0.5;"></i>
+        </div>
+        <div class="product-body">
+          <div class="product-brand">Domyos</div>
+          <div class="product-name">Bộ tạ tay cao su 5–20kg</div>
+          <div class="product-price">
+            <span class="price-current">1.250.000đ</span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <button class="btn-add-cart"><i class="fas fa-cart-plus"></i> Thêm giỏ</button>
+          <button class="btn-wishlist" aria-label="Yêu thích"><i class="far fa-heart"></i></button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <span class="product-badge" style="background:var(--green);">Mới</span>
+        <div class="product-img" style="background:linear-gradient(135deg,#e8eaf6,#c5cae9);">
+          <i class="fas fa-basketball-ball" style="font-size:64px;color:#3949ab;opacity:0.5;"></i>
+        </div>
+        <div class="product-body">
+          <div class="product-brand">Tarmak</div>
+          <div class="product-name">Bóng rổ Size 7 outdoor</div>
+          <div class="product-price">
+            <span class="price-current">459.000đ</span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <button class="btn-add-cart"><i class="fas fa-cart-plus"></i> Thêm giỏ</button>
+          <button class="btn-wishlist" aria-label="Yêu thích"><i class="far fa-heart"></i></button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <span class="product-badge" style="background:var(--green);">Mới</span>
+        <div class="product-img" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);">
+          <i class="fas fa-mountain" style="font-size:64px;color:#f9a825;opacity:0.5;"></i>
+        </div>
+        <div class="product-body">
+          <div class="product-brand">Quechua</div>
+          <div class="product-name">Balo leo núi 30L chống nước</div>
+          <div class="product-price">
+            <span class="price-current">799.000đ</span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <button class="btn-add-cart"><i class="fas fa-cart-plus"></i> Thêm giỏ</button>
+          <button class="btn-wishlist" aria-label="Yêu thích"><i class="far fa-heart"></i></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== THƯƠNG HIỆU ========== -->
+<div class="brands">
+  <div class="container">
+    <div class="section-header" style="margin-bottom:20px;">
+      <h2 class="section-title">Thương hiệu đối tác</h2>
+    </div>
+    <div class="brands-track">
+      <div class="brand-logo">Kalenji</div>
+      <div class="brand-logo">Kipsta</div>
+      <div class="brand-logo">Domyos</div>
+      <div class="brand-logo">Nabaiji</div>
+      <div class="brand-logo">B'Twin</div>
+      <div class="brand-logo">Quechua</div>
+      <div class="brand-logo">Tarmak</div>
+      <div class="brand-logo">Artengo</div>
+      <div class="brand-logo">Geologic</div>
+      <div class="brand-logo">Tribord</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TIN TỨC / MẸO THỂ THAO ========== -->
+<section class="section" style="background:var(--bg-light);">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Mẹo & Kiến thức thể thao</h2>
+      <a href="blog.html" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="blog-grid">
+      <a href="blog.html#1" class="blog-card">
+        <div class="blog-img">🏃</div>
+        <div class="blog-body">
+          <div class="blog-cat">Chạy bộ</div>
+          <div class="blog-title">5 bài tập khởi động giúp bạn chạy bộ không đau gối</div>
+          <div class="blog-meta">
+            <span><i class="fas fa-calendar-alt"></i> 28/10/2025</span>
+            <span><i class="fas fa-clock"></i> 5 phút đọc</span>
+          </div>
+        </div>
+      </a>
+      <a href="blog.html#2" class="blog-card">
+        <div class="blog-img">🏋️</div>
+        <div class="blog-body">
+          <div class="blog-cat">Gym & Fitness</div>
+          <div class="blog-title">Lịch tập gym 5 buổi/tuần cho người mới bắt đầu</div>
+          <div class="blog-meta">
+            <span><i class="fas fa-calendar-alt"></i> 20/10/2025</span>
+            <span><i class="fas fa-clock"></i> 8 phút đọc</span>
+          </div>
+        </div>
+      </a>
+      <a href="blog.html#3" class="blog-card">
+        <div class="blog-img">🧘</div>
+        <div class="blog-body">
+          <div class="blog-cat">Yoga</div>
+          <div class="blog-title">Yoga buổi sáng: 10 phút để bắt đầu ngày mới năng động</div>
+          <div class="blog-meta">
+            <span><i class="fas fa-calendar-alt"></i> 15/10/2025</span>
+            <span><i class="fas fa-clock"></i> 4 phút đọc</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ========== NEWSLETTER ========== -->
+<section class="newsletter">
+  <div class="container">
+    <h2>Nhận ưu đãi độc quyền qua email</h2>
+    <p>Đăng ký ngay để nhận voucher 50.000đ cho đơn hàng đầu tiên và cập nhật khuyến mãi sớm nhất!</p>
+    <form class="newsletter-form" action="#" onsubmit="return false;">
+      <input type="email" placeholder="Nhập địa chỉ email của bạn..." aria-label="Email đăng ký nhận tin" required />
+      <button type="submit"><i class="fas fa-paper-plane"></i> Đăng ký</button>
+    </form>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+
+      <!-- Brand -->
+      <div class="footer-brand footer-col">
+        <div class="navbar-logo" style="margin-bottom:0">
+          <div class="logo-icon">SZ</div>
+          <div class="logo-text">
+            <span class="logo-name">SportZone</span>
+            <span class="logo-sub" style="color:rgba(255,255,255,0.4)">Sport for all</span>
+          </div>
+        </div>
+        <p>Chuỗi cửa hàng đồ thể thao đa môn hàng đầu Việt Nam — hơn 150 cửa hàng trên toàn quốc, hàng chính hãng, giá tốt nhất.</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          <a href="#" class="social-link" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="#" class="social-link" aria-label="Zalo"><i class="fas fa-comment-dots"></i></a>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="footer-col">
+        <h4>Về SportZone</h4>
+        <ul>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Giới thiệu</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Hệ thống cửa hàng</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Tuyển dụng</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Tin tức & Blog</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Chính sách bảo mật</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Điều khoản sử dụng</a></li>
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div class="footer-col">
+        <h4>Hỗ trợ khách hàng</h4>
+        <ul>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Trung tâm hỗ trợ</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Chính sách đổi trả</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Chính sách bảo hành</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Hướng dẫn chọn size</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Theo dõi đơn hàng</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Liên hệ chúng tôi</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="footer-col">
+        <h4>Liên hệ</h4>
+        <ul>
+          <li>
+            <a href="tel:18009999">
+              <i class="fas fa-phone-alt"></i> Hotline: 1800 9999
+            </a>
+          </li>
+          <li>
+            <a href="mailto:support@sportzone.vn">
+              <i class="fas fa-envelope"></i> support@sportzone.vn
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fas fa-map-marker-alt"></i> 150+ cửa hàng toàn quốc
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fas fa-clock"></i> 8:00 – 22:00 mỗi ngày
+            </a>
+          </li>
+        </ul>
+        <!-- App download -->
+        <div style="margin-top:16px;">
+          <p style="font-size:12px;opacity:0.6;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Tải ứng dụng</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="#" style="background:rgba(255,255,255,0.1);border-radius:6px;padding:7px 12px;display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.8);text-decoration:none;">
+              <i class="fab fa-apple" style="font-size:16px;"></i> App Store
+            </a>
+            <a href="#" style="background:rgba(255,255,255,0.1);border-radius:6px;padding:7px 12px;display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.8);text-decoration:none;">
+              <i class="fab fa-google-play" style="font-size:14px;"></i> Google Play
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /footer-grid -->
+  </div>
+
+  <!-- Footer bottom -->
+  <div class="footer-bottom">
+    <div class="container">
+      <p>© 2025 SportZone. Bảo lưu mọi quyền. | GPDKKD số 012345678 – Sở KH&ĐT TP.HCM</p>
+      <div class="payment-icons">
+        <span class="payment-icon">VISA</span>
+        <span class="payment-icon">MC</span>
+        <span class="payment-icon">JCB</span>
+        <span class="payment-icon">MoMo</span>
+        <span class="payment-icon">ZaloPay</span>
+        <span class="payment-icon">COD</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to top -->
+<button id="back-to-top" aria-label="Lên đầu trang"><i class="fas fa-chevron-up"></i></button>
+
+<!-- Main JS -->
+<script src="js/main.js"></script>
 </body>
 </html>
