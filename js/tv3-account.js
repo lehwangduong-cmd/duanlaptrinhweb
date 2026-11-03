@@ -10,13 +10,26 @@
  * ============================================================
  */
 
-const Auth = (function () {
+// Safe fallback for Node.js
+if (typeof localStorage === 'undefined') {
+  var _memStore = {};
+  var localStorage = {
+    getItem: function (k) { return _memStore[k] || null; },
+    setItem: function (k, v) { _memStore[k] = String(v); },
+    removeItem: function (k) { delete _memStore[k]; },
+    clear: function () { _memStore = {}; }
+  };
+  if (typeof global !== 'undefined') global.localStorage = localStorage;
+}
+
+var Auth = (function () {
   // ============================================================
   // CẤU HÌNH TÀI KHOẢN QUẢN TRỊ VIÊN (ADMIN) RIÊNG CỦA BẠN
   // ============================================================
   const ADMIN_EMAILS = [
     'minhgialapnhua2k7@gmail.com',
     'nhomanhdangcapso1vn@gmail.com',
+    'abcdxyz@gmail.com',
     'admin@sportzone.vn'
   ];
 
@@ -392,6 +405,7 @@ const Auth = (function () {
       const PRESET_GOOGLE_ACCOUNTS = [
         { email: 'minhgialapnhua2k7@gmail.com', fullName: 'Minh Lê', role: 'admin' },
         { email: 'nhomanhdangcapso1vn@gmail.com', fullName: 'Minh Dương Anh Diện Phong', role: 'admin' },
+        { email: 'abcdxyz@gmail.com', fullName: 'Tài Khoản Thử Nghiệm', role: 'admin' },
         { email: '4gkhongnen2k7@gmail.com', fullName: 'Minh Lê', role: 'user' },
         { email: 'congm3180@gmail.com', fullName: 'Cong Minh', role: 'user' },
         { email: 'minhmuonacc07@gmail.com', fullName: 'Le Minh', role: 'user' }
@@ -525,8 +539,10 @@ const Auth = (function () {
   function setCurrentUser(user) {
     if (!user) {
       localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+      try { localStorage.removeItem('sz_user'); } catch (e) {}
     } else {
       localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+      try { localStorage.setItem('sz_user', JSON.stringify(user)); } catch (e) {}
     }
     // Cập nhật lại thanh navbar trên trang hiện tại
     renderNavbarAuth();
@@ -556,6 +572,7 @@ const Auth = (function () {
 
     const KNOWN_MAP = {
       'minhgialapnhua2k7@gmail.com': { fullName: 'Minh Lê', role: 'admin' },
+      'abcdxyz@gmail.com': { fullName: 'Tài Khoản Thử Nghiệm', role: 'admin' },
       'nhomanhdangcapso1vn@gmail.com': { fullName: 'Minh Dương Anh Diện Phong', role: 'admin' },
       '4gkhongnen2k7@gmail.com': { fullName: 'Minh Lê', role: 'user' },
       'congm3180@gmail.com': { fullName: 'Cong Minh', role: 'user' },
@@ -734,6 +751,7 @@ const Auth = (function () {
     showToast('Bạn đã đăng xuất khỏi hệ thống thành công.', 'info');
     // Nếu đang ở trang admin hoặc trang account, load lại trang
     setTimeout(() => {
+      if (typeof window === 'undefined') return;
       if (window.location.pathname.includes('admin.html')) {
         window.location.href = 'index.html';
       } else {
@@ -1115,6 +1133,7 @@ const Auth = (function () {
    * HIỂN THỊ THÔNG BÁO TOAST NỔI ĐẸP MẮT
    */
   function showToast(message, type = 'info', duration = 3500) {
+    if (typeof document === 'undefined') return;
     let container = document.getElementById('sz-toast-container');
     if (!container) {
       container = document.createElement('div');
@@ -1137,17 +1156,17 @@ const Auth = (function () {
       <button class="sz-toast-close" aria-label="Đóng">&times;</button>
     `;
 
-    container.appendChild(toast);
+    container?.appendChild?.(toast);
 
     // Fade in
     setTimeout(() => toast.classList.add('show'), 10);
 
     const close = () => {
       toast.classList.remove('show');
-      setTimeout(() => toast.remove(), 300);
+      setTimeout(() => toast.remove?.(), 300);
     };
 
-    toast.querySelector('.sz-toast-close').addEventListener('click', close);
+    toast.querySelector?.('.sz-toast-close')?.addEventListener('click', close);
     setTimeout(close, duration);
   }
 
@@ -1157,6 +1176,7 @@ const Auth = (function () {
    * hiển thị Avatar, Tên và Huy hiệu Admin nếu có quyền Quản trị!
    */
   function renderNavbarAuth() {
+    if (typeof document === 'undefined') return;
     const cur = getCurrentUser();
     // Tìm các thẻ a trỏ tới account.html trong navbar
     const accountLinks = document.querySelectorAll('.navbar-actions a[href*="account.html"]');
@@ -1289,10 +1309,12 @@ const Auth = (function () {
 
   // Tự động khởi chạy khi script được tải
   init();
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderNavbarAuth);
-  } else {
-    renderNavbarAuth();
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderNavbarAuth);
+    } else {
+      renderNavbarAuth();
+    }
   }
 
   // Xuất API công khai
@@ -1301,6 +1323,8 @@ const Auth = (function () {
     getUsers,
     saveUsers,
     getCurrentUser,
+    getUser: getCurrentUser,
+    setUser: setCurrentUser,
     setCurrentUser,
     isLoggedIn,
     isAdmin,
