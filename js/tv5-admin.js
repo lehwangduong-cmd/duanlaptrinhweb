@@ -3,6 +3,7 @@
 (() => {
   const PRODUCTS_KEY = 'sportzone_products';
   const ORDERS_KEY = 'sportzone_orders';
+  const SHOP_ORDERS_KEY = 'sz_orders';
   const ORDER_STATUSES = [
     'Chờ xác nhận',
     'Đã xác nhận',
@@ -12,7 +13,7 @@
     'Đã hủy',
   ];
   const STOCK_WARNING_LEVEL = 5;
-  const state = { products: [], orders: [], toastTimer: null };
+  const state = { products: [], orders: [], shopOrders: [], toastTimer: null };
   const revenueState = { period: 'day', buckets: [] };
   const titles = {
     dashboard: 'Tổng quan',
@@ -77,6 +78,7 @@
     const warnings = [];
     state.products = readArray(PRODUCTS_KEY, 'sản phẩm', warnings);
     state.orders = readArray(ORDERS_KEY, 'đơn hàng', warnings);
+    state.shopOrders = readArray(SHOP_ORDERS_KEY, 'đơn hàng cửa hàng', warnings);
     const notice = document.getElementById('storageNotice');
     notice.hidden = warnings.length === 0;
     notice.textContent = warnings.join(' ');
@@ -122,8 +124,8 @@
 
   function renderDashboard() {
     const customers = getCustomers();
-    const delivered = state.orders.filter(order => getOrderStatus(order) === 'Đã giao hàng');
-    const revenue = delivered.reduce((sum, order) => sum + getOrderTotal(order), 0);
+    const delivered = getRevenueOrders();
+    const revenue = delivered.reduce((sum, order) => sum + getRevenueOrderTotal(order), 0);
     const lowStock = state.products.filter(product => getStock(product) <= STOCK_WARNING_LEVEL);
 
     setText('statProducts', state.products.length);
@@ -496,13 +498,12 @@
         count: 0,
       });
     }
-    state.orders.forEach(order => {
-      if (getOrderStatus(order) !== 'Đã giao hàng') return;
+    getRevenueOrders().forEach(order => {
       const date = parseDate(order.createdAt || order.timestamp);
       if (!date) return;
       const bucket = buckets.find(item => item.key === `${date.getFullYear()}-${date.getMonth()}`);
       if (bucket) {
-        bucket.total += getOrderTotal(order);
+        bucket.total += getRevenueOrderTotal(order);
         bucket.count += 1;
       }
     });
@@ -521,9 +522,7 @@
   }
 
   function getRevenueBuckets(period) {
-    const delivered = state.orders.filter(order =>
-      getOrderStatus(order) === 'Đã giao hàng' && parseDate(order.createdAt || order.timestamp)
-    );
+    const delivered = getRevenueOrders();
     const buckets = [];
 
     if (period === 'day') {
@@ -582,11 +581,25 @@
           : String(date.getFullYear());
       const bucket = buckets.find(item => item.key === key);
       if (bucket) {
-        bucket.total += getOrderTotal(order);
+        bucket.total += getRevenueOrderTotal(order);
         bucket.count += 1;
       }
     });
     return buckets;
+  }
+
+  function getRevenueOrders() {
+    return state.shopOrders.filter(order =>
+      (order.status === 'delivered' ||
+        getOrderStatus(order) === 'Đã giao hàng' ||
+        order.statusText === 'Giao hàng thành công') &&
+      parseDate(order.createdAt || order.timestamp)
+    );
+  }
+
+  function getRevenueOrderTotal(order) {
+    const value = Number(order.totalAmount ?? order.total);
+    return Number.isFinite(value) && value >= 0 ? value : 0;
   }
 
   function getRevenuePeriodDescription(period) {
@@ -630,7 +643,8 @@
       }
       return;
     }
-    if (event.key !== PRODUCTS_KEY && event.key !== ORDERS_KEY && event.key !== null) return;
+    if (event.key !== PRODUCTS_KEY && event.key !== ORDERS_KEY &&
+      event.key !== SHOP_ORDERS_KEY && event.key !== null) return;
     loadData();
     renderAll();
   }
