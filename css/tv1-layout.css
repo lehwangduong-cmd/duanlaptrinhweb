@@ -605,6 +605,12 @@ button { cursor: pointer; font-family: inherit; }
   font-size: 48px;
   color: #ccc;
 }
+.product-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .product-badge {
   position: absolute;
   top: 12px;
@@ -763,6 +769,7 @@ button { cursor: pointer; font-family: inherit; }
   justify-content: center;
   font-size: 40px;
 }
+img.blog-img { display: block; }
 .blog-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
 .blog-cat {
   font-size: 11px;
@@ -1023,4 +1030,3 @@ button { cursor: pointer; font-family: inherit; }
   .slider-btn { display: none; }
   .categories-grid { grid-template-columns: repeat(3, 1fr); }
 }
-
