@@ -1,0 +1,15 @@
+/*
+ * ============================================================
+ *  tv5-admin.css – CSS của TV5
+ *  Phụ trách: Toàn bộ giao diện trang Admin
+ *             (dashboard, quản lý sản phẩm, kho hàng,
+ *              khách hàng, đơn hàng, thống kê doanh thu)
+ *
+ *  Import ở đầu file HTML của TV5:
+ *  <link rel="stylesheet" href="../css/variables.css" />
+ *  <link rel="stylesheet" href="../css/tv5-admin.css" />
+ *  (Trang admin KHÔNG dùng tv1-layout.css vì có sidebar riêng)
+ * ============================================================
+ */
+
+/* TV5 viết CSS vào đây */

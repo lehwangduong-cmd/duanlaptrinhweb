@@ -1,0 +1,47 @@
+/*
+ * ============================================================
+ *  variables.css – CSS Variables dùng CHUNG toàn dự án
+ *  Tất cả thành viên (TV1–TV5) đều import file này
+ *  Chỉnh sửa màu sắc, font, spacing tại đây để áp dụng toàn site
+ * ============================================================
+ */
+
+:root {
+  /* ── Màu chính ── */
+  --primary:       #0082c3;   /* Xanh SportZone chủ đạo */
+  --primary-dark:  #005f91;   /* Xanh đậm hơn (hover, header) */
+  --primary-light: #e6f4fb;   /* Xanh nhạt (background highlight) */
+
+  /* ── Màu nhấn ── */
+  --accent:        #f5a623;   /* Cam (CTA, nút nổi bật) */
+  --accent-dark:   #d4880a;
+
+  /* ── Màu văn bản ── */
+  --text-dark:  #1a1a1a;
+  --text-mid:   #444444;
+  --text-light: #777777;
+
+  /* ── Màu nền ── */
+  --bg-light: #f5f5f5;
+  --bg-white: #ffffff;
+
+  /* ── Màu trạng thái ── */
+  --red:   #e53935;   /* Lỗi, giảm giá, xóa */
+  --green: #43a047;   /* Thành công, hàng mới */
+
+  /* ── Border ── */
+  --border: #e0e0e0;
+
+  /* ── Bo góc ── */
+  --radius: 8px;
+
+  /* ── Đổ bóng ── */
+  --shadow:       0 2px 12px rgba(0, 0, 0, 0.10);
+  --shadow-hover: 0 6px 24px rgba(0, 130, 195, 0.16);
+
+  /* ── Hiệu ứng ── */
+  --transition: 0.22s ease;
+
+  /* ── Font ── */
+  --font: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif;
+}
