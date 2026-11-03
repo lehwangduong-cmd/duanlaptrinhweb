@@ -3,6 +3,8 @@
   const slider = document.querySelector('.hero-slider');
   const slides = document.querySelectorAll('.hero-slide');
   const dots = document.querySelectorAll('.slider-dot');
+  if (!slider || !slides.length) return; // Guard check nếu trang không có slider
+
   let current = 0;
   let timer;
 
@@ -34,6 +36,8 @@
 
 // ===== COUNTDOWN TIMER =====
 (function () {
+  if (!document.getElementById('cd-h')) return; // Guard check nếu trang không có đồng hồ
+
   const target = new Date();
   target.setHours(target.getHours() + 11);
   target.setMinutes(target.getMinutes() + 45);
@@ -110,19 +114,61 @@
   });
 })();
 
-// ===== WISHLIST BUTTON TOGGLE =====
+// ===== WISHLIST BUTTON TOGGLE (Kết nối API Wishlist & LocalStorage) =====
 document.querySelectorAll('.btn-wishlist').forEach(btn => {
-  btn.addEventListener('click', function () {
-    this.classList.toggle('active');
-    this.innerHTML = this.classList.contains('active')
-      ? '<i class="fas fa-heart"></i>'
-      : '<i class="far fa-heart"></i>';
-    if (this.classList.contains('active')) {
-      this.style.borderColor = '#e53935';
-      this.style.color = '#e53935';
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const card = this.closest('.product-card');
+    const name = card?.querySelector('.product-name')?.textContent.trim() || 'Sản phẩm';
+    const brand = card?.querySelector('.product-brand')?.textContent.trim() || 'SportZone';
+    const price = card?.querySelector('.price-current')?.textContent.trim() || '0đ';
+    const oldPrice = card?.querySelector('.price-old')?.textContent.trim() || '';
+    const badge = card?.querySelector('.product-badge')?.textContent.trim() || '';
+    const imgEl = card?.querySelector('.product-img');
+    const iconEl = imgEl?.querySelector('i');
+    const iconClass = iconEl?.className || 'fas fa-box';
+    const iconColor = iconEl?.style.color || '#0082c3';
+    const bgGradient = imgEl?.style.background || 'linear-gradient(135deg,#e3f2fd,#bbdefb)';
+
+    const product = {
+      id: 'PROD-' + name.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 20),
+      name,
+      brand,
+      price,
+      oldPrice,
+      badge,
+      iconClass,
+      iconColor,
+      bgGradient
+    };
+
+    if (typeof Wishlist !== 'undefined') {
+      const res = Wishlist.toggle(product);
+      const isAdded = typeof res === "object" && res !== null ? res.added : Boolean(res);
+      if (isAdded) {
+        this.classList.add('active');
+        this.innerHTML = '<i class="fas fa-heart"></i>';
+        this.style.borderColor = '#e53935';
+        this.style.color = '#e53935';
+        if (typeof Auth !== 'undefined' && Auth.showToast) {
+          Auth.showToast(`Đã thêm "${name}" vào danh sách yêu thích!`, 'success');
+        }
+      } else {
+        this.classList.remove('active');
+        this.innerHTML = '<i class="far fa-heart"></i>';
+        this.style.borderColor = '';
+        this.style.color = '';
+        if (typeof Auth !== 'undefined' && Auth.showToast) {
+          Auth.showToast(`Đã xóa "${name}" khỏi danh sách yêu thích!`, 'info');
+        }
+      }
     } else {
-      this.style.borderColor = '';
-      this.style.color = '';
+      this.classList.toggle('active');
+      this.innerHTML = this.classList.contains('active')
+        ? '<i class="fas fa-heart"></i>'
+        : '<i class="far fa-heart"></i>';
     }
   });
 });
