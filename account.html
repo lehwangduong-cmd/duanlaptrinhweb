@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tài khoản cá nhân - SportZone Cửa hàng Đồ Thể Thao Đa Môn" />
+  <title>Tài khoản – SportZone</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230082c3'/><text y='.9em' font-size='72' font-family='Arial' font-weight='900' fill='white' x='50%' text-anchor='middle'>S</text></svg>" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Account & Admin CSS (TV3) -->
+  <link rel="stylesheet" href="css/account.css" />
+
+  <!-- Google Identity Services (GSI) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    body { font-family: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif; }
+  </style>
+</head>
+<body>
+
+<!-- ========== TOP BAR ========== -->
+<div class="topbar">
+  <div class="container">
+    <div class="topbar-left">
+      <span><i class="fas fa-phone-alt"></i> 1800 9999</span>
+      <span class="extra"><i class="fas fa-envelope"></i> support@sportzone.vn</span>
+      <span class="extra"><i class="fas fa-map-marker-alt"></i> 150+ Cửa hàng toàn quốc</span>
+    </div>
+    <div class="topbar-right">
+      <a href="#"><i class="fas fa-truck"></i> Miễn phí vận chuyển &gt;499K</a>
+      <a href="#"><i class="fas fa-globe"></i> VI</a>
+    </div>
+  </div>
+</div>
+
+<!-- ========== NAVBAR ========== -->
+<header class="navbar" id="navbar">
+  <div class="container">
+    <!-- Logo -->
+    <a href="index.html" class="navbar-logo">
+      <div class="logo-icon">SZ</div>
+      <div class="logo-text">
+        <span class="logo-name">SportZone</span>
+        <span class="logo-sub">Sport for all</span>
+      </div>
+    </a>
+
+    <!-- Search Bar -->
+    <div class="navbar-search">
+      <form action="index.html" role="search" aria-label="Tìm kiếm sản phẩm">
+        <input type="search" placeholder="Tìm sản phẩm, môn thể thao..." aria-label="Tìm kiếm" />
+        <button class="search-btn" type="submit" aria-label="Tìm kiếm">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Actions -->
+    <nav class="navbar-actions" aria-label="Tài khoản và giỏ hàng">
+      <button class="nav-action-btn" id="search-toggle" aria-label="Tìm kiếm">
+        <i class="fas fa-search"></i>
+      </button>
+      <a href="account.html" class="nav-action-btn" aria-label="Tài khoản">
+        <i class="far fa-user"></i>
+        <span>Tài khoản</span>
+      </a>
+      <a href="wishlist.html" class="nav-action-btn" aria-label="Yêu thích">
+        <i class="far fa-heart"></i>
+        <span>Yêu thích</span>
+        <span class="badge" id="wishlist-count">0</span>
+      </a>
+      <a href="#" class="nav-action-btn" aria-label="Giỏ hàng">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Giỏ hàng</span>
+        <span class="badge">5</span>
+      </a>
+    </nav>
+
+    <!-- Hamburger -->
+    <button class="hamburger" id="hamburger" aria-label="Mở menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Overlay for mobile menu -->
+<div class="nav-menu-overlay" id="nav-overlay"></div>
+
+<!-- ========== NAV MENU ========== -->
+<nav class="nav-menu" id="nav-menu" aria-label="Menu chính">
+  <div class="container">
+    <ul>
+      <li><a href="index.html"><i class="fas fa-home"></i> Trang chủ</a></li>
+      <li><a href="index.html#featured"><i class="fas fa-running"></i> Chạy bộ</a></li>
+      <li><a href="index.html#bestsellers"><i class="fas fa-futbol"></i> Bóng đá</a></li>
+      <li><a href="index.html#categories"><i class="fas fa-swimmer"></i> Bơi lội</a></li>
+      <li><a href="index.html#categories"><i class="fas fa-dumbbell"></i> Gym & Yoga</a></li>
+      <li class="active"><a href="account.html"><i class="far fa-user"></i> Tài khoản</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb-wrap">
+  <div class="container">
+    <ul class="breadcrumb-list">
+      <li><a href="index.html">Trang chủ</a></li>
+      <li class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></li>
+      <li class="current" id="breadcrumb-current">Tài khoản</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Main Account Container -->
+<main class="account-page-container">
+  <div class="container">
+
+    <!-- ========================================== -->
+    <!-- VIEW A: GUEST (CHƯA ĐĂNG NHẬP)             -->
+    <!-- ĐĂNG KÝ & ĐĂNG NHẬP                        -->
+    <!-- ========================================== -->
+    <div id="view-guest" class="auth-wrapper" style="display: none;">
+      <div class="auth-card">
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" id="tab-btn-login" onclick="switchAuthTab('login')">
+            <i class="fas fa-sign-in-alt"></i> Đăng nhập
+          </button>
+          <button class="auth-tab-btn" id="tab-btn-register" onclick="switchAuthTab('register')">
+            <i class="fas fa-user-plus"></i> Đăng ký
+          </button>
+        </div>
+
+        <!-- FORM ĐĂNG NHẬP -->
+        <div class="auth-tab-pane active" id="pane-login">
+          <h2 class="auth-heading">Đăng nhập tài khoản</h2>
+          <p class="auth-sub">Chào mừng bạn quay lại với hệ thống thể thao SportZone</p>
+
+          <form id="form-login" onsubmit="handleLoginSubmit(event)">
+            <div class="form-group">
+              <label class="form-label" for="login-email">Email hoặc Số điện thoại <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <i class="fas fa-envelope input-icon-left"></i>
+                <input type="text" id="login-email" class="form-input" placeholder="Ví dụ: abcdxyz@gmail.com" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="login-password">Mật khẩu <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <i class="fas fa-lock input-icon-left"></i>
+                <input type="password" id="login-password" class="form-input" placeholder="••••••••" required />
+                <button type="button" class="btn-toggle-pass" onclick="togglePasswordVisibility('login-password', this)">
+                  <i class="far fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-extra-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="login-remember" checked />
+                <span>Ghi nhớ đăng nhập</span>
+              </label>
+              <a href="#" class="link-forgot" onclick="openForgotPasswordModal(event)">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="btn-submit-auth">
+              <i class="fas fa-sign-in-alt"></i> Đăng nhập ngay
+            </button>
+
+            <div class="auth-divider">
+              <span>hoặc đăng nhập với</span>
+            </div>
+
+            <!-- Nút Đăng nhập với tên Minh Lê (Google One-Tap Persona chuẩn như ảnh) -->
+            <div class="google-onetap-container" style="margin-bottom: 0;">
+              <button type="button" class="google-onetap-btn" onclick="openGoogleSignInModal()">
+                <div class="google-onetap-left">
+                  <div class="google-onetap-avatar" style="background: #7b1fa2;">M</div>
+                  <div class="google-onetap-text">
+                    <div class="google-onetap-name">Đăng nhập với tên Minh Lê</div>
+                    <div class="google-onetap-email">
+                      <span>minhgialapnhua2k7@gmail.com</span>
+                      <i class="fas fa-chevron-down"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="google-onetap-right">
+                  <svg viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                  </svg>
+                </div>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- FORM ĐĂNG KÝ -->
+        <div class="auth-tab-pane" id="pane-register">
+          <h2 class="auth-heading">Tạo tài khoản mới</h2>
+          <p class="auth-sub">Gia nhập cộng đồng thể thao SportZone ngay hôm nay</p>
+
+          <form id="form-register" onsubmit="handleRegisterSubmit(event)">
+            <div class="form-group">
+              <label class="form-label" for="reg-fullname">Họ và tên <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <i class="fas fa-user input-icon-left"></i>
+                <input type="text" id="reg-fullname" class="form-input" placeholder="Ví dụ: Nguyễn Văn An" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="reg-email">Địa chỉ Email <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <i class="fas fa-envelope input-icon-left"></i>
+                <input type="email" id="reg-email" class="form-input" placeholder="nguyenvanan@gmail.com" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="reg-phone">Số điện thoại <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <i class="fas fa-phone-alt input-icon-left"></i>
+                <input type="tel" id="reg-phone" class="form-input" placeholder="0901234567" pattern="0[0-9]{9}" required />
+              </div>
+            </div>
+
+            <div class="form-row-two">
+              <div class="form-group">
+                <label class="form-label" for="reg-password">Mật khẩu <span class="req">*</span></label>
+                <div class="input-with-icon">
+                  <i class="fas fa-lock input-icon-left"></i>
+                  <input type="password" id="reg-password" class="form-input" placeholder="Tối thiểu 6 ký tự" minlength="6" required />
+                  <button type="button" class="btn-toggle-pass" onclick="togglePasswordVisibility('reg-password', this)">
+                    <i class="far fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="reg-confirm">Xác nhận mật khẩu <span class="req">*</span></label>
+                <div class="input-with-icon">
+                  <i class="fas fa-shield-alt input-icon-left"></i>
+                  <input type="password" id="reg-confirm" class="form-input" placeholder="Nhập lại mật khẩu" minlength="6" required />
+                  <button type="button" class="btn-toggle-pass" onclick="togglePasswordVisibility('reg-confirm', this)">
+                    <i class="far fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tùy chọn quyền Quản trị viên (nếu có mã kích hoạt) -->
+            <div class="form-group" style="margin-top: 10px;">
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
+                <label class="checkbox-label" style="font-size: 13.5px; font-weight: 600; color: #1e293b;">
+                  <input type="checkbox" id="reg-is-admin" onchange="toggleAdminCodeInput(this.checked)" />
+                  <span>Đăng ký quyền <strong>Quản trị viên (Admin)</strong></span>
+                </label>
+
+                <div id="admin-secret-wrap" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1;">
+                  <label class="form-label" for="reg-admin-secret" style="margin-bottom: 4px;">
+                    Mã kích hoạt quyền Admin <span class="req">*</span>
+                  </label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-shield-alt input-icon-left"></i>
+                    <input type="password" id="reg-admin-secret" class="form-input" placeholder="Nhập mã bí mật Admin..." />
+                  </div>
+                  <small style="color: #64748b; font-size: 11.5px; display: block; margin-top: 4px;">
+                    Nhập mã bảo mật (Mặc định: <strong style="color:var(--primary)">SPORTZONE@ADMIN</strong>) để kích hoạt tài khoản Admin riêng của bạn.
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-extra-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="reg-terms" required />
+                <span>Tôi đồng ý với <a href="#" class="link-forgot">Điều khoản & Chính sách</a></span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn-submit-auth">
+              <i class="fas fa-user-check"></i> Đăng ký tài khoản
+            </button>
+
+            <div class="auth-divider">
+              <span>hoặc đăng ký nhanh với</span>
+            </div>
+
+            <!-- Nút Đăng ký với tên Minh (Google One-Tap Persona) -->
+            <div class="google-onetap-container" style="margin-bottom: 0;">
+              <button type="button" class="google-onetap-btn" onclick="openGoogleSignInModal()">
+                <div class="google-onetap-left">
+                  <div class="google-onetap-avatar">M</div>
+                  <div class="google-onetap-text">
+                    <div class="google-onetap-name">Đăng ký với tên Minh</div>
+                    <div class="google-onetap-email">
+                      <span>minhgialapnhua2k7@gmail.com</span>
+                      <i class="fas fa-chevron-down"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="google-onetap-right">
+                  <svg viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                  </svg>
+                </div>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW B: LOGGED IN (ĐÃ ĐĂNG NHẬP)           -->
+    <!-- HỒ SƠ KHÁCH HÀNG & PHÂN QUYỀN              -->
+    <!-- ========================================== -->
+    <div id="view-authenticated" style="display: none;">
+      
+      <!-- Profile Header Banner -->
+      <div class="profile-banner-card">
+        <div class="profile-banner-user">
+          <div class="profile-avatar-wrap">
+            <img src="" id="user-header-avatar" class="profile-avatar-img" alt="Avatar" />
+          </div>
+          <div class="profile-banner-info">
+            <h2 id="user-header-name">Nguyễn Văn A</h2>
+            <div class="profile-meta-row">
+              <span><i class="fas fa-envelope"></i> <span id="user-header-email">user@sportzone.vn</span></span>
+              <span><i class="fas fa-phone-alt"></i> <span id="user-header-phone">0901234567</span></span>
+            </div>
+            <div id="user-header-badges">
+              <!-- Dynamically populated badge: Admin or User -->
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-banner-actions">
+          <!-- Button to Admin Panel if user is Admin -->
+          <a href="admin.html" id="btn-goto-admin" class="btn-header-admin" style="display: none;">
+            <i class="fas fa-cogs"></i> Trang Quản Trị (Admin Panel)
+          </a>
+          <button type="button" class="btn-header-logout" onclick="Auth.logout()">
+            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+          </button>
+        </div>
+      </div>
+
+      <!-- Profile Grid (Sidebar Navigation + Tab Content) -->
+      <div class="profile-grid">
+        
+        <!-- SIDEBAR MENU -->
+        <aside class="profile-sidebar">
+          <ul class="profile-nav-list">
+            <li class="profile-nav-item active" id="nav-item-profile">
+              <button type="button" onclick="switchProfileTab('profile')">
+                <i class="far fa-user-circle"></i>
+                <span>Thông tin cá nhân</span>
+              </button>
+            </li>
+            <li class="profile-nav-item" id="nav-item-orders">
+              <button type="button" onclick="switchProfileTab('orders')">
+                <i class="fas fa-box-open"></i>
+                <span>Lịch sử đơn hàng</span>
+              </button>
+            </li>
+            <li class="profile-nav-item" id="nav-item-addresses">
+              <button type="button" onclick="switchProfileTab('addresses')">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>Sổ địa chỉ</span>
+              </button>
+            </li>
+            <li class="profile-nav-item" id="nav-item-password">
+              <button type="button" onclick="switchProfileTab('password')">
+                <i class="fas fa-key"></i>
+                <span>Đổi mật khẩu</span>
+              </button>
+            </li>
+
+            <!-- Phân quyền: Nút truy cập Admin cho tài khoản Admin -->
+            <li class="profile-nav-item admin-highlight" id="nav-item-admin" style="display: none;">
+              <a href="admin.html">
+                <i class="fas fa-shield-alt"></i>
+                <span>Quản trị hệ thống (Admin)</span>
+              </a>
+            </li>
+
+            <li class="profile-nav-item logout-item">
+              <button type="button" onclick="Auth.logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Đăng xuất</span>
+              </button>
+            </li>
+          </ul>
+        </aside>
+
+        <!-- CONTENT PANEL -->
+        <div class="profile-content">
+          
+          <!-- TAB 1: THÔNG TIN CÁ NHÂN -->
+          <div class="profile-pane active" id="pane-profile">
+            <div class="pane-title-row">
+              <h3 class="pane-title"><i class="far fa-user-circle"></i> Thông tin cá nhân</h3>
+            </div>
+
+            <div class="profile-info-grid">
+              <!-- Cột trái: Form thông tin -->
+              <form id="form-update-profile" onsubmit="handleUpdateProfile(event)">
+                <div class="form-group">
+                  <label class="form-label" for="prof-fullname">Họ và tên <span class="req">*</span></label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-user input-icon-left"></i>
+                    <input type="text" id="prof-fullname" class="form-input" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="prof-email">Email (Không thể thay đổi)</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-envelope input-icon-left"></i>
+                    <input type="email" id="prof-email" class="form-input" disabled style="background:#f1f5f9; cursor:not-allowed;" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="prof-phone">Số điện thoại <span class="req">*</span></label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-phone-alt input-icon-left"></i>
+                    <input type="tel" id="prof-phone" class="form-input" required />
+                  </div>
+                </div>
+
+                <div class="form-row-two">
+                  <div class="form-group">
+                    <label class="form-label" for="prof-gender">Giới tính</label>
+                    <select id="prof-gender" class="form-input" style="padding-left:14px;">
+                      <option value="male">Nam</option>
+                      <option value="female">Nữ</option>
+                      <option value="other">Khác</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="prof-birthday">Ngày sinh</label>
+                    <input type="date" id="prof-birthday" class="form-input" style="padding-left:14px;" />
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-submit-auth" style="max-width: 220px; margin-top: 10px;">
+                  <i class="fas fa-save"></i> Lưu thay đổi
+                </button>
+              </form>
+
+              <!-- Cột phải: Đổi ảnh đại diện & Thông tin hạng thẻ -->
+              <div>
+                <div class="avatar-edit-box">
+                  <img src="" id="prof-avatar-preview" class="avatar-preview-lg" alt="Avatar Preview" />
+                  <h4 style="font-size:14px; margin-bottom:4px;">Ảnh đại diện</h4>
+                  <p style="font-size:12px; color:#888;">Chọn một trong các avatar thể thao mẫu:</p>
+                  
+                  <div class="avatar-presets">
+                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')">
+                      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Preset 1" />
+                    </button>
+                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150')">
+                      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" alt="Preset 2" />
+                    </button>
+                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150')">
+                      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" alt="Preset 3" />
+                    </button>
+                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150')">
+                      <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" alt="Preset 4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Thống kê tài khoản khách hàng -->
+            <div class="user-stat-cards">
+              <div class="user-stat-card">
+                <i class="fas fa-medal"></i>
+                <div>
+                  <span class="stat-label">Hạng thành viên</span>
+                  <span class="stat-value" id="prof-membership">Thành viên Vàng</span>
+                </div>
+              </div>
+              <div class="user-stat-card">
+                <i class="fas fa-calendar-alt"></i>
+                <div>
+                  <span class="stat-label">Ngày tham gia</span>
+                  <span class="stat-value" id="prof-joined-date">15/03/2024</span>
+                </div>
+              </div>
+              <div class="user-stat-card">
+                <i class="fas fa-shopping-bag"></i>
+                <div>
+                  <span class="stat-label">Đơn hàng đã đặt</span>
+                  <span class="stat-value" id="prof-order-count">4 đơn hàng</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: LỊCH SỬ ĐƠN HÀNG -->
+          <div class="profile-pane" id="pane-orders">
+            <div class="pane-title-row">
+              <h3 class="pane-title"><i class="fas fa-box-open"></i> Lịch sử đơn hàng</h3>
+              <span id="order-count-badge" style="font-size:13px; color:#666;">Đang tải...</span>
+            </div>
+
+            <!-- Bộ lọc trạng thái đơn -->
+            <div class="order-filters">
+              <button class="order-filter-btn active" onclick="filterOrders('all', this)">Tất cả</button>
+              <button class="order-filter-btn" onclick="filterOrders('pending', this)">Chờ xác nhận</button>
+              <button class="order-filter-btn" onclick="filterOrders('shipping', this)">Đang giao</button>
+              <button class="order-filter-btn" onclick="filterOrders('delivered', this)">Hoàn thành</button>
+              <button class="order-filter-btn" onclick="filterOrders('cancelled', this)">Đã hủy</button>
+            </div>
+
+            <!-- Danh sách đơn hàng -->
+            <div id="orders-list-container" class="order-cards-list">
+              <!-- Sẽ render qua JavaScript -->
+            </div>
+          </div>
+
+          <!-- TAB 3: SỔ ĐỊA CHỈ -->
+          <div class="profile-pane" id="pane-addresses">
+            <div class="pane-title-row">
+              <h3 class="pane-title"><i class="fas fa-map-marked-alt"></i> Sổ địa chỉ nhận hàng</h3>
+              <button type="button" class="btn-order-detail" style="background:var(--primary); color:#fff; border:none;" onclick="openAddAddressModal()">
+                <i class="fas fa-plus"></i> Thêm địa chỉ mới
+              </button>
+            </div>
+
+            <div id="addresses-grid-container" class="address-grid">
+              <!-- Sẽ render qua JavaScript -->
+            </div>
+          </div>
+
+          <!-- TAB 4: ĐỔI MẬT KHẨU -->
+          <div class="profile-pane" id="pane-password">
+            <div class="pane-title-row">
+              <h3 class="pane-title"><i class="fas fa-key"></i> Đổi mật khẩu</h3>
+            </div>
+
+            <form id="form-change-password" style="max-width: 480px;" onsubmit="handleChangePassword(event)">
+              <div class="form-group">
+                <label class="form-label" for="pwd-old">Mật khẩu hiện tại <span class="req">*</span></label>
+                <div class="input-with-icon">
+                  <i class="fas fa-lock input-icon-left"></i>
+                  <input type="password" id="pwd-old" class="form-input" placeholder="Nhập mật khẩu hiện tại" required />
+                  <button type="button" class="btn-toggle-pass" onclick="togglePasswordVisibility('pwd-old', this)">
+                    <i class="far fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="pwd-new">Mật khẩu mới <span class="req">*</span></label>
+                <div class="input-with-icon">
+                  <i class="fas fa-key input-icon-left"></i>
+                  <input type="password" id="pwd-new" class="form-input" placeholder="Tối thiểu 6 ký tự" minlength="6" required />
+                  <button type="button" class="btn-toggle-pass" onclick="togglePasswordVisibility('pwd-new', this)">
+                    <i class="far fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="pwd-confirm">Xác nhận mật khẩu mới <span class="req">*</span></label>
+                <div class="input-with-icon">
+                  <i class="fas fa-shield-alt input-icon-left"></i>
+                  <input type="password" id="pwd-confirm" class="form-input" placeholder="Nhập lại mật khẩu mới" minlength="6" required />
+                  <button type="button" class="btn-toggle-pass" onclick="togglePasswordVisibility('pwd-confirm', this)">
+                    <i class="far fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-submit-auth" style="margin-top: 10px;">
+                <i class="fas fa-check-circle"></i> Cập nhật mật khẩu mới
+              </button>
+            </form>
+          </div>
+
+        </div><!-- /profile-content -->
+      </div><!-- /profile-grid -->
+
+    </div><!-- /view-authenticated -->
+
+  </div><!-- /container -->
+</main>
+
+
+<!-- ========================================== -->
+<!-- MODAL: THÊM ĐỊA CHỈ MỚI                    -->
+<!-- ========================================== -->
+<div class="sz-modal-overlay" id="modal-address">
+  <div class="sz-modal">
+    <div class="sz-modal-header">
+      <h3><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Thêm địa chỉ nhận hàng</h3>
+      <button type="button" class="sz-modal-close" onclick="closeModal('modal-address')">&times;</button>
+    </div>
+    <form id="form-add-address" onsubmit="handleAddAddressSubmit(event)">
+      <div class="sz-modal-body">
+        <div class="form-row-two">
+          <div class="form-group">
+            <label class="form-label">Họ tên người nhận <span class="req">*</span></label>
+            <input type="text" id="addr-name" class="form-input" style="padding-left:14px;" placeholder="Nguyễn Văn A" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Số điện thoại <span class="req">*</span></label>
+            <input type="tel" id="addr-phone" class="form-input" style="padding-left:14px;" placeholder="0901234567" required />
+          </div>
+        </div>
+
+        <div class="form-row-two">
+          <div class="form-group">
+            <label class="form-label">Tỉnh / Thành phố <span class="req">*</span></label>
+            <input type="text" id="addr-city" class="form-input" style="padding-left:14px;" placeholder="TP. Hồ Chí Minh" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Quận / Huyện <span class="req">*</span></label>
+            <input type="text" id="addr-district" class="form-input" style="padding-left:14px;" placeholder="Quận 1" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phường / Xã <span class="req">*</span></label>
+          <input type="text" id="addr-ward" class="form-input" style="padding-left:14px;" placeholder="Phường Bến Nghé" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Địa chỉ chi tiết (Số nhà, tên đường...) <span class="req">*</span></label>
+          <input type="text" id="addr-detail" class="form-input" style="padding-left:14px;" placeholder="123 Nguyễn Huệ" required />
+        </div>
+
+        <label class="checkbox-label" style="margin-top:10px;">
+          <input type="checkbox" id="addr-default" />
+          <span>Đặt làm địa chỉ nhận hàng mặc định</span>
+        </label>
+      </div>
+
+      <div class="sz-modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modal-address')">Hủy</button>
+        <button type="submit" class="btn-submit-auth" style="width:auto; padding:10px 22px;">Lưu địa chỉ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ========================================== -->
+<!-- MODAL: CHI TIẾT ĐƠN HÀNG                   -->
+<!-- ========================================== -->
+<div class="sz-modal-overlay" id="modal-order-detail">
+  <div class="sz-modal" style="max-width: 620px;">
+    <div class="sz-modal-header">
+      <h3 id="modal-order-title">Chi tiết đơn hàng #SZ-9824</h3>
+      <button type="button" class="sz-modal-close" onclick="closeModal('modal-order-detail')">&times;</button>
+    </div>
+    <div class="sz-modal-body" id="modal-order-body">
+      <!-- Sẽ render qua JS -->
+    </div>
+    <div class="sz-modal-footer">
+      <button type="button" class="btn-secondary" onclick="closeModal('modal-order-detail')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========================================== -->
+<!-- MODAL: QUÊN MẬT KHẨU                       -->
+<!-- ========================================== -->
+<div class="sz-modal-overlay" id="modal-forgot-password">
+  <div class="sz-modal" style="max-width: 440px;">
+    <div class="sz-modal-header">
+      <h3>Quên mật khẩu?</h3>
+      <button type="button" class="sz-modal-close" onclick="closeModal('modal-forgot-password')">&times;</button>
+    </div>
+    <form onsubmit="handleForgotPasswordSubmit(event)">
+      <div class="sz-modal-body">
+        <p style="font-size:13.5px; color:#555; margin-bottom:16px;">
+          Nhập địa chỉ email đăng ký của bạn. Hệ thống sẽ gửi mã xác thực khôi phục mật khẩu.
+        </p>
+        <div class="form-group">
+          <label class="form-label">Email tài khoản <span class="req">*</span></label>
+          <input type="email" id="forgot-email-input" class="form-input" style="padding-left:14px;" placeholder="user@sportzone.vn" required />
+        </div>
+      </div>
+      <div class="sz-modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modal-forgot-password')">Hủy</button>
+        <button type="submit" class="btn-submit-auth" style="width:auto; padding:10px 20px;">Gửi liên kết</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ========================================== -->
+<!-- MODAL: CỬA SỔ ĐĂNG NHẬP GOOGLE CHROME     -->
+<!-- (Mô phỏng 100% chuẩn giao diện Google     -->
+<!-- accounts.google.com OAuth popup)          -->
+<!-- ========================================== -->
+<div class="sz-modal-overlay" id="modal-google-signin" onclick="if(event.target===this)closeModal('modal-google-signin')">
+  <div class="chrome-popup-window" onclick="event.stopPropagation()">
+    <!-- 1. Thanh tiêu đề Chrome (Window Title Bar) -->
+    <div class="chrome-window-titlebar">
+      <div class="chrome-window-left">
+        <svg class="chrome-tab-favicon" viewBox="0 0 24 24" width="16" height="16">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span class="chrome-tab-title">Đăng nhập - Tài khoản Google - Google Chrome</span>
+      </div>
+      <div class="chrome-window-controls">
+        <button type="button" class="chrome-btn win-minimize" aria-label="Minimize" onclick="closeModal('modal-google-signin')">
+          <svg width="10" height="1" viewBox="0 0 10 1"><rect width="10" height="1" fill="#1f1f1f"/></svg>
+        </button>
+        <button type="button" class="chrome-btn win-maximize" aria-label="Maximize">
+          <svg width="10" height="10" viewBox="0 0 10 10"><rect width="9" height="9" x="0.5" y="0.5" fill="none" stroke="#1f1f1f" stroke-width="1"/></svg>
+        </button>
+        <button type="button" class="chrome-btn win-close" aria-label="Close" onclick="closeModal('modal-google-signin')">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9" stroke="#1f1f1f" stroke-width="1.2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. Thanh địa chỉ Chrome (Omnibox URL Bar) -->
+    <div class="chrome-omnibox-row">
+      <div class="chrome-omnibox-capsule">
+        <svg class="chrome-tune-icon" viewBox="0 0 24 24" width="14" height="14">
+          <path fill="#5f6368" d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+        </svg>
+        <span class="chrome-url-text">accounts.google.com/v3/signin/accountchooser?as=Rve7LIUESyPYi-M8jb3PXVFtJg-e...</span>
+      </div>
+    </div>
+
+    <!-- 3. Nội dung trang Google OAuth (Google Accounts Chooser) -->
+    <div class="google-oauth-window-body">
+      <!-- Thương hiệu Google OAuth -->
+      <div class="google-oauth-header-brand">
+        <svg viewBox="0 0 24 24" width="22" height="22">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span>Đăng nhập bằng Google</span>
+      </div>
+
+      <!-- Tiêu đề Chọn tài khoản -->
+      <div class="google-oauth-headline-section">
+        <h1 class="google-oauth-title">Chọn tài khoản</h1>
+        <p class="google-oauth-subtitle">
+          Tiếp tục tới <a href="javascript:void(0)" class="google-oauth-site-link">sportzone.vn</a>
+        </p>
+      </div>
+
+      <!-- Danh sách tài khoản chuẩn như ảnh screenshot -->
+      <div class="google-oauth-account-list">
+        <!-- 1. Minh Lê (minhgialapnhua2k7@gmail.com) - Quyền Admin -->
+        <button type="button" class="google-account-entry" onclick="handleGoogleSelect('minhgialapnhua2k7@gmail.com')">
+          <div class="google-entry-avatar" style="background-color: #7b1fa2;">M</div>
+          <div class="google-entry-info">
+            <div class="google-entry-name">Minh Lê</div>
+            <div class="google-entry-email">minhgialapnhua2k7@gmail.com</div>
+          </div>
+        </button>
+
+        <!-- 2. Minh Lê (4gkhongnen2k7@gmail.com) -->
+        <button type="button" class="google-account-entry" onclick="handleGoogleSelect('4gkhongnen2k7@gmail.com')">
+          <div class="google-entry-avatar" style="background-color: #e91e63;">M</div>
+          <div class="google-entry-info">
+            <div class="google-entry-name">Minh Lê</div>
+            <div class="google-entry-email">4gkhongnen2k7@gmail.com</div>
+          </div>
+        </button>
+
+        <!-- 3. Cong Minh (congm3180@gmail.com) -->
+        <button type="button" class="google-account-entry" onclick="handleGoogleSelect('congm3180@gmail.com')">
+          <div class="google-entry-avatar" style="background-color: #004d40;">C</div>
+          <div class="google-entry-info">
+            <div class="google-entry-name">Cong Minh</div>
+            <div class="google-entry-email">congm3180@gmail.com</div>
+          </div>
+        </button>
+
+        <!-- 4. Le Minh (minhmuonacc07@gmail.com) -->
+        <button type="button" class="google-account-entry" onclick="handleGoogleSelect('minhmuonacc07@gmail.com')">
+          <div class="google-entry-avatar" style="background-color: #0277bd; font-size: 15px;">Le</div>
+          <div class="google-entry-info">
+            <div class="google-entry-name">Le Minh</div>
+            <div class="google-entry-email">minhmuonacc07@gmail.com</div>
+          </div>
+        </button>
+
+        <!-- 5. Sử dụng một tài khoản khác -->
+        <button type="button" class="google-account-entry other-account-btn" onclick="toggleCustomGoogleInput()">
+          <div class="google-entry-avatar avatar-other-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <path fill="#5f6368" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
+          </div>
+          <div class="google-entry-info">
+            <div class="google-entry-name">Sử dụng một tài khoản khác</div>
+          </div>
+        </button>
+
+        <!-- Khung nhập email tài khoản khác (trượt xuống khi bấm) -->
+        <div id="custom-google-box" class="google-custom-input-box" style="display: none;">
+          <div class="google-custom-prompt">Nhập địa chỉ Email Google của bạn:</div>
+          <div class="google-custom-row">
+            <input type="email" id="custom-google-email" class="google-custom-field" placeholder="ví dụ: abcdxyz@gmail.com" onkeydown="if(event.key==='Enter'){event.preventDefault();submitCustomGoogleAccount();}">
+            <button type="button" class="google-custom-submit-btn" onclick="submitCustomGoogleAccount()">Tiếp theo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Chân trang Google OAuth (Footer) -->
+      <div class="google-oauth-footer-bar">
+        <div class="google-footer-left">
+          <span class="google-footer-lang">
+            Tiếng Việt
+            <svg viewBox="0 0 10 6" width="10" height="6">
+              <path fill="#5f6368" d="M0 0l5 6 5-6z"/>
+            </svg>
+          </span>
+        </div>
+        <div class="google-footer-right">
+          <a href="javascript:void(0)" class="google-footer-link">Trợ giúp</a>
+          <a href="javascript:void(0)" class="google-footer-link">Quyền riêng tư</a>
+          <a href="javascript:void(0)" class="google-footer-link">Điều khoản</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand footer-col">
+        <div class="navbar-logo" style="margin-bottom:0">
+          <div class="logo-icon">SZ</div>
+          <div class="logo-text">
+            <span class="logo-name">SportZone</span>
+            <span class="logo-sub" style="color:rgba(255,255,255,0.4)">Sport for all</span>
+          </div>
+        </div>
+        <p>Chuỗi cửa hàng đồ thể thao đa môn hàng đầu Việt Nam — hơn 150 cửa hàng toàn quốc, hàng chính hãng, giá tốt nhất.</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          <a href="#" class="social-link" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="#" class="social-link" aria-label="Zalo"><i class="fas fa-comment-dots"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Về SportZone</h4>
+        <ul>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Giới thiệu</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Hệ thống cửa hàng</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Chính sách bảo mật</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Hỗ trợ khách hàng</h4>
+        <ul>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Trung tâm hỗ trợ</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Chính sách đổi trả</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Theo dõi đơn hàng</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Liên hệ</h4>
+        <ul>
+          <li><a href="tel:18009999"><i class="fas fa-phone-alt"></i> Hotline: 1800 9999</a></li>
+          <li><a href="mailto:support@sportzone.vn"><i class="fas fa-envelope"></i> support@sportzone.vn</a></li>
+          <li><a href="#"><i class="fas fa-clock"></i> 8:00 – 22:00 mỗi ngày</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container">
+      <p>© 2025 SportZone. TV3 - Quản lý tài khoản & Phân quyền hệ thống.</p>
+      <div class="payment-icons">
+        <span class="payment-icon">VISA</span>
+        <span class="payment-icon">MC</span>
+        <span class="payment-icon">MoMo</span>
+        <span class="payment-icon">ZaloPay</span>
+        <span class="payment-icon">COD</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to top -->
+<button id="back-to-top" aria-label="Lên đầu trang"><i class="fas fa-chevron-up"></i></button>
+
+<!-- Shared Core API (Auth & Wishlist - TV3) -->
+<script src="js/shared.js"></script>
+<!-- Main Project Script -->
+<script src="js/main.js"></script>
+
+<!-- Account Controller Script -->
+<script>
+  let currentAvatarUrl = '';
+  let activeOrderFilter = 'all';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    checkPageState();
+
+    // Check query params for tab (ví dụ: account.html?tab=orders)
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedTab = urlParams.get('tab');
+    if (requestedTab && Auth.isLoggedIn()) {
+      switchProfileTab(requestedTab);
+    }
+  });
+
+  // Kiểm tra trạng thái đăng nhập để hiển thị View tương ứng
+  function checkPageState() {
+    const user = Auth.getCurrentUser();
+    const guestView = document.getElementById('view-guest');
+    const authView = document.getElementById('view-authenticated');
+    const breadcrumbCurrent = document.getElementById('breadcrumb-current');
+
+    if (!user) {
+      guestView.style.display = 'block';
+      authView.style.display = 'none';
+      breadcrumbCurrent.textContent = 'Đăng nhập / Đăng ký';
+    } else {
+      guestView.style.display = 'none';
+      authView.style.display = 'block';
+      breadcrumbCurrent.textContent = 'Hồ sơ: ' + user.fullName;
+      renderUserProfile(user);
+    }
+  }
+
+  // Chuyển tab Đăng nhập / Đăng ký
+  function switchAuthTab(tab) {
+    const btnLogin = document.getElementById('tab-btn-login');
+    const btnReg = document.getElementById('tab-btn-register');
+    const paneLogin = document.getElementById('pane-login');
+    const paneReg = document.getElementById('pane-register');
+
+    if (tab === 'login') {
+      btnLogin.classList.add('active');
+      btnReg.classList.remove('active');
+      paneLogin.classList.add('active');
+      paneReg.classList.remove('active');
+    } else {
+      btnReg.classList.add('active');
+      btnLogin.classList.remove('active');
+      paneReg.classList.add('active');
+      paneLogin.classList.remove('active');
+    }
+  }
+
+  // Hiện / Ẩn mật khẩu
+  function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.innerHTML = '<i class="far fa-eye-slash"></i>';
+    } else {
+      input.type = 'password';
+      btn.innerHTML = '<i class="far fa-eye"></i>';
+    }
+  }
+
+  // Xử lý nộp form Đăng nhập
+  function handleLoginSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    const res = Auth.login(email, password);
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      checkPageState();
+    } else {
+      Auth.showToast(res.message, 'error');
+    }
+  }
+
+  // Bật/tắt ô nhập mã kích hoạt Admin
+  function toggleAdminCodeInput(checked) {
+    const wrap = document.getElementById('admin-secret-wrap');
+    const input = document.getElementById('reg-admin-secret');
+    if (wrap) wrap.style.display = checked ? 'block' : 'none';
+    if (!checked && input) input.value = '';
+  }
+
+  // Xử lý nộp form Đăng ký
+  function handleRegisterSubmit(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('reg-fullname').value;
+    const email = document.getElementById('reg-email').value;
+    const phone = document.getElementById('reg-phone').value;
+    const password = document.getElementById('reg-password').value;
+    const confirm = document.getElementById('reg-confirm').value;
+    const isAdminChecked = document.getElementById('reg-is-admin')?.checked;
+    const adminSecret = document.getElementById('reg-admin-secret')?.value;
+
+    if (password !== confirm) {
+      Auth.showToast('Xác nhận mật khẩu không khớp. Vui lòng kiểm tra lại!', 'warning');
+      return;
+    }
+
+    let role = 'user';
+    if (isAdminChecked) {
+      if (!adminSecret || adminSecret.trim() !== Auth.getAdminSecretKey()) {
+        Auth.showToast('Mã kích hoạt Quản trị viên không chính xác! Vui lòng thử lại.', 'error');
+        return;
+      }
+      role = 'admin';
+    }
+
+    const res = Auth.register({
+      fullName,
+      email,
+      phone,
+      password,
+      role
+    });
+
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      checkPageState();
+      if (role === 'admin') {
+        setTimeout(() => {
+          window.location.href = 'admin.html';
+        }, 800);
+      }
+    } else {
+      Auth.showToast(res.message, 'error');
+    }
+  }
+
+  // Render hồ sơ người dùng
+  function renderUserProfile(user) {
+    // Header Banner
+    document.getElementById('user-header-avatar').src = user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150';
+    document.getElementById('user-header-name').textContent = user.fullName;
+    document.getElementById('user-header-email').textContent = user.email;
+    document.getElementById('user-header-phone').textContent = user.phone || 'Chưa cập nhật';
+
+    const badgesContainer = document.getElementById('user-header-badges');
+    const btnGotoAdmin = document.getElementById('btn-goto-admin');
+    const navItemAdmin = document.getElementById('nav-item-admin');
+
+    if (user.role === 'admin') {
+      badgesContainer.innerHTML = `
+        <span class="badge-role badge-admin">
+          <i class="fas fa-crown"></i> Quản trị viên (Admin)
+        </span>
+      `;
+      btnGotoAdmin.style.display = 'inline-flex';
+      navItemAdmin.style.display = 'block';
+    } else {
+      badgesContainer.innerHTML = `
+        <span class="badge-role badge-user">
+          <i class="fas fa-user-check"></i> ${user.membership || 'Khách hàng thân thiết'}
+        </span>
+      `;
+      btnGotoAdmin.style.display = 'none';
+      navItemAdmin.style.display = 'none';
+    }
+
+    // Form Thông tin
+    document.getElementById('prof-fullname').value = user.fullName || '';
+    document.getElementById('prof-email').value = user.email || '';
+    document.getElementById('prof-phone').value = user.phone || '';
+    document.getElementById('prof-gender').value = user.gender || 'other';
+    document.getElementById('prof-birthday').value = user.birthday || '';
+    document.getElementById('prof-avatar-preview').src = user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150';
+    currentAvatarUrl = user.avatar;
+
+    // Stat cards
+    document.getElementById('prof-membership').textContent = user.membership || (user.role === 'admin' ? 'Quản trị viên' : 'Thành viên Bạc');
+    document.getElementById('prof-joined-date').textContent = user.joinedDate ? formatDate(user.joinedDate) : '2024';
+
+    const orders = Auth.getUserOrders(user.id);
+    document.getElementById('prof-order-count').textContent = `${orders.length} đơn hàng`;
+
+    // Render Đơn hàng & Địa chỉ
+    renderOrdersList(orders);
+    renderAddressesList(user.addresses || []);
+  }
+
+  // Chuyển tab trong Dashboard Hồ sơ
+  function switchProfileTab(tabName) {
+    document.querySelectorAll('.profile-nav-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.profile-pane').forEach(pane => pane.classList.remove('active'));
+
+    const navItem = document.getElementById(`nav-item-${tabName}`);
+    const pane = document.getElementById(`pane-${tabName}`);
+
+    if (navItem && pane) {
+      navItem.classList.add('active');
+      pane.classList.add('active');
+    }
+  }
+
+  // Chọn avatar mẫu
+  function selectPresetAvatar(url) {
+    currentAvatarUrl = url;
+    document.getElementById('prof-avatar-preview').src = url;
+  }
+
+  // Cập nhật thông tin cá nhân
+  function handleUpdateProfile(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('prof-fullname').value;
+    const phone = document.getElementById('prof-phone').value;
+    const gender = document.getElementById('prof-gender').value;
+    const birthday = document.getElementById('prof-birthday').value;
+
+    const res = Auth.updateProfile({
+      fullName,
+      phone,
+      gender,
+      birthday,
+      avatar: currentAvatarUrl
+    });
+
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      renderUserProfile(res.user);
+    } else {
+      Auth.showToast(res.message, 'error');
+    }
+  }
+
+  // Đổi mật khẩu
+  function handleChangePassword(e) {
+    e.preventDefault();
+    const oldPass = document.getElementById('pwd-old').value;
+    const newPass = document.getElementById('pwd-new').value;
+    const confirmPass = document.getElementById('pwd-confirm').value;
+
+    if (newPass !== confirmPass) {
+      Auth.showToast('Mật khẩu mới và xác nhận mật khẩu không khớp!', 'warning');
+      return;
+    }
+
+    const res = Auth.changePassword(oldPass, newPass);
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      document.getElementById('form-change-password').reset();
+    } else {
+      Auth.showToast(res.message, 'error');
+    }
+  }
+
+  // Render danh sách đơn hàng
+  function renderOrdersList(orders) {
+    const container = document.getElementById('orders-list-container');
+    const badge = document.getElementById('order-count-badge');
+    badge.textContent = `Tổng cộng: ${orders.length} đơn`;
+
+    let filtered = orders;
+    if (activeOrderFilter !== 'all') {
+      filtered = orders.filter(o => o.status === activeOrderFilter);
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-clipboard-list"></i>
+          <h4>Không tìm thấy đơn hàng nào</h4>
+          <p>Bạn chưa có đơn hàng nào ở trạng thái này.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(order => {
+      const itemsHtml = (order.items || []).map(item => `
+        <div class="order-item-row">
+          <img src="${item.image}" alt="${item.name}" class="order-item-img" />
+          <div class="order-item-details">
+            <div class="order-item-title">${item.name}</div>
+            <div class="order-item-variant">${item.variant || ''} &bull; x${item.quantity}</div>
+          </div>
+          <div class="order-item-price">${formatMoney(item.price * item.quantity)}</div>
+        </div>
+      `).join('');
+
+      return `
+        <div class="order-card">
+          <div class="order-card-header">
+            <div>
+              <span class="order-code">Đơn #${order.id}</span>
+              <span class="order-date"><i class="far fa-clock"></i> ${order.createdAt}</span>
+            </div>
+            <span class="order-status-badge ${order.status}">
+              ${order.statusText}
+            </span>
+          </div>
+
+          <div class="order-items-list">
+            ${itemsHtml}
+          </div>
+
+          <div class="order-card-footer">
+            <div>
+              <span class="order-total-label">Tổng thanh toán: </span>
+              <span class="order-total-value">${formatMoney(order.totalAmount)}</span>
+            </div>
+            <div class="order-actions">
+              <button class="btn-order-detail" onclick="viewOrderDetail('${order.id}')">
+                <i class="fas fa-eye"></i> Chi tiết
+              </button>
+              ${order.status === 'pending' ? `
+                <button class="btn-order-detail" style="color:#d32f2f; border-color:#fecaca;" onclick="cancelMyOrder('${order.id}')">
+                  Hủy đơn
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function filterOrders(status, btn) {
+    activeOrderFilter = status;
+    document.querySelectorAll('.order-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const user = Auth.getCurrentUser();
+    if (user) {
+      renderOrdersList(Auth.getUserOrders(user.id));
+    }
+  }
+
+  function viewOrderDetail(orderId) {
+    const orders = Auth.getAllOrders();
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    document.getElementById('modal-order-title').textContent = `Chi tiết đơn hàng #${order.id}`;
+
+    const itemsRows = (order.items || []).map(i => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed #eee;">
+        <div>
+          <div style="font-weight:600; font-size:13.5px;">${i.name}</div>
+          <div style="font-size:12px; color:#666;">${i.variant || ''} - Số lượng: ${i.quantity}</div>
+        </div>
+        <div style="font-weight:700;">${formatMoney(i.price * i.quantity)}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('modal-order-body').innerHTML = `
+      <div style="background:#f8fafc; padding:14px; border-radius:10px; margin-bottom:16px; font-size:13.5px;">
+        <div><strong>Người nhận:</strong> ${order.recipientName || 'Khách hàng'} - ${order.recipientPhone || ''}</div>
+        <div style="margin-top:4px;"><strong>Địa chỉ giao:</strong> ${order.shippingAddress || 'Chưa cập nhật'}</div>
+        <div style="margin-top:4px;"><strong>Hình thức:</strong> ${order.paymentMethod || 'COD'}</div>
+        <div style="margin-top:4px;"><strong>Trạng thái:</strong> <span class="order-status-badge ${order.status}">${order.statusText}</span></div>
+      </div>
+
+      <h4 style="font-size:14px; margin-bottom:8px;">Danh sách sản phẩm:</h4>
+      ${itemsRows}
+
+      <div style="margin-top:16px; font-size:13.5px; line-height:1.8;">
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:#666;">Tạm tính:</span>
+          <span>${formatMoney(order.totalAmount - (order.shippingFee || 0) + (order.discount || 0))}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:#666;">Phí vận chuyển:</span>
+          <span>${formatMoney(order.shippingFee || 0)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:#666;">Giảm giá Voucher:</span>
+          <span style="color:#2e7d32;">-${formatMoney(order.discount || 0)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-weight:800; font-size:16px; margin-top:6px; border-top:1.5px solid #eee; padding-top:6px;">
+          <span>Tổng cộng:</span>
+          <span style="color:#e53935;">${formatMoney(order.totalAmount)}</span>
+        </div>
+      </div>
+    `;
+
+    openModal('modal-order-detail');
+  }
+
+  function cancelMyOrder(orderId) {
+    if (confirm(`Bạn có chắc chắn muốn hủy đơn hàng #${orderId} không?`)) {
+      Auth.updateOrderStatus(orderId, 'cancelled');
+      Auth.showToast(`Đã hủy thành công đơn hàng #${orderId}`, 'info');
+      const user = Auth.getCurrentUser();
+      renderOrdersList(Auth.getUserOrders(user.id));
+    }
+  }
+
+  // Render Sổ địa chỉ
+  function renderAddressesList(addresses) {
+    const container = document.getElementById('addresses-grid-container');
+    if (!addresses || addresses.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1;">
+          <i class="fas fa-map-marker-alt"></i>
+          <h4>Chưa có địa chỉ nào</h4>
+          <p>Thêm địa chỉ giao hàng để đặt hàng nhanh chóng và thuận tiện hơn.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = addresses.map(addr => `
+      <div class="address-card ${addr.isDefault ? 'is-default' : ''}">
+        ${addr.isDefault ? '<span class="address-default-badge"><i class="fas fa-check"></i> Mặc định</span>' : ''}
+        <div class="address-name">${addr.recipientName}</div>
+        <div class="address-phone"><i class="fas fa-phone-alt"></i> ${addr.phone}</div>
+        <div class="address-text">
+          ${addr.addressDetail}, ${addr.ward}, ${addr.district}, ${addr.city}
+        </div>
+        <div class="address-card-actions">
+          ${!addr.isDefault ? `
+            <button class="btn-link-action" onclick="setDefaultAddress('${addr.id}')">Đặt mặc định</button>
+            <span style="color:#ccc">|</span>
+          ` : ''}
+          <button class="btn-link-action danger" onclick="deleteAddress('${addr.id}')">Xóa</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openAddAddressModal() {
+    openModal('modal-address');
+  }
+
+  function handleAddAddressSubmit(e) {
+    e.preventDefault();
+    const recipientName = document.getElementById('addr-name').value;
+    const phone = document.getElementById('addr-phone').value;
+    const city = document.getElementById('addr-city').value;
+    const district = document.getElementById('addr-district').value;
+    const ward = document.getElementById('addr-ward').value;
+    const addressDetail = document.getElementById('addr-detail').value;
+    const isDefault = document.getElementById('addr-default').checked;
+
+    const res = Auth.addAddress({
+      recipientName,
+      phone,
+      city,
+      district,
+      ward,
+      addressDetail,
+      isDefault
+    });
+
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      closeModal('modal-address');
+      document.getElementById('form-add-address').reset();
+      const user = Auth.getCurrentUser();
+      renderAddressesList(user.addresses || []);
+    } else {
+      Auth.showToast(res.message, 'error');
+    }
+  }
+
+  function deleteAddress(id) {
+    if (confirm('Bạn có chắc muốn xóa địa chỉ này?')) {
+      const res = Auth.deleteAddress(id);
+      if (res.success) {
+        Auth.showToast(res.message, 'info');
+        const user = Auth.getCurrentUser();
+        renderAddressesList(user.addresses || []);
+      }
+    }
+  }
+
+  function setDefaultAddress(id) {
+    const res = Auth.setDefaultAddress(id);
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      const user = Auth.getCurrentUser();
+      renderAddressesList(user.addresses || []);
+    }
+  }
+
+  // Quên mật khẩu
+  function openForgotPasswordModal(e) {
+    e.preventDefault();
+    openModal('modal-forgot-password');
+  }
+
+  function handleForgotPasswordSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('forgot-email-input').value;
+    closeModal('modal-forgot-password');
+    Auth.showToast(`Đã gửi đường dẫn đặt lại mật khẩu đến email: ${email}`, 'success');
+  }
+
+  // Xử lý phản hồi từ Google Identity Services (GSI) thật
+  function handleCredentialResponse(response) {
+    if (response && response.credential) {
+      try {
+        const base64Url = response.credential.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        const profile = JSON.parse(jsonPayload);
+        const email = profile.email || 'minhgialapnhua2k7@gmail.com';
+        const name = profile.name || 'Minh';
+        const picture = profile.picture || '';
+
+        const res = Auth.loginWithGoogle(email, name, picture);
+        if (res.success) {
+          Auth.showToast(res.message, 'success');
+          checkPageState();
+        }
+      } catch (e) {
+        handleGoogleDirectLogin('minhgialapnhua2k7@gmail.com');
+      }
+    }
+  }
+
+  // Đăng nhập nhanh Google (Google 1-Click)
+  function handleGoogleDirectLogin(email) {
+    const res = Auth.loginWithGoogle(email || 'minhgialapnhua2k7@gmail.com', 'Minh');
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      checkPageState();
+    } else {
+      Auth.showToast(res.message, 'error');
+    }
+  }
+
+  function openGoogleSignInModal() {
+    openModal('modal-google-signin');
+    const box = document.getElementById('custom-google-box');
+    if (box) box.style.display = 'none';
+  }
+
+  function handleGoogleSelect(email) {
+    closeModal('modal-google-signin');
+    const res = Auth.loginWithGoogle(email);
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      checkPageState();
+    } else {
+      Auth.showToast(res.message, 'error');
+    }
+  }
+
+  function toggleCustomGoogleInput() {
+    const box = document.getElementById('custom-google-box');
+    const input = document.getElementById('custom-google-email');
+    if (box) {
+      const isVisible = (box.style.display === 'block');
+      box.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible && input) {
+        input.value = '';
+        input.focus();
+      }
+    }
+  }
+
+  function submitCustomGoogleAccount() {
+    const input = document.getElementById('custom-google-email');
+    const email = (input ? input.value : '').trim();
+    if (!email || !email.includes('@')) {
+      Auth.showToast('Vui lòng nhập địa chỉ Email Google hợp lệ!', 'warning');
+      return;
+    }
+    handleGoogleSelect(email);
+  }
+
+  // Tiện ích Modal
+  function openModal(id) {
+    document.getElementById(id)?.classList.add('open');
+  }
+  function closeModal(id) {
+    document.getElementById(id)?.classList.remove('open');
+  }
+
+  // Định dạng tiền tệ VND
+  function formatMoney(amount) {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
+  }
+
+  // Định dạng ngày
+  function formatDate(str) {
+    try {
+      const d = new Date(str);
+      return d.toLocaleDateString('vi-VN');
+    } catch (e) {
+      return str;
+    }
+  }
+</script>
+</body>
+</html>

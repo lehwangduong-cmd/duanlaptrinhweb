@@ -145,7 +145,20 @@ Thông tin tài khoản và mã QR nhận tiền phải được cấu hình ri�
 |---|:---:|:---:|
 | Trang chủ, Navbar, Footer, Banner | TV1 | ✅ Hoàn thành |
 | Sản phẩm, Tìm kiếm, Lọc, Chi tiết | TV2 | 🔄 Đang làm |
-| Đăng nhập, Tài khoản, Wishlist | TV3 | 🔄 Đang làm |
+| Đăng nhập, Tài khoản, Wishlist | TV3 | ✅ Hoàn thành |
+
+### 📌 TV3: Đăng nhập, Đăng ký, Tài khoản và Wishlist (Hoàn thành 100%)
+- [x] **Đăng ký & Đăng nhập:** Form đăng ký (bắt lỗi hợp lệ, mật khẩu >= 6 ký tự), form đăng nhập bằng Email/SĐT, hỗ trợ mã bảo mật Admin (SPORTZONE@ADMIN).
+- [x] **Đăng nhập Google:** Nút One-Tap Persona (Đăng nhập với tên Minh Lê), Cửa sổ popup mô phỏng chuẩn xác 100% Google Chrome OAuth (accounts.google.com).
+- [x] **Đăng xuất:** Đăng xuất an toàn trên Navbar và Dashboard, xóa session trong LocalStorage và reset giao diện.
+- [x] **Hồ sơ khách hàng:** Cập nhật thông tin cá nhân, đổi avatar, sổ địa chỉ (thêm, xóa, mặc định), lịch sử đơn hàng và đổi mật khẩu.
+- [x] **Danh sách yêu thích (Wishlist):** Trang wishlist.html hiển thị sản phẩm, thêm/xóa yêu thích, đồng bộ huy hiệu Navbar và trạng thái danh sách trống.
+- [x] **Phân quyền Admin & User:** Route Guard 403 Forbidden bảo vệ admin.html, quản lý thành viên (thăng/hạ quyền, khóa/mở khóa) và quản lý đơn hàng.
+
+#### Thông tin tài khoản thử nghiệm TV3:
+- **Admin:** nhomanhdangcapso1vn@gmail.com / admin123
+- **Admin Google:** minhgialapnhua2k7@gmail.com / admin123
+- **User:** user@sportzone.vn / user123
 | Giỏ hàng, Thanh toán, Đơn hàng | TV4 | 🔄 Đang làm |
 | Trang Admin, Thống kê | TV5 | 🔄 Đang làm |
 

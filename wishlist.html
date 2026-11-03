@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Danh Sách Yêu Thích – SportZone</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230082c3'/><text y='.9em' font-size='72' font-family='Arial' font-weight='900' fill='white' x='50%' text-anchor='middle'>SZ</text></svg>" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/account.css" />
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="container">
+    <div class="topbar-left">
+      <span><i class="fas fa-phone-alt"></i> 1800 9999</span>
+      <span class="extra"><i class="fas fa-envelope"></i> support@sportzone.vn</span>
+      <span class="extra"><i class="fas fa-map-marker-alt"></i> 150+ Cửa hàng toàn quốc</span>
+    </div>
+    <div class="topbar-right">
+      <a href="#"><i class="fas fa-truck"></i> Miễn phí vận chuyển &gt;499K</a>
+      <a href="#"><i class="fas fa-globe"></i> VI</a>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<header class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="navbar-logo">
+      <div class="logo-icon">SZ</div>
+      <div class="logo-text">
+        <span class="logo-name">SportZone</span>
+        <span class="logo-sub">Sport for all</span>
+      </div>
+    </a>
+
+    <div class="navbar-search">
+      <form action="index.html#bestsellers" role="search" aria-label="Tìm kiếm sản phẩm">
+        <input type="search" placeholder="Tìm sản phẩm, môn thể thao..." aria-label="Tìm kiếm" />
+        <button class="search-btn" type="submit" aria-label="Tìm kiếm">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+
+    <nav class="navbar-actions" aria-label="Tài khoản và giỏ hàng">
+      <button class="nav-action-btn" id="search-toggle" aria-label="Tìm kiếm">
+        <i class="fas fa-search"></i>
+      </button>
+      <a href="account.html" class="nav-action-btn" aria-label="Tài khoản">
+        <i class="far fa-user"></i>
+        <span>Tài khoản</span>
+      </a>
+      <a href="wishlist.html" class="nav-action-btn active" aria-label="Yêu thích">
+        <i class="fas fa-heart" style="color: #ef4444;"></i>
+        <span>Yêu thích</span>
+        <span class="badge" id="wishlist-count">0</span>
+      </a>
+      <a href="index.html#featured" class="nav-action-btn" aria-label="Giỏ hàng">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Giỏ hàng</span>
+        <span class="badge" id="cart-count">2</span>
+      </a>
+    </nav>
+
+    <button class="hamburger" id="hamburger" aria-label="Mở menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Overlay for mobile menu -->
+<div class="nav-menu-overlay" id="nav-overlay"></div>
+
+<!-- NAV MENU -->
+<nav class="nav-menu" id="nav-menu" aria-label="Menu chính">
+  <div class="container">
+    <ul>
+      <li><a href="index.html"><i class="fas fa-home"></i> Trang chủ</a></li>
+      <li><a href="index.html#featured"><i class="fas fa-running"></i> Chạy bộ</a></li>
+      <li><a href="index.html#bestsellers"><i class="fas fa-futbol"></i> Bóng đá</a></li>
+      <li><a href="index.html#categories"><i class="fas fa-swimmer"></i> Bơi lội</a></li>
+      <li><a href="index.html#categories"><i class="fas fa-dumbbell"></i> Gym & Yoga</a></li>
+      <li><a href="account.html"><i class="far fa-user"></i> Tài khoản</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb-wrap">
+  <div class="container">
+    <ul class="breadcrumb-list">
+      <li><a href="index.html">Trang chủ</a></li>
+      <li class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></li>
+      <li class="current">Danh sách yêu thích</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Main Wishlist Section -->
+<main class="wishlist-page-container">
+  <div class="container">
+    <!-- Header bar -->
+    <div class="wishlist-top-header">
+      <div>
+        <h1 class="wishlist-main-title">
+          <i class="fas fa-heart" style="color:#ef4444; margin-right:8px;"></i> Danh Sách Yêu Thích Của Bạn
+        </h1>
+        <p class="wishlist-sub-title" id="wishlist-sub-text">
+          Đang tải danh sách sản phẩm mong muốn...
+        </p>
+      </div>
+      <div id="wishlist-actions-bar" style="display:none;">
+        <button type="button" class="btn-clear-wishlist" onclick="handleClearAllWishlist()">
+          <i class="far fa-trash-alt"></i> Xóa tất cả
+        </button>
+      </div>
+    </div>
+
+    <!-- Product Grid (khi có sản phẩm) -->
+    <div class="wishlist-products-grid" id="wishlist-grid" style="display: none;"></div>
+
+    <!-- Empty State (khi danh sách trống) -->
+    <div class="wishlist-empty-box" id="wishlist-empty" style="display: none;">
+      <div class="empty-heart-icon-wrap">
+        <i class="far fa-heart"></i>
+      </div>
+      <h2 class="empty-title">Danh sách yêu thích của bạn đang trống</h2>
+      <p class="empty-desc">
+        Bạn chưa lưu sản phẩm thể thao nào vào danh mục mong muốn.<br />
+        Hãy khám phá ngay các bộ sưu tập chính hãng mới nhất tại SportZone!
+      </p>
+      <a href="index.html#bestsellers" class="btn-submit-auth" style="display:inline-flex; width:auto; padding:12px 28px; text-decoration:none; margin-top:8px;">
+        <i class="fas fa-shopping-bag" style="margin-right:8px;"></i> Khám phá sản phẩm ngay
+      </a>
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand footer-col">
+        <div class="navbar-logo" style="margin-bottom:0">
+          <div class="logo-icon">SZ</div>
+          <div class="logo-text">
+            <span class="logo-name">SportZone</span>
+            <span class="logo-sub" style="color:rgba(255,255,255,0.4)">Sport for all</span>
+          </div>
+        </div>
+        <p>Chuỗi cửa hàng đồ thể thao đa môn hàng đầu Việt Nam — hơn 150 cửa hàng toàn quốc, hàng chính hãng, giá tốt nhất.</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          <a href="#" class="social-link" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="#" class="social-link" aria-label="Zalo"><i class="fas fa-comment-dots"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h3 class="footer-title">Về SportZone</h3>
+        <ul class="footer-links">
+          <li><a href="#">Giới thiệu công ty</a></li>
+          <li><a href="#">Hệ thống cửa hàng</a></li>
+          <li><a href="#">Tuyển dụng</a></li>
+          <li><a href="#">Tin tức thể thao</a></li>
+          <li><a href="#">Phát triển bền vững</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3 class="footer-title">Hỗ Trợ Khách Hàng</h3>
+        <ul class="footer-links">
+          <li><a href="#">Chính sách đổi trả 30 ngày</a></li>
+          <li><a href="#">Chính sách bảo hành</a></li>
+          <li><a href="#">Chính sách vận chuyển</a></li>
+          <li><a href="#">Hướng dẫn chọn size</a></li>
+          <li><a href="#">Bảo mật thông tin</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3 class="footer-title">Liên Hệ</h3>
+        <div class="footer-contact-item">
+          <i class="fas fa-phone-alt"></i>
+          <div><strong>1800 9999</strong><small>Miễn phí, 8:00 - 22:00</small></div>
+        </div>
+        <div class="footer-contact-item">
+          <i class="fas fa-envelope"></i>
+          <div><span>support@sportzone.vn</span></div>
+        </div>
+        <div class="footer-contact-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <div><span>Tòa nhà SportZone, Q. Cầu Giấy, Hà Nội</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 SportZone Vietnam. Bảo lưu mọi quyền. Đồ án Lập trình Web.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="js/shared.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    renderWishlist();
+  });
+
+  function renderWishlist() {
+    const grid = document.getElementById('wishlist-grid');
+    const emptyBox = document.getElementById('wishlist-empty');
+    const subText = document.getElementById('wishlist-sub-text');
+    const actionsBar = document.getElementById('wishlist-actions-bar');
+
+    const items = Wishlist.getItems();
+
+    if (!items || items.length === 0) {
+      grid.style.display = 'none';
+      actionsBar.style.display = 'none';
+      emptyBox.style.display = 'block';
+      subText.textContent = 'Bạn chưa có sản phẩm nào trong danh sách mong muốn.';
+      return;
+    }
+
+    emptyBox.style.display = 'none';
+    actionsBar.style.display = 'block';
+    grid.style.display = 'grid';
+    subText.innerHTML = `Bạn đang có <strong>${items.length}</strong> sản phẩm thể thao trong danh sách mong muốn.`;
+
+    grid.innerHTML = items.map(p => {
+      const badgeHtml = p.badge ? `<span class="product-badge">${p.badge}</span>` : '';
+      const oldPriceHtml = p.oldPrice ? `<span class="price-old">${p.oldPrice}</span>` : '';
+
+      return `
+        <div class="product-card wishlist-card" id="wishlist-item-${p.id}">
+          ${badgeHtml}
+          <div class="product-img" style="background:${p.bgGradient || 'linear-gradient(135deg,#f1f5f9,#e2e8f0)'}">
+            <i class="${p.iconClass || 'fas fa-box'}" style="font-size:64px; color:${p.iconColor || '#0082c3'}; opacity:0.6;"></i>
+          </div>
+          <div class="product-body">
+            <div class="product-brand">${p.brand || 'SportZone'}</div>
+            <div class="product-name">${p.name}</div>
+            <div class="product-price">
+              <span class="price-current">${p.price}</span>
+              ${oldPriceHtml}
+            </div>
+          </div>
+          <div class="product-actions" style="display:flex; gap:8px;">
+            <button type="button" class="btn-add-cart" onclick="handleAddToCart('${p.name}')" style="flex:1;">
+              <i class="fas fa-cart-plus"></i> Thêm giỏ
+            </button>
+            <button type="button" class="btn-remove-wishlist" title="Xóa khỏi yêu thích" onclick="handleRemoveWishlist('${p.id || p.name}')">
+              <i class="far fa-trash-alt"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function handleRemoveWishlist(id) {
+    Wishlist.remove(id);
+    Auth.showToast('Đã xóa sản phẩm khỏi danh sách yêu thích!', 'info');
+    renderWishlist();
+  }
+
+  function handleClearAllWishlist() {
+    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ sản phẩm yêu thích không?')) {
+      Wishlist.saveItems([]);
+      Auth.showToast('Đã xóa toàn bộ danh sách yêu thích!', 'info');
+      renderWishlist();
+    }
+  }
+
+  function handleAddToCart(name) {
+    Auth.showToast(`Đã thêm "${name}" vào giỏ hàng!`, 'success');
+    const badge = document.getElementById('cart-count');
+    if (badge) {
+      badge.textContent = parseInt(badge.textContent || '0', 10) + 1;
+    }
+  }
+</script>
+</body>
+</html>
+

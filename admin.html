@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trang Quản Trị Hệ Thống – SportZone Admin</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23ef4444'/><text y='.9em' font-size='72' font-family='Arial' font-weight='900' fill='white' x='50%' text-anchor='middle'>A</text></svg>" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Base & Account CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/account.css" />
+
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif;
+      background: #f8fafc;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======================================================== -->
+<!-- TRƯỜNG HỢP 1: TỪ CHỐI TRUY CẬP (ACCESS DENIED - NOT ADMIN) -->
+<!-- ======================================================== -->
+<div id="access-denied-view" style="display: none;">
+  <div class="container">
+    <div class="forbidden-container">
+      <div class="forbidden-icon">
+        <i class="fas fa-user-lock"></i>
+      </div>
+      <h2>403 - Quyền Truy Cập Bị Từ Chối</h2>
+      <p id="denied-message">
+        Khu vực này chỉ dành riêng cho <strong>Quản trị viên (Admin)</strong> của SportZone.<br />
+        Tài khoản hiện tại của bạn không có đặc quyền truy cập trang quản trị hệ thống.
+      </p>
+      
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px;">
+        <a href="account.html" class="btn-submit-auth" style="width: auto; padding: 11px 24px; text-decoration: none;">
+          <i class="fas fa-sign-in-alt"></i> Đăng nhập tài khoản Quản trị viên
+        </a>
+        <a href="account.html" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+          <i class="fas fa-user"></i> Về trang cá nhân
+        </a>
+        <a href="index.html" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+          <i class="fas fa-home"></i> Trang chủ
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ======================================================== -->
+<!-- TRƯỜNG HỢP 2: TRUY CẬP HỢP LỆ (ADMIN PORTAL ĐƯỢC PHÊ DUYỆT) -->
+<!-- ======================================================== -->
+<div id="admin-portal-view" style="display: none;">
+  
+  <!-- Admin Top Navigation Bar -->
+  <header class="admin-header-strip">
+    <div class="container">
+      <a href="admin.html" class="admin-brand">
+        <div class="logo-icon" style="background:#dc2626; width:36px; height:36px; border-radius:8px;">SZ</div>
+        <div>
+          <span style="font-weight:800; font-size:16px; letter-spacing:0.5px;">SportZone Admin</span>
+          <span class="admin-logo-badge">PORTAL</span>
+        </div>
+      </a>
+
+      <div class="admin-top-actions">
+        <a href="index.html" class="admin-back-store" target="_blank">
+          <i class="fas fa-external-link-alt"></i> Xem Website cửa hàng
+        </a>
+        <span style="color:#475569">|</span>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <img src="" id="admin-top-avatar" class="user-cell-avatar" alt="Admin Avatar" style="width:32px; height:32px;" />
+          <span id="admin-top-name" style="font-size:13.5px; font-weight:700;">Quản trị viên</span>
+        </div>
+        <button type="button" class="btn-link-action danger" onclick="Auth.logout()" style="color:#ef4444; font-size:13px; margin-left:8px;">
+          <i class="fas fa-sign-out-alt"></i> Đăng xuất
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Main Content -->
+  <main class="container" style="padding-top: 24px; padding-bottom: 60px;">
+    
+    <!-- Title & Welcome -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+      <div>
+        <h1 style="font-size: 24px; font-weight: 800; color: #0f172a;">Bảng Quản Trị Hệ Thống</h1>
+        <p style="font-size: 13.5px; color: #64748b;">Phân quyền người dùng & Quản lý toàn bộ tài khoản SportZone (TV3)</p>
+      </div>
+      <div>
+        <button type="button" class="btn-submit-auth" style="width: auto; padding: 10px 18px; font-size: 13.5px;" onclick="openCreateUserModal()">
+          <i class="fas fa-user-plus"></i> Thêm tài khoản mới
+        </button>
+      </div>
+    </div>
+
+    <!-- 4 Stats Cards -->
+    <div class="admin-stats-grid">
+      <div class="admin-stat-card">
+        <div class="stat-icon-wrap stat-icon-blue">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info-wrap">
+          <h4 id="stat-total-users">0</h4>
+          <p>Tổng số tài khoản</p>
+        </div>
+      </div>
+
+      <div class="admin-stat-card">
+        <div class="stat-icon-wrap stat-icon-red">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="stat-info-wrap">
+          <h4 id="stat-admin-count">0</h4>
+          <p>Quản trị viên (Admin)</p>
+        </div>
+      </div>
+
+      <div class="admin-stat-card">
+        <div class="stat-icon-wrap stat-icon-green">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="stat-info-wrap">
+          <h4 id="stat-total-orders">0</h4>
+          <p>Đơn hàng toàn hệ thống</p>
+        </div>
+      </div>
+
+      <div class="admin-stat-card">
+        <div class="stat-icon-wrap stat-icon-amber">
+          <i class="fas fa-coins"></i>
+        </div>
+        <div class="stat-info-wrap">
+          <h4 id="stat-revenue">0₫</h4>
+          <p>Tổng doanh thu ước tính</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: QUẢN LÝ TÀI KHOẢN & PHÂN QUYỀN (CORE REQUIREMENT) -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title">
+          <i class="fas fa-users-cog" style="color:var(--primary)"></i>
+          <span>Danh Sách Người Dùng & Phân Quyền (RBAC)</span>
+        </div>
+
+        <div class="admin-toolbar">
+          <input type="search" id="user-search-input" class="admin-search-input" placeholder="Tìm theo tên, email, SĐT..." oninput="filterUsersTable()" />
+          
+          <select id="user-role-filter" class="admin-filter-select" onchange="filterUsersTable()">
+            <option value="all">Tất cả vai trò</option>
+            <option value="admin">Quản trị viên (Admin)</option>
+            <option value="user">Khách hàng (User)</option>
+          </select>
+
+          <select id="user-status-filter" class="admin-filter-select" onchange="filterUsersTable()">
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="locked">Đã bị khóa</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Người dùng</th>
+              <th>Liên hệ (Email & SĐT)</th>
+              <th>Vai trò (Phân quyền)</th>
+              <th>Trạng thái</th>
+              <th>Ngày tham gia</th>
+              <th style="text-align: right;">Thao tác phân quyền</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body">
+            <!-- Sẽ render tự động bằng JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- SECTION 2: QUẢN LÝ ĐƠN HÀNG HỆ THỐNG -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title">
+          <i class="fas fa-clipboard-check" style="color:#16a34a"></i>
+          <span>Quản Lý Đơn Hàng Cửa Hàng (Admin View)</span>
+        </div>
+        <span style="font-size:13px; color:#64748b;" id="orders-summary-text">Hiển thị đơn hàng</span>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Mã đơn</th>
+              <th>Khách hàng & SĐT</th>
+              <th>Sản phẩm</th>
+              <th>Tổng tiền</th>
+              <th>Trạng thái</th>
+              <th>Cập nhật trạng thái</th>
+            </tr>
+          </thead>
+          <tbody id="admin-orders-table-body">
+            <!-- Render bằng JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+
+<!-- ========================================== -->
+<!-- MODAL: TẠO TÀI KHOẢN MỚI TỪ ADMIN          -->
+<!-- ========================================== -->
+<div class="sz-modal-overlay" id="modal-create-user">
+  <div class="sz-modal">
+    <div class="sz-modal-header">
+      <h3><i class="fas fa-user-plus" style="color:var(--primary)"></i> Thêm người dùng mới</h3>
+      <button type="button" class="sz-modal-close" onclick="closeModal('modal-create-user')">&times;</button>
+    </div>
+    <form onsubmit="handleAdminCreateUser(event)">
+      <div class="sz-modal-body">
+        <div class="form-group">
+          <label class="form-label">Họ và tên <span class="req">*</span></label>
+          <input type="text" id="new-user-name" class="form-input" style="padding-left:14px;" placeholder="Nguyễn Văn B" required />
+        </div>
+
+        <div class="form-row-two">
+          <div class="form-group">
+            <label class="form-label">Email <span class="req">*</span></label>
+            <input type="email" id="new-user-email" class="form-input" style="padding-left:14px;" placeholder="b.nguyen@sportzone.vn" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Số điện thoại <span class="req">*</span></label>
+            <input type="tel" id="new-user-phone" class="form-input" style="padding-left:14px;" placeholder="0911223344" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mật khẩu khởi tạo <span class="req">*</span></label>
+          <input type="password" id="new-user-pass" class="form-input" style="padding-left:14px;" placeholder="Tối thiểu 6 ký tự" minlength="6" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phân quyền vai trò <span class="req">*</span></label>
+          <select id="new-user-role" class="form-input" style="padding-left:14px;">
+            <option value="user">Khách hàng thông thường (User)</option>
+            <option value="admin">Quản trị viên (Admin)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sz-modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modal-create-user')">Hủy</button>
+        <button type="submit" class="btn-submit-auth" style="width:auto; padding:10px 22px;">Tạo tài khoản</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Main Script & Shared Core Script (TV3) -->
+<script src="js/shared.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    checkAdminAccess();
+  });
+
+  // Kiểm tra quyền truy cập (Route Guard)
+  function checkAdminAccess() {
+    const deniedView = document.getElementById('access-denied-view');
+    const portalView = document.getElementById('admin-portal-view');
+    const deniedMsg = document.getElementById('denied-message');
+
+    if (!Auth.isLoggedIn()) {
+      deniedView.style.display = 'block';
+      portalView.style.display = 'none';
+      deniedMsg.innerHTML = 'Bạn hiện chưa đăng nhập vào hệ thống. Vui lòng đăng nhập với tài khoản <strong>Quản trị viên (Admin)</strong> để vào trang này.';
+      return;
+    }
+
+    const cur = Auth.getCurrentUser();
+    if (cur.role !== 'admin') {
+      deniedView.style.display = 'block';
+      portalView.style.display = 'none';
+      deniedMsg.innerHTML = `Bạn đang đăng nhập với tài khoản <strong>"${cur.fullName}"</strong> có vai trò là <strong>Khách hàng (User)</strong>.<br />Chỉ tài khoản Quản trị viên (Admin) mới có quyền truy cập trang này.`;
+      return;
+    }
+
+    // ĐÃ XÁC THỰC LÀ ADMIN: Hiển thị giao diện quản trị
+    deniedView.style.display = 'none';
+    portalView.style.display = 'block';
+
+    document.getElementById('admin-top-avatar').src = cur.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+    document.getElementById('admin-top-name').textContent = cur.fullName;
+
+    loadAdminDashboard();
+  }
+
+  function loadAdminDashboard() {
+    renderStats();
+    renderUsersTable();
+    renderAdminOrdersTable();
+  }
+
+  // Thống kê đầu trang
+  function renderStats() {
+    const stats = Auth.getAdminStats();
+    document.getElementById('stat-total-users').textContent = stats.totalUsers;
+    document.getElementById('stat-admin-count').textContent = stats.adminCount;
+    document.getElementById('stat-total-orders').textContent = stats.totalOrders;
+    document.getElementById('stat-revenue').textContent = formatMoney(stats.revenue);
+  }
+
+  // Lọc và render bảng người dùng
+  function filterUsersTable() {
+    const keyword = (document.getElementById('user-search-input').value || '').trim().toLowerCase();
+    const roleFilter = document.getElementById('user-role-filter').value;
+    const statusFilter = document.getElementById('user-status-filter').value;
+
+    let users = Auth.getUsers();
+
+    if (keyword) {
+      users = users.filter(u => 
+        (u.fullName && u.fullName.toLowerCase().includes(keyword)) ||
+        (u.email && u.email.toLowerCase().includes(keyword)) ||
+        (u.phone && u.phone.includes(keyword)) ||
+        (u.id && u.id.toLowerCase().includes(keyword))
+      );
+    }
+
+    if (roleFilter !== 'all') {
+      users = users.filter(u => u.role === roleFilter);
+    }
+
+    if (statusFilter !== 'all') {
+      users = users.filter(u => u.status === statusFilter);
+    }
+
+    renderUsersTable(users);
+  }
+
+  function renderUsersTable(customList) {
+    const tbody = document.getElementById('users-table-body');
+    const users = customList || Auth.getUsers();
+    const cur = Auth.getCurrentUser();
+
+    if (users.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center; padding:30px; color:#888;">
+            Không tìm thấy người dùng phù hợp với bộ lọc tìm kiếm.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = users.map(u => {
+      const isSelf = (cur && cur.id === u.id);
+      
+      const roleBadge = u.role === 'admin' 
+        ? `<span class="badge-role badge-admin" style="font-size:11.5px;"><i class="fas fa-crown"></i> Admin</span>`
+        : `<span class="badge-role badge-user" style="background:#e0f2fe; color:#0369a1; font-size:11.5px;"><i class="fas fa-user"></i> Khách hàng</span>`;
+
+      const statusBadge = u.status === 'active'
+        ? `<span class="badge-status active"><i class="fas fa-circle" style="font-size:8px;"></i> Hoạt động</span>`
+        : `<span class="badge-status locked"><i class="fas fa-lock" style="font-size:8px;"></i> Đã khóa</span>`;
+
+      return `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <img src="${u.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'}" alt="${u.fullName}" class="user-cell-avatar" />
+              <div>
+                <div class="user-cell-name">
+                  ${u.fullName}
+                  ${isSelf ? '<span style="font-size:11px; color:#0284c7; font-weight:normal; margin-left:4px;">(Bạn)</span>' : ''}
+                </div>
+                <div class="user-cell-id">ID: ${u.id}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div><i class="far fa-envelope" style="width:14px; color:#888"></i> ${u.email}</div>
+            <div style="font-size:12px; color:#64748b; margin-top:2px;"><i class="fas fa-phone-alt" style="width:14px; color:#888"></i> ${u.phone}</div>
+          </td>
+          <td>${roleBadge}</td>
+          <td>${statusBadge}</td>
+          <td style="color:#64748b; font-size:12.5px;">${u.joinedDate || '2024-01-01'}</td>
+          <td style="text-align: right;">
+            <div class="table-actions" style="justify-content: flex-end;">
+              ${!isSelf ? `
+                <button type="button" class="btn-tbl-action btn-tbl-role" onclick="handleToggleRole('${u.id}', '${u.role}')" title="Chuyển vai trò Admin ⇄ Khách hàng">
+                  <i class="fas fa-sync-alt"></i> ${u.role === 'admin' ? 'Hạ xuống User' : 'Nâng cấp Admin'}
+                </button>
+                <button type="button" class="btn-tbl-action btn-tbl-lock" onclick="handleToggleLock('${u.id}', '${u.status}')" title="${u.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa'}">
+                  <i class="fas ${u.status === 'active' ? 'fa-lock' : 'fa-lock-open'}"></i> ${u.status === 'active' ? 'Khóa' : 'Mở'}
+                </button>
+                <button type="button" class="btn-tbl-action btn-tbl-delete" onclick="handleDeleteUser('${u.id}', '${u.fullName}')" title="Xóa tài khoản vĩnh viễn">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              ` : `
+                <span style="font-size:12px; color:#94a3b8; font-style:italic;">Tài khoản hiện tại</span>
+              `}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Thao tác đổi quyền Admin <-> User
+  function handleToggleRole(userId, currentRole) {
+    const targetRoleText = currentRole === 'admin' ? 'Khách hàng (User)' : 'Quản trị viên (Admin)';
+    if (confirm(`Bạn có chắc chắn muốn chuyển vai trò tài khoản này thành "${targetRoleText}" không?`)) {
+      const res = Auth.toggleUserRole(userId);
+      if (res.success) {
+        Auth.showToast(res.message, 'success');
+        renderStats();
+        filterUsersTable();
+      } else {
+        Auth.showToast(res.message, 'error');
+      }
+    }
+  }
+
+  // Thao tác Khóa / Mở khóa
+  function handleToggleLock(userId, currentStatus) {
+    const action = currentStatus === 'active' ? 'KHÓA' : 'MỞ KHÓA';
+    if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản này không?`)) {
+      const res = Auth.toggleUserStatus(userId);
+      if (res.success) {
+        Auth.showToast(res.message, 'info');
+        renderStats();
+        filterUsersTable();
+      } else {
+        Auth.showToast(res.message, 'error');
+      }
+    }
+  }
+
+  // Thao tác Xóa tài khoản
+  function handleDeleteUser(userId, name) {
+    if (confirm(`Hành động này không thể hoàn tác!\nBạn có chắc chắn muốn XÓA vĩnh viễn tài khoản "${name}" khỏi cơ sở dữ liệu?`)) {
+      const res = Auth.deleteUser(userId);
+      if (res.success) {
+        Auth.showToast(res.message, 'success');
+        renderStats();
+        filterUsersTable();
+      } else {
+        Auth.showToast(res.message, 'error');
+      }
+    }
+  }
+
+  // Admin tạo tài khoản mới
+  function openCreateUserModal() {
+    openModal('modal-create-user');
+  }
+
+  function handleAdminCreateUser(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('new-user-name').value;
+    const email = document.getElementById('new-user-email').value;
+    const phone = document.getElementById('new-user-phone').value;
+    const password = document.getElementById('new-user-pass').value;
+    const role = document.getElementById('new-user-role').value;
+
+    const res = Auth.adminCreateUser({ fullName, email, phone, password, role });
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      closeModal('modal-create-user');
+      e.target.reset();
+      renderStats();
+      filterUsersTable();
+    } else {
+      Auth.showToast(res.message, 'error');
+    }
+  }
+
+  // Render bảng đơn hàng toàn hệ thống
+  function renderAdminOrdersTable() {
+    const tbody = document.getElementById('admin-orders-table-body');
+    const orders = Auth.getAllOrders();
+    document.getElementById('orders-summary-text').textContent = `Tổng cộng: ${orders.length} đơn hàng`;
+
+    tbody.innerHTML = orders.map(order => {
+      const itemsBrief = (order.items || []).map(i => `${i.name} (x${i.quantity})`).join(', ');
+
+      return `
+        <tr>
+          <td><strong style="color:#0f172a;">#${order.id}</strong><br /><small style="color:#888;">${order.createdAt}</small></td>
+          <td>
+            <div style="font-weight:600;">${order.recipientName || 'Khách hàng'}</div>
+            <div style="font-size:12px; color:#64748b;">${order.recipientPhone || ''}</div>
+          </td>
+          <td style="max-width:260px; font-size:12.5px; color:#475569;">${itemsBrief}</td>
+          <td><strong style="color:#e53935;">${formatMoney(order.totalAmount)}</strong></td>
+          <td>
+            <span class="order-status-badge ${order.status}">${order.statusText}</span>
+          </td>
+          <td>
+            <select class="admin-filter-select" style="padding:4px 8px; font-size:12px;" onchange="changeOrderStatusAdmin('${order.id}', this.value)">
+              <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Chờ xác nhận</option>
+              <option value="shipping" ${order.status === 'shipping' ? 'selected' : ''}>Đang giao</option>
+              <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Hoàn thành</option>
+              <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Hủy đơn</option>
+            </select>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function changeOrderStatusAdmin(orderId, newStatus) {
+    const res = Auth.updateOrderStatus(orderId, newStatus);
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      renderStats();
+      renderAdminOrdersTable();
+    }
+  }
+
+  function openModal(id) {
+    document.getElementById(id)?.classList.add('open');
+  }
+  function closeModal(id) {
+    document.getElementById(id)?.classList.remove('open');
+  }
+
+  function formatMoney(amount) {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
+  }
+</script>
+</body>
+</html>
