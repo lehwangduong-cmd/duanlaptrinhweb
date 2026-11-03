@@ -131,6 +131,12 @@ python -m http.server 5500
 # Mở trình duyệt: http://localhost:5500
 ```
 
+### TV4: Cart, Checkout, Payment và Order History
+
+Các trang của TV4 nằm trong `pages/`, stylesheet trong `css/`, JavaScript trong `js/`. Chạy server từ thư mục gốc rồi mở `pages/cart.html`. Checkout và Payment dùng chung lịch sử đơn hàng trong `localStorage['sportzone_orders']`.
+
+Thông tin tài khoản và mã QR nhận tiền phải được cấu hình riêng cho môi trường triển khai; không commit dữ liệu ngân hàng cá nhân hoặc mã QR vào repository.
+
 ---
 
 ## 📋 Tiến độ

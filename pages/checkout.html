@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Hàng - SportZone</title>
+
+    <!-- CSS của module Checkout -->
+    <link rel="stylesheet" href="../css/checkout.css">
+
+    <!-- Font Awesome icons (CDN, dùng chung với cart.html) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER - Giống cart.html để thống nhất giao diện
+     ============================================================ -->
+<header class="header">
+    <div class="container header__inner">
+
+        <!-- Logo -->
+        <a href="../index.html" class="header__logo">
+            <span class="logo__icon">⚡</span>
+            <span class="logo__text">SportZone</span>
+        </a>
+
+        <!-- Thanh tìm kiếm -->
+        <div class="header__search">
+            <input type="text" placeholder="Tìm kiếm sản phẩm thể thao..." class="search__input">
+            <button type="button" class="search__btn" aria-label="Tìm kiếm">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
+        <!-- Icon giỏ hàng với badge -->
+        <div class="header__actions">
+            <a href="../index.html" class="header__action-btn" title="Tài khoản">
+                <i class="fas fa-user"></i>
+                <span>Tài khoản</span>
+            </a>
+            <a href="cart.html" class="header__action-btn" title="Giỏ hàng">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Giỏ hàng</span>
+                <!-- Badge cập nhật qua JS -->
+                <span class="cart-badge" id="cartBadge">0</span>
+            </a>
+        </div>
+
+    </div>
+</header>
+
+<!-- ============================================================
+     THANH TIẾN TRÌNH ĐẶT HÀNG (Progress Steps)
+     Cho người dùng biết đang ở bước nào: Giỏ hàng → Đặt hàng → Thanh toán
+     ============================================================ -->
+<div class="checkout-progress">
+    <div class="container">
+        <div class="progress-steps" aria-label="Tiến trình đặt hàng">
+
+            <!-- Bước 1: Giỏ hàng (đã xong) -->
+            <div class="step step--done">
+                <div class="step__circle">
+                    <i class="fas fa-check"></i>
+                </div>
+                <span class="step__label">Giỏ hàng</span>
+            </div>
+
+            <div class="step__line step__line--done"></div>
+
+            <!-- Bước 2: Đặt hàng (đang ở đây) -->
+            <div class="step step--active">
+                <div class="step__circle">2</div>
+                <span class="step__label">Đặt hàng</span>
+            </div>
+
+            <div class="step__line"></div>
+
+            <!-- Bước 3: Xác nhận (chưa tới) -->
+            <div class="step step--pending">
+                <div class="step__circle">3</div>
+                <span class="step__label">Xác nhận</span>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main class="main">
+    <div class="container">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb" aria-label="Điều hướng">
+            <a href="../index.html" class="breadcrumb__link">
+                <i class="fas fa-home"></i> Trang chủ
+            </a>
+            <span class="breadcrumb__sep"><i class="fas fa-chevron-right"></i></span>
+            <a href="cart.html" class="breadcrumb__link">Giỏ hàng</a>
+            <span class="breadcrumb__sep"><i class="fas fa-chevron-right"></i></span>
+            <span class="breadcrumb__current">Đặt hàng</span>
+        </nav>
+
+        <!-- Tiêu đề trang -->
+        <h1 class="page-title">
+            <i class="fas fa-clipboard-list"></i>
+            Thông tin đặt hàng
+        </h1>
+
+        <!-- ============================================================
+             TRƯỜNG HỢP KHÔNG CÓ DỮ LIỆU ĐƠN HÀNG TỪ GIỎ HÀNG
+             Hiển thị khi người dùng truy cập trực tiếp checkout.html
+             mà không qua giỏ hàng
+             ============================================================ -->
+        <div class="no-order" id="noOrderData" style="display:none;">
+            <div class="no-order__icon"><i class="fas fa-exclamation-circle"></i></div>
+            <h2>Không có sản phẩm để đặt hàng</h2>
+            <p>Vui lòng quay lại giỏ hàng và chọn sản phẩm trước khi đặt hàng.</p>
+            <a href="cart.html" class="btn btn--primary btn--large">
+                <i class="fas fa-arrow-left"></i>
+                Quay lại giỏ hàng
+            </a>
+        </div>
+
+        <!-- ============================================================
+             NỘI DUNG CHECKOUT - Layout 2 cột
+             Trái: Form thông tin | Phải: Tóm tắt đơn hàng
+             ============================================================ -->
+        <div class="checkout-layout" id="checkoutContent">
+
+            <!-- ========================================================
+                 CỘT TRÁI: FORM THÔNG TIN NGƯỜI NHẬN & THANH TOÁN
+                 ======================================================== -->
+            <div class="checkout-left">
+
+                <!-- === SECTION 1: THÔNG TIN NGƯỜI NHẬN === -->
+                <section class="form-section">
+                    <h2 class="form-section__title">
+                        <span class="section-num">1</span>
+                        Thông tin người nhận
+                    </h2>
+
+                    <div class="form-grid">
+
+                        <!-- Họ và tên (bắt buộc) -->
+                        <div class="form-group form-group--full">
+                            <label class="form-label" for="fullName">
+                                Họ và tên <span class="required">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <i class="fas fa-user input-icon"></i>
+                                <input
+                                    type="text"
+                                    id="fullName"
+                                    class="form-input"
+                                    placeholder="Nguyễn Văn A"
+                                    autocomplete="name"
+                                    maxlength="100"
+                                    aria-required="true"
+                                    aria-invalid="false"
+                                    aria-describedby="fullNameError"
+                                >
+                            </div>
+                            <!-- Thông báo lỗi validation -->
+                            <span class="form-error" id="fullNameError" aria-live="polite"></span>
+                        </div>
+
+                        <!-- Số điện thoại (bắt buộc) -->
+                        <div class="form-group">
+                            <label class="form-label" for="phone">
+                                Số điện thoại <span class="required">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <i class="fas fa-phone input-icon"></i>
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    class="form-input"
+                                    placeholder="0901 234 567"
+                                    autocomplete="tel"
+                                    maxlength="13"
+                                    aria-required="true"
+                                    aria-invalid="false"
+                                    aria-describedby="phoneError"
+                                >
+                            </div>
+                            <span class="form-error" id="phoneError" aria-live="polite"></span>
+                        </div>
+
+                        <!-- Email (bắt buộc) -->
+                        <div class="form-group">
+                            <label class="form-label" for="email">
+                                Email <span class="required">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    class="form-input"
+                                    placeholder="example@email.com"
+                                    autocomplete="email"
+                                    maxlength="150"
+                                    aria-required="true"
+                                    aria-invalid="false"
+                                    aria-describedby="emailError"
+                                >
+                            </div>
+                            <span class="form-error" id="emailError" aria-live="polite"></span>
+                        </div>
+
+                        <!-- Địa chỉ (bắt buộc) -->
+                        <div class="form-group form-group--full">
+                            <label class="form-label" for="address">
+                                Địa chỉ nhận hàng <span class="required">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <i class="fas fa-map-marker-alt input-icon"></i>
+                                <input
+                                    type="text"
+                                    id="address"
+                                    class="form-input"
+                                    placeholder="Số nhà, tên đường, phường/xã..."
+                                    autocomplete="street-address"
+                                    maxlength="300"
+                                    aria-required="true"
+                                    aria-invalid="false"
+                                    aria-describedby="addressError"
+                                >
+                            </div>
+                            <span class="form-error" id="addressError" aria-live="polite"></span>
+                        </div>
+
+                        <!-- Ghi chú (tuỳ chọn) -->
+                        <div class="form-group form-group--full">
+                            <label class="form-label" for="note">
+                                Ghi chú đơn hàng
+                                <span class="optional">(không bắt buộc)</span>
+                            </label>
+                            <textarea
+                                id="note"
+                                class="form-textarea"
+                                placeholder="Ghi chú cho người giao hàng, yêu cầu đặc biệt..."
+                                rows="3"
+                                maxlength="500"
+                            ></textarea>
+                            <!-- Đếm ký tự ghi chú -->
+                            <span class="char-counter" id="noteCounter" aria-live="polite">0 / 500</span>
+                        </div>
+
+                    </div><!-- end form-grid -->
+                </section>
+
+                <!-- === SECTION 2: PHƯƠNG THỨC GIAO HÀNG === -->
+                <section class="form-section">
+                    <h2 class="form-section__title">
+                        <span class="section-num">2</span>
+                        Phương thức giao hàng
+                    </h2>
+
+                    <div class="shipping-options">
+
+                        <!-- Giao hàng tiêu chuẩn -->
+                        <label class="shipping-option" id="shippingStandard">
+                            <input
+                                type="radio"
+                                name="shippingMethod"
+                                value="standard"
+                                class="shipping-radio"
+                                checked
+                            >
+                            <div class="shipping-option__content">
+                                <div class="shipping-option__left">
+                                    <i class="fas fa-truck shipping-option__icon"></i>
+                                    <div>
+                                        <div class="shipping-option__name">Giao hàng tiêu chuẩn</div>
+                                        <div class="shipping-option__desc">Nhận hàng trong 3 - 5 ngày làm việc</div>
+                                    </div>
+                                </div>
+                                <!-- Giá được tính động bởi JS -->
+                                <div class="shipping-option__price" id="standardShippingPrice">30.000 ₫</div>
+                            </div>
+                        </label>
+
+                        <!-- Giao hàng nhanh -->
+                        <label class="shipping-option" id="shippingExpress">
+                            <input
+                                type="radio"
+                                name="shippingMethod"
+                                value="express"
+                                class="shipping-radio"
+                            >
+                            <div class="shipping-option__content">
+                                <div class="shipping-option__left">
+                                    <i class="fas fa-bolt shipping-option__icon shipping-option__icon--express"></i>
+                                    <div>
+                                        <div class="shipping-option__name">Giao hàng nhanh</div>
+                                        <div class="shipping-option__desc">Nhận hàng trong 1 - 2 ngày làm việc</div>
+                                    </div>
+                                </div>
+                                <div class="shipping-option__price">60.000 ₫</div>
+                            </div>
+                        </label>
+
+                        <!-- Nhận tại cửa hàng -->
+                        <label class="shipping-option" id="shippingPickup">
+                            <input
+                                type="radio"
+                                name="shippingMethod"
+                                value="pickup"
+                                class="shipping-radio"
+                            >
+                            <div class="shipping-option__content">
+                                <div class="shipping-option__left">
+                                    <i class="fas fa-store shipping-option__icon shipping-option__icon--pickup"></i>
+                                    <div>
+                                        <div class="shipping-option__name">Nhận tại cửa hàng</div>
+                                        <div class="shipping-option__desc">SportZone - 123 Nguyễn Huệ, Q.1, TP.HCM</div>
+                                    </div>
+                                </div>
+                                <div class="shipping-option__price shipping-option__price--free">Miễn phí</div>
+                            </div>
+                        </label>
+
+                    </div>
+                </section>
+
+                <!-- === SECTION 3: PHƯƠNG THỨC THANH TOÁN === -->
+                <section class="form-section">
+                    <h2 class="form-section__title">
+                        <span class="section-num">3</span>
+                        Phương thức thanh toán
+                    </h2>
+
+                    <div class="payment-options">
+
+                        <!-- COD - Thanh toán khi nhận hàng -->
+                        <label class="payment-option" id="payCOD">
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                value="cod"
+                                class="payment-radio"
+                                checked
+                            >
+                            <div class="payment-option__content">
+                                <div class="payment-option__icon payment-option__icon--cod">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="payment-option__info">
+                                    <div class="payment-option__name">Thanh toán khi nhận hàng (COD)</div>
+                                    <div class="payment-option__desc">
+                                        Trả tiền mặt cho nhân viên giao hàng khi nhận được hàng
+                                    </div>
+                                </div>
+            </div>
+                        </label>
+
+                        <!-- Chuyển khoản ngân hàng -->
+                        <label class="payment-option" id="payTransfer">
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                value="transfer"
+                                class="payment-radio"
+                            >
+                            <div class="payment-option__content">
+                                <div class="payment-option__icon payment-option__icon--transfer">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <div class="payment-option__info">
+                                    <div class="payment-option__name">Chuyển khoản ngân hàng</div>
+                                    <div class="payment-option__desc">
+                                        Chuyển khoản qua tài khoản MB Bank của bạn
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                    </div>
+
+                    <!-- Thông tin ngân hàng (hiện khi chọn chuyển khoản) -->
+                    <div class="bank-info" id="bankInfo" style="display:none;" aria-hidden="true">
+                        <div class="bank-info__title">
+                            <i class="fas fa-info-circle"></i>
+                            Thông tin chuyển khoản
+                        </div>
+                        <div class="bank-info__rows">
+                            <div class="bank-info__layout">
+                                <div class="bank-info__rows">
+                                    <div class="bank-row">
+                                        <span class="bank-row__label">Ngân hàng:</span>
+                                        <span class="bank-row__value">MB Bank</span>
+                                    </div>
+                                    <div class="bank-row">
+                                        <span class="bank-row__label">Số tài khoản:</span>
+                                        <span class="bank-row__value bank-copy" id="bankAccountNum">ACCOUNT_NUMBER</span>
+                                        <button type="button" class="copy-btn" onclick="copyBankAccount()" title="Sao chép" aria-label="Sao chép số tài khoản">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <div class="bank-row">
+                                        <span class="bank-row__label">Chủ tài khoản:</span>
+                                        <span class="bank-row__value">ACCOUNT_HOLDER</span>
+                                    </div>
+                                    <div class="bank-row">
+                                        <span class="bank-row__label">Nội dung CK:</span>
+                                        <span class="bank-row__value" id="bankContent">SPORTZONE + Mã đơn hàng</span>
+                                    </div>
+                                </div>
+                                <figure class="bank-info__qr">
+                                    <figcaption>Thêm mã QR nhận tiền tại đây sau khi cấu hình thông tin ngân hàng riêng cho môi trường triển khai.</figcaption>
+                                </figure>
+                            </div>
+                        </div>
+                        <p class="bank-info__note">
+                            ⚠️ QR là mã tĩnh. Nếu ứng dụng không tự điền đúng số tiền hoặc nội dung theo đơn hàng, hãy nhập theo thông tin tại bước Thanh toán. Chỉ chuyển khoản sau khi kiểm tra đúng người nhận.
+                        </p>
+                    </div>
+
+                </section>
+
+                <!-- Nút điều hướng dưới form -->
+                <div class="form-actions">
+                    <a href="cart.html" class="btn btn--outline">
+                        <i class="fas fa-arrow-left"></i>
+                        Quay lại giỏ hàng
+                    </a>
+                    <button type="button" class="btn btn--checkout" id="placeOrderBtn" onclick="placeOrder()">
+                        <i class="fas fa-check-circle"></i>
+                        Xác nhận đặt hàng
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+
+            </div><!-- end checkout-left -->
+
+            <!-- ========================================================
+                 CỘT PHẢI: TÓM TẮT ĐƠN HÀNG
+                 ======================================================== -->
+            <div class="checkout-right">
+
+                <!-- Danh sách sản phẩm đã chọn -->
+                <div class="order-preview">
+                    <h3 class="order-preview__title">
+                        <i class="fas fa-shopping-bag"></i>
+                        Sản phẩm đặt hàng
+                        <span class="order-preview__count" id="previewItemCount">(0)</span>
+                    </h3>
+
+                    <!-- Danh sách được render bởi JS -->
+                    <div class="order-preview__items" id="orderItems"></div>
+                </div>
+
+                <!-- Bảng tổng kết chi phí -->
+                <div class="order-totals">
+                    <h3 class="order-totals__title">Tóm tắt đơn hàng</h3>
+
+                    <div class="totals-rows">
+
+                        <!-- Tổng tiền hàng -->
+                        <div class="totals-row">
+                            <span class="totals-row__label">
+                                Tạm tính
+                            </span>
+                            <span class="totals-row__value" id="checkoutSubtotal">0 ₫</span>
+                        </div>
+
+                        <!-- Phí vận chuyển -->
+                        <div class="totals-row">
+                            <span class="totals-row__label">Phí vận chuyển</span>
+                            <span class="totals-row__value totals-row__value--shipping" id="checkoutShipping">0 ₫</span>
+                        </div>
+
+                        <!-- Giảm giá (ẩn nếu không có) -->
+                        <div class="totals-row totals-row--discount" id="checkoutDiscountRow" style="display:none;">
+                            <span class="totals-row__label">
+                                <i class="fas fa-tag"></i>
+                                Giảm giá
+                                <span class="coupon-tag" id="checkoutCouponTag"></span>
+                            </span>
+                            <span class="totals-row__value totals-row__value--red" id="checkoutDiscount">0 ₫</span>
+                        </div>
+
+                        <!-- Đường kẻ -->
+                        <div class="totals-divider"></div>
+
+                        <!-- Tổng thanh toán -->
+                        <div class="totals-row totals-row--final">
+                            <span class="totals-row__label">Tổng thanh toán</span>
+                            <span class="totals-row__value totals-row__value--total" id="checkoutTotal">0 ₫</span>
+                        </div>
+
+                    </div>
+
+                    <!-- Phương thức thanh toán đã chọn (hiển thị lại) -->
+                    <div class="selected-payment" id="selectedPaymentDisplay">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Thanh toán khi nhận hàng (COD)</span>
+                    </div>
+
+                </div><!-- end order-totals -->
+
+                <!-- Chính sách bảo đảm -->
+                <div class="guarantee-list">
+                    <div class="guarantee-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Đảm bảo hàng chính hãng 100%</span>
+                    </div>
+                    <div class="guarantee-item">
+                        <i class="fas fa-undo"></i>
+                        <span>Đổi trả miễn phí trong 30 ngày</span>
+                    </div>
+                    <div class="guarantee-item">
+                        <i class="fas fa-headset"></i>
+                        <span>Hỗ trợ 24/7: 1800 6789</span>
+                    </div>
+                </div>
+
+            </div><!-- end checkout-right -->
+
+        </div><!-- end checkout-layout -->
+
+    </div><!-- end container -->
+</main>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+    <div class="container footer__inner">
+        <div class="footer__brand">
+            <span class="logo__icon">⚡</span>
+            <span class="logo__text">SportZone</span>
+            <p>Đồ thể thao chất lượng cao cho mọi vận động viên</p>
+        </div>
+        <div class="footer__links">
+            <h4>Liên kết nhanh</h4>
+            <a href="../index.html">Trang chủ</a>
+            <a href="#">Sản phẩm</a>
+            <a href="cart.html">Giỏ hàng</a>
+        </div>
+        <div class="footer__contact">
+            <h4>Liên hệ</h4>
+            <p><i class="fas fa-phone"></i> 1800 6789</p>
+            <p><i class="fas fa-envelope"></i> support@sportzone.vn</p>
+            <p><i class="fas fa-map-marker-alt"></i> TP. Hồ Chí Minh</p>
+        </div>
+    </div>
+    <div class="footer__bottom">
+        <p>© 2024 SportZone. Bản quyền thuộc nhóm phát triển web.</p>
+    </div>
+</footer>
+
+<!-- ============================================================
+     MODAL XÁC NHẬN ĐẶT HÀNG THÀNH CÔNG
+     Hiện sau khi đặt hàng thành công, trước khi chuyển trang
+     ============================================================ -->
+<div class="modal-overlay" id="successModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="successModalTitle">
+        <!-- Animation check mark -->
+        <div class="modal__success-icon">
+            <div class="success-circle">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+
+        <h2 class="modal__title" id="successModalTitle">Đặt hàng thành công! 🎉</h2>
+        <p class="modal__subtitle">Cảm ơn bạn đã mua sắm tại SportZone</p>
+
+        <!-- Thông tin đơn hàng vừa tạo -->
+        <div class="modal__order-info">
+            <div class="modal__order-row">
+                <span>Mã đơn hàng:</span>
+                <strong id="modalOrderCode" class="order-code-text">---</strong>
+            </div>
+            <div class="modal__order-row">
+                <span>Tổng thanh toán:</span>
+                <strong id="modalOrderTotal" class="order-total-text">---</strong>
+            </div>
+            <div class="modal__order-row">
+                <span>Phương thức:</span>
+                <strong id="modalPayMethod">---</strong>
+            </div>
+        </div>
+
+        <p class="modal__note" id="modalNote"></p>
+
+        <!-- Đếm ngược chuyển trang -->
+        <div class="modal__next-step">
+            Đơn hàng đã được lưu. Tiếp tục đến trang thanh toán để xác nhận phương thức.
+        </div>
+
+        <!-- Nút chuyển thủ công -->
+        <button type="button" class="btn btn--primary btn--full" onclick="continueToPayment()">
+            <i class="fas fa-lock"></i>
+            Tiếp tục thanh toán
+        </button>
+    </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast">
+    <div class="toast__icon" id="toastIcon"></div>
+    <div class="toast__message" id="toastMessage"></div>
+</div>
+
+<!-- JS module Checkout - đặt cuối body -->
+<script src="../js/checkout.js"></script>
+
+</body>
+</html>

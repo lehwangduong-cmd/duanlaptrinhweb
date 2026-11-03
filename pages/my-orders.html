@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Xem lịch sử và theo dõi trạng thái đơn hàng SportZone.">
+    <title>Lịch sử đơn hàng - SportZone</title>
+    <link rel="stylesheet" href="../css/my-orders.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container site-header__inner">
+            <a class="brand" href="../index.html" aria-label="SportZone - Trang chủ">
+                <span class="brand__mark" aria-hidden="true">S</span>
+                <span>SportZone</span>
+            </a>
+            <nav class="header-nav" aria-label="Điều hướng chính">
+                <a href="../index.html">Trang chủ</a>
+                <a href="cart.html"><i class="fa-solid fa-basket-shopping" aria-hidden="true"></i> Giỏ hàng</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container page-main">
+        <nav class="breadcrumbs" aria-label="Điều hướng">
+            <a href="../index.html">Trang chủ</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Lịch sử đơn hàng</span>
+        </nav>
+
+        <section class="page-heading">
+            <div>
+                <p class="eyebrow">SPORTZONE · ĐỒNG HÀNH CÙNG MỌI MÔN THỂ THAO</p>
+                <h1>Lịch sử đơn hàng</h1>
+                <p class="page-description">Theo dõi tiến trình giao hàng và xem lại các đơn bạn đã đặt.</p>
+            </div>
+            <a class="button button--primary" href="cart.html">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                Mua sắm ngay
+            </a>
+        </section>
+
+        <section class="toolbar" aria-label="Tìm kiếm và lọc đơn hàng">
+            <label class="search-control">
+                <span class="sr-only">Tìm theo mã đơn hàng</span>
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input id="orderSearch" type="search" placeholder="Tìm theo mã đơn hàng..." autocomplete="off">
+            </label>
+            <label class="filter-control">
+                <span class="sr-only">Lọc theo trạng thái đơn hàng</span>
+                <i class="fa-solid fa-filter" aria-hidden="true"></i>
+                <select id="statusFilter">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="Chờ xác nhận">Chờ xác nhận</option>
+                    <option value="Đã xác nhận">Đã xác nhận</option>
+                    <option value="Đang chuẩn bị hàng">Đang chuẩn bị hàng</option>
+                    <option value="Đang giao hàng">Đang giao hàng</option>
+                    <option value="Đã giao hàng">Đã giao hàng</option>
+                    <option value="Đã hủy">Đã hủy</option>
+                    <option value="other">Trạng thái khác</option>
+                </select>
+            </label>
+            <p class="result-count" id="resultCount" aria-live="polite"></p>
+        </section>
+
+        <section class="message message--error" id="storageError" role="alert" hidden>
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <div>
+                <h2>Không thể đọc lịch sử đơn hàng</h2>
+                <p>Dữ liệu đơn hàng trên thiết bị không hợp lệ hoặc trình duyệt không cho phép truy cập bộ nhớ.</p>
+            </div>
+        </section>
+
+        <section class="empty-state" id="emptyState" hidden>
+            <span class="empty-state__icon" aria-hidden="true"><i class="fa-solid fa-box-open"></i></span>
+            <h2 id="emptyTitle">Bạn chưa có đơn hàng nào</h2>
+            <p id="emptyMessage">Các đơn hàng đã đặt sẽ được lưu và hiển thị tại đây.</p>
+            <a class="button button--primary" href="cart.html">Khám phá sản phẩm</a>
+        </section>
+
+        <section class="orders-list" id="ordersList" aria-label="Danh sách đơn hàng" aria-live="polite"></section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container site-footer__inner">
+            <span>© 2026 SportZone</span>
+            <span>Đồng hành cùng mọi môn thể thao</span>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="../js/my-orders.js"></script>
+</body>
+</html>
