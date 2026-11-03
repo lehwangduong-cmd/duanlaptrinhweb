@@ -144,7 +144,7 @@ Thông tin tài khoản và mã QR nhận tiền phải được cấu hình ri�
 | Module | TV | Trạng thái |
 |---|:---:|:---:|
 | Trang chủ, Navbar, Footer, Banner | TV1 | ✅ Hoàn thành |
-| Sản phẩm, Tìm kiếm, Lọc, Chi tiết | TV2 | 🔄 Đang làm |
+| Sản phẩm, Tìm kiếm, Lọc, Chi tiết | TV2 | ✅ Hoàn thành |
 | Đăng nhập, Tài khoản, Wishlist | TV3 | ✅ Hoàn thành |
 
 ### 📌 TV3: Đăng nhập, Đăng ký, Tài khoản và Wishlist (Hoàn thành 100%)
