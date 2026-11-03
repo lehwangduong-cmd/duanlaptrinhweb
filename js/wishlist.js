@@ -1,53 +1,46 @@
-/**
- * ============================================================
- * SportZone - Wishlist & Favorites System (Quản lý Yêu thích)
- * ============================================================
- */
-const Wishlist = (function () {
-  const STORAGE_KEY = 'sz_wishlist';
-
-  // Dữ liệu mẫu danh sách yêu thích
+/* ── Quản lý Wishlist (LocalStorage) ── */
+var Wishlist = (function() {
   const DEFAULT_WISHLIST = [
     {
-      id: 'PROD-1',
-      name: 'Giày chạy bộ Run Active Pro',
-      brand: 'Kalenji',
-      price: '699.000đ',
-      oldPrice: '999.000đ',
-      badge: '-30%',
+      id: 1,
+      name: 'Giày Chạy Bộ Nike Air Zoom Pegasus 40',
+      brand: 'Nike',
+      price: '2.850.000₫',
+      oldPrice: '3.200.000₫',
+      badge: '-11%',
       iconClass: 'fas fa-shoe-prints',
       iconColor: '#0082c3',
-      bgGradient: 'linear-gradient(135deg,#e3f2fd,#bbdefb)'
+      bgGradient: 'linear-gradient(135deg, #e0f2fe, #bae6fd)'
     },
     {
-      id: 'PROD-2',
-      name: 'Áo bóng đá thi đấu CLB 2025',
-      brand: 'Kipsta',
-      price: '349.000đ',
-      oldPrice: '',
-      badge: 'Mới',
+      id: 2,
+      name: 'Áo Bóng Đá Tuyển Việt Nam Chính Hãng Grand Sport',
+      brand: 'Grand Sport',
+      price: '550.000₫',
+      oldPrice: '650.000₫',
+      badge: 'Hot',
       iconClass: 'fas fa-tshirt',
-      iconColor: '#43a047',
-      bgGradient: 'linear-gradient(135deg,#e8f5e9,#c8e6c9)'
+      iconColor: '#dc2626',
+      bgGradient: 'linear-gradient(135deg, #fee2e2, #fecaca)'
     },
     {
-      id: 'PROD-3',
-      name: 'Thảm Yoga TPE 6mm cao cấp',
-      brand: 'Domyos',
-      price: '299.000đ',
-      oldPrice: '499.000đ',
-      badge: '-40%',
-      iconClass: 'fas fa-tape',
-      iconColor: '#7b1fa2',
-      bgGradient: 'linear-gradient(135deg,#f3e5f5,#e1bee7)'
+      id: 5,
+      name: 'Kính Bơi Chống Mờ & Tia UV Chuyên Nghiệp Speedo',
+      brand: 'Speedo',
+      price: '380.000₫',
+      oldPrice: '',
+      badge: 'Bán chạy',
+      iconClass: 'fas fa-glasses',
+      iconColor: '#0284c7',
+      bgGradient: 'linear-gradient(135deg, #e0f2fe, #cbd5e1)'
     }
   ];
 
   function getItems() {
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
-      if (!data) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_WISHLIST));
+      const data = localStorage.getItem('sz_wishlist');
+      if (data === null) {
+        localStorage.setItem('sz_wishlist', JSON.stringify(DEFAULT_WISHLIST));
         return DEFAULT_WISHLIST;
       }
       return JSON.parse(data) || [];
@@ -57,99 +50,79 @@ const Wishlist = (function () {
   }
 
   function saveItems(items) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    updateBadges();
+    try {
+      localStorage.setItem('sz_wishlist', JSON.stringify(items || []));
+    } catch (e) {}
+    updateBadge();
   }
 
-  function add(product) {
+  function toggle(productOrId) {
+    const productId = typeof productOrId === 'object' && productOrId !== null ? productOrId.id : productOrId;
     const items = getItems();
-    if (!items.some(p => p.id === product.id || p.name === product.name)) {
-      items.push(product);
-      saveItems(items);
-      return true;
-    }
-    return false;
-  }
-
-  function remove(productIdOrName) {
-    let items = getItems();
-    items = items.filter(p => p.id !== productIdOrName && p.name !== productIdOrName);
-    saveItems(items);
-    return items;
-  }
-
-  function toggle(product) {
-    const items = getItems();
-    const index = items.findIndex(p => p.id === product.id || p.name === product.name);
-    if (index > -1) {
-      items.splice(index, 1);
-      saveItems(items);
-      return { added: false, count: items.length, product };
+    const idx = items.findIndex(i => (typeof i === 'object' ? i.id === productId : i === productId));
+    let added = false;
+    if (idx === -1) {
+      items.push(productOrId);
+      added = true;
     } else {
+      items.splice(idx, 1);
+      added = false;
+    }
+    saveItems(items);
+    return { added, count: items.length, toString() { return String(added); }, valueOf() { return added; } };
+  }
+
+  function remove(productOrId) {
+    const id = typeof productOrId === 'object' && productOrId !== null ? productOrId.id : productOrId;
+    const items = getItems().filter(i => {
+      const curId = typeof i === 'object' && i !== null ? (i.id || i.name) : i;
+      return String(curId) !== String(id);
+    });
+    saveItems(items);
+    return true;
+  }
+
+  function addItem(product) {
+    const items = getItems();
+    const productId = typeof product === 'object' && product !== null ? product.id : product;
+    const exists = items.some(i => (typeof i === 'object' ? i.id === productId : i === productId));
+    if (!exists) {
       items.push(product);
       saveItems(items);
-      return { added: true, count: items.length, product };
     }
   }
 
-  function has(productIdOrName) {
-    return getItems().some(p => p.id === productIdOrName || p.name === productIdOrName);
+  function clear() {
+    saveItems([]);
   }
 
-  function count() {
+  function has(productId) {
+    return getItems().some(i => (typeof i === 'object' ? i.id === productId : i === productId));
+  }
+
+  function getTotalQty() {
     return getItems().length;
   }
 
-  function updateBadges() {
-    if (typeof document === 'undefined') return;
-    const c = count();
-    document.querySelectorAll('#wishlist-count, .nav-action-btn[aria-label="Yêu thích"] .badge').forEach(badge => {
-      badge.textContent = c;
+  function updateBadge() {
+    const qty = getTotalQty();
+    if (typeof document !== 'undefined') document.querySelectorAll('#wishlist-count, .wishlist-badge').forEach(el => {
+      el.textContent = qty;
+      el.style.display = qty > 0 ? 'inline-flex' : 'none';
     });
-  }
-
-  function init() {
-    updateBadges();
-    if (typeof document !== 'undefined') {
-      const items = getItems();
-      document.querySelectorAll('.product-card').forEach(card => {
-        const name = card.querySelector('.product-name')?.textContent.trim();
-        const btn = card.querySelector('.btn-wishlist');
-        if (btn && name && items.some(p => p.name === name)) {
-          btn.classList.add('active');
-          btn.innerHTML = '<i class="fas fa-heart"></i>';
-          btn.style.borderColor = '#e53935';
-          btn.style.color = '#e53935';
-        }
-      });
-    }
-  }
-
-  if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
   }
 
   return {
     getItems,
     saveItems,
-    add,
-    remove,
     toggle,
+    remove,
+    addItem,
+    clear,
     has,
-    count,
-    updateBadges,
-    init
+    getTotalQty,
+    updateBadge
   };
 })();
 
-if (typeof window !== 'undefined') {
-  window.Wishlist = Wishlist;
-}
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Wishlist;
-}
-
+if (typeof window !== "undefined") window.Wishlist = Wishlist;

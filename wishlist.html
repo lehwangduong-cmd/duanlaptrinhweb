@@ -222,9 +222,11 @@
 <script src="js/main.js"></script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderWishlist);
+  } else {
     renderWishlist();
-  });
+  }
 
   function renderWishlist() {
     const grid = document.getElementById('wishlist-grid');

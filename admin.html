@@ -282,9 +282,11 @@
 <script src="js/main.js"></script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkAdminAccess);
+  } else {
     checkAdminAccess();
-  });
+  }
 
   // Kiểm tra quyền truy cập (Route Guard)
   function checkAdminAccess() {
