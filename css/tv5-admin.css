@@ -1,754 +1,203 @@
-'use strict';
-
-(() => {
-  const PRODUCTS_KEY = 'sportzone_products';
-  const ORDERS_KEY = 'sportzone_orders';
-  const ORDER_STATUSES = [
-    'Chờ xác nhận',
-    'Đã xác nhận',
-    'Đang chuẩn bị hàng',
-    'Đang giao hàng',
-    'Đã giao hàng',
-    'Đã hủy',
-  ];
-  const STOCK_WARNING_LEVEL = 5;
-  const state = { products: [], orders: [], toastTimer: null };
-  const revenueState = { period: 'day', buckets: [] };
-  const titles = {
-    dashboard: 'Tổng quan',
-    products: 'Sản phẩm & kho',
-    orders: 'Đơn hàng',
-    customers: 'Khách hàng',
-    revenue: 'Doanh thu',
-  };
-
-  document.addEventListener('DOMContentLoaded', initialize);
-  window.addEventListener('storage', handleStorageChange);
-
-  function initialize() {
-    if (typeof Auth === 'undefined' || typeof Auth.isAdmin !== 'function' || !Auth.isAdmin()) {
-      window.location.replace('../account.html');
-      return;
-    }
-
-    const user = Auth.getCurrentUser();
-    if (user?.fullName) setText('adminGreeting', `Xin chào, ${user.fullName}`);
-    document.getElementById('adminLogout').addEventListener('click', logoutAdmin);
-    initializeRevenueSearch();
-    bindNavigation();
-    bindProductForm();
-    bindFilters();
-    loadData();
-    renderAll();
-  }
-
-  function bindNavigation() {
-    document.querySelectorAll('[data-view]').forEach(button => {
-      button.addEventListener('click', () => showView(button.dataset.view));
-    });
-    document.querySelectorAll('[data-open-view]').forEach(button => {
-      button.addEventListener('click', () => showView(button.dataset.openView));
-    });
-  }
-
-  function bindFilters() {
-    document.getElementById('productSearch').addEventListener('input', renderProducts);
-    document.getElementById('stockFilter').addEventListener('change', renderProducts);
-    document.getElementById('orderSearch').addEventListener('input', renderOrders);
-    document.getElementById('orderStatusFilter').addEventListener('change', renderOrders);
-    document.getElementById('customerSearch').addEventListener('input', renderCustomers);
-    document.getElementById('revenuePeriod').addEventListener('change', updateRevenueSearchFields);
-    document.getElementById('searchRevenue').addEventListener('click', renderRevenue);
-
-    document.getElementById('addProductButton').addEventListener('click', () => openProductDialog());
-    document.getElementById('productsTable').addEventListener('click', handleProductAction);
-    document.getElementById('ordersTable').addEventListener('change', handleOrderStatusChange);
-
-    document.querySelectorAll('[data-close-dialog]').forEach(button => {
-      button.addEventListener('click', () => button.closest('dialog').close());
-    });
-  }
-
-  function bindProductForm() {
-    document.getElementById('productForm').addEventListener('submit', saveProduct);
-  }
-
-  function loadData() {
-    const warnings = [];
-    state.products = readArray(PRODUCTS_KEY, 'sản phẩm', warnings);
-    state.orders = readArray(ORDERS_KEY, 'đơn hàng', warnings);
-    const notice = document.getElementById('storageNotice');
-    notice.hidden = warnings.length === 0;
-    notice.textContent = warnings.join(' ');
-  }
-
-  function readArray(key, label, warnings) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) return [];
-      const value = JSON.parse(raw);
-      if (!Array.isArray(value)) throw new Error(`Dữ liệu ${label} không phải danh sách.`);
-      return value.filter(item => item && typeof item === 'object' && !Array.isArray(item));
-    } catch (error) {
-      console.error(`[Admin] Không thể đọc ${label}:`, error);
-      warnings.push(`Không thể đọc ${label}; hãy kiểm tra dữ liệu lưu trên trình duyệt.`);
-      return [];
-    }
-  }
-
-  function renderAll() {
-    renderDashboard();
-    renderProducts();
-    renderOrders();
-    renderCustomers();
-    renderRevenue();
-  }
-
-  function showView(name) {
-    if (!Object.prototype.hasOwnProperty.call(titles, name)) return;
-    document.querySelectorAll('[data-view-panel]').forEach(panel => {
-      const active = panel.dataset.viewPanel === name;
-      panel.hidden = !active;
-      panel.classList.toggle('is-active', active);
-    });
-    document.querySelectorAll('[data-view]').forEach(button => {
-      const active = button.dataset.view === name;
-      button.classList.toggle('is-active', active);
-      if (active) button.setAttribute('aria-current', 'page');
-      else button.removeAttribute('aria-current');
-    });
-    document.getElementById('pageTitle').textContent = titles[name];
-  }
-
-  function renderDashboard() {
-    const customers = getCustomers();
-    const delivered = state.orders.filter(order => getOrderStatus(order) === 'Đã giao hàng');
-    const revenue = delivered.reduce((sum, order) => sum + getOrderTotal(order), 0);
-    const lowStock = state.products.filter(product => getStock(product) <= STOCK_WARNING_LEVEL);
-
-    setText('statProducts', state.products.length);
-    setText('statLowStock', `${lowStock.length} sản phẩm sắp hết hàng`);
-    setText('statOrders', state.orders.length);
-    setText('statPending', `${state.orders.filter(order => getOrderStatus(order) === 'Chờ xác nhận').length} đơn chờ xác nhận`);
-    setText('statCustomers', customers.length);
-    setText('statRevenue', formatCurrency(revenue));
-    renderDashboardMonthlyChart();
-    renderLowStock(lowStock);
-    renderRecentOrders();
-  }
-
-  function renderLowStock(products) {
-    const container = document.getElementById('lowStockList');
-    container.replaceChildren();
-    if (products.length === 0) {
-      container.appendChild(createText('p', 'compact-empty', 'Chưa có sản phẩm hoặc kho đang đủ hàng.'));
-      return;
-    }
-    products.slice(0, 5).forEach(product => {
-      const row = createElement('div', 'compact-row');
-      row.append(
-        createText('strong', '', product.name || 'Sản phẩm chưa đặt tên'),
-        createText('span', '', getStock(product) === 0 ? 'Hết hàng' : `Còn ${getStock(product)}`)
-      );
-      container.appendChild(row);
-    });
-  }
-
-  function renderRecentOrders() {
-    const container = document.getElementById('recentOrders');
-    const orders = [...state.orders].sort((a, b) => getTimestamp(b) - getTimestamp(a)).slice(0, 5);
-    container.replaceChildren();
-    document.getElementById('recentOrdersEmpty').hidden = orders.length > 0;
-    orders.forEach(order => {
-      const row = document.createElement('tr');
-      row.append(
-        textCell(order.orderId || '—', true),
-        textCell(order.customer?.fullName || 'Khách hàng'),
-        textCell(formatDate(order.createdAt || order.timestamp)),
-        textCell(formatCurrency(getOrderTotal(order))),
-        statusCell(getOrderStatus(order))
-      );
-      container.appendChild(row);
-    });
-  }
-
-  function renderProducts() {
-    const container = document.getElementById('productsTable');
-    const query = normalize(document.getElementById('productSearch').value);
-    const filter = document.getElementById('stockFilter').value;
-    const products = state.products.filter(product => {
-      const matchesQuery = normalize(`${product.name || ''} ${product.category || ''} ${product.sku || ''}`).includes(query);
-      const stock = getStock(product);
-      const matchesStock = filter === 'all' ||
-        (filter === 'low' && stock > 0 && stock <= STOCK_WARNING_LEVEL) ||
-        (filter === 'out' && stock === 0);
-      return matchesQuery && matchesStock;
-    });
-    container.replaceChildren();
-    document.getElementById('productsEmpty').hidden = products.length > 0;
-
-    products.forEach(product => {
-      const row = document.createElement('tr');
-      const nameCell = document.createElement('td');
-      nameCell.appendChild(createText('span', 'table-primary', product.name || 'Sản phẩm chưa đặt tên'));
-      nameCell.appendChild(createText('span', 'table-secondary', product.sku || 'Chưa có mã sản phẩm'));
-      const stock = getStock(product);
-      const stockCell = document.createElement('td');
-      const stockText = createText('span', '', stock === 0 ? 'Hết hàng' : `${stock} sản phẩm`);
-      if (stock === 0) stockText.classList.add('stock--out');
-      else if (stock <= STOCK_WARNING_LEVEL) stockText.classList.add('stock--low');
-      stockCell.appendChild(stockText);
-      const actions = document.createElement('td');
-      actions.className = 'row-actions';
-      actions.append(
-        actionButton('edit', product.id, 'Sửa', 'small-button'),
-        actionButton('delete', product.id, 'Xóa', 'small-button small-button--danger')
-      );
-      row.append(
-        nameCell,
-        textCell(product.category || 'Khác'),
-        textCell(formatCurrency(getProductPrice(product))),
-        stockCell,
-        actions
-      );
-      container.appendChild(row);
-    });
-  }
-
-  function handleProductAction(event) {
-    const button = event.target.closest('button[data-action]');
-    if (!button) return;
-    const product = state.products.find(item => String(item.id) === button.dataset.id);
-    if (!product) {
-      showToast('Không tìm thấy sản phẩm cần thao tác.');
-      return;
-    }
-    if (button.dataset.action === 'edit') {
-      openProductDialog(product);
-      return;
-    }
-    if (button.dataset.action === 'delete' && window.confirm(`Xóa sản phẩm "${product.name || 'Sản phẩm'}"?`)) {
-      persistArray(PRODUCTS_KEY, state.products.filter(item => String(item.id) !== button.dataset.id), 'Đã xóa sản phẩm.');
-    }
-  }
-
-  function openProductDialog(product) {
-    const form = document.getElementById('productForm');
-    form.reset();
-    document.getElementById('productId').value = product ? String(product.id) : '';
-    document.getElementById('productName').value = product?.name || '';
-    document.getElementById('productCategory').value = product?.category || '';
-    document.getElementById('productPrice').value = product ? getProductPrice(product) : '';
-    document.getElementById('productStock').value = product ? getStock(product) : '';
-    document.getElementById('productSku').value = product?.sku || '';
-    document.getElementById('productDialogTitle').textContent = product ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm';
-    document.getElementById('productDialog').showModal();
-  }
-
-  function saveProduct(event) {
-    event.preventDefault();
-    const id = document.getElementById('productId').value;
-    const sku = document.getElementById('productSku').value.trim();
-    const duplicateSku = sku && state.products.some(product =>
-      String(product.id) !== id && normalize(product.sku || '') === normalize(sku)
-    );
-    if (duplicateSku) {
-      showToast('Mã sản phẩm này đã được sử dụng.');
-      document.getElementById('productSku').focus();
-      return;
-    }
-
-    const product = {
-      id: id || createId(),
-      name: document.getElementById('productName').value.trim(),
-      category: document.getElementById('productCategory').value,
-      price: Number(document.getElementById('productPrice').value),
-      stock: Number(document.getElementById('productStock').value),
-      sku,
-    };
-    if (!product.name || !product.category || !Number.isFinite(product.price) || product.price < 0 ||
-      !Number.isInteger(product.stock) || product.stock < 0) {
-      showToast('Vui lòng kiểm tra thông tin sản phẩm.');
-      return;
-    }
-
-    const next = id
-      ? state.products.map(item => String(item.id) === id ? { ...item, ...product } : item)
-      : [...state.products, product];
-    if (persistArray(PRODUCTS_KEY, next, id ? 'Đã cập nhật sản phẩm.' : 'Đã thêm sản phẩm.')) {
-      document.getElementById('productDialog').close();
-      event.target.reset();
-    }
-  }
-
-  function renderOrders() {
-    const container = document.getElementById('ordersTable');
-    const query = normalize(document.getElementById('orderSearch').value);
-    const statusFilter = document.getElementById('orderStatusFilter').value;
-    const orders = state.orders
-      .map((order, index) => ({ order, index }))
-      .filter(({ order }) => {
-        const customer = order.customer || {};
-        const searchable = normalize([
-          order.orderId,
-          customer.fullName,
-          customer.email,
-          customer.phone,
-        ].join(' '));
-        return searchable.includes(query) && (statusFilter === 'all' || getOrderStatus(order) === statusFilter);
-      })
-      .sort((a, b) => getTimestamp(b.order) - getTimestamp(a.order));
-    container.replaceChildren();
-    document.getElementById('ordersEmpty').hidden = orders.length > 0;
-
-    orders.forEach(({ order, index }) => {
-      const row = document.createElement('tr');
-      const items = Array.isArray(order.items) ? order.items : [];
-      const itemSummary = items.length
-        ? `${items.length} loại · ${items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)} sản phẩm`
-        : 'Không có thông tin';
-      const status = document.createElement('td');
-      const select = document.createElement('select');
-      select.dataset.orderIndex = String(index);
-      select.setAttribute('aria-label', `Cập nhật trạng thái đơn ${order.orderId || ''}`);
-      const currentStatus = getOrderStatus(order);
-      if (!ORDER_STATUSES.includes(currentStatus)) {
-        const unknownOption = document.createElement('option');
-        unknownOption.value = currentStatus;
-        unknownOption.textContent = `Khác: ${currentStatus}`;
-        unknownOption.selected = true;
-        select.appendChild(unknownOption);
-      }
-      ORDER_STATUSES.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        option.selected = value === currentStatus;
-        select.appendChild(option);
-      });
-      status.appendChild(select);
-      row.append(
-        textCell(order.orderId || '—', true),
-        textCell(order.customer?.fullName || 'Khách hàng'),
-        textCell(formatDate(order.createdAt || order.timestamp)),
-        textCell(itemSummary),
-        textCell(formatCurrency(getOrderTotal(order))),
-        status
-      );
-      container.appendChild(row);
-    });
-  }
-
-  function handleOrderStatusChange(event) {
-    const select = event.target.closest('select[data-order-index]');
-    if (!select) return;
-    const index = Number(select.dataset.orderIndex);
-    const status = select.value;
-    if (!Number.isInteger(index) || !state.orders[index] || !ORDER_STATUSES.includes(status)) {
-      showToast('Không thể cập nhật trạng thái đơn hàng.');
-      renderOrders();
-      return;
-    }
-    const updated = state.orders.map((order, orderIndex) => {
-      if (orderIndex !== index) return order;
-      const next = { ...order, status };
-      if (status === 'Đã hủy' && !next.cancelledAt) next.cancelledAt = new Date().toISOString();
-      if (status !== 'Đã hủy') delete next.cancelledAt;
-      return next;
-    });
-    persistArray(ORDERS_KEY, updated, 'Đã cập nhật trạng thái đơn hàng.');
-  }
-
-  function renderCustomers() {
-    const container = document.getElementById('customersTable');
-    const query = normalize(document.getElementById('customerSearch').value);
-    const customers = getCustomers().filter(customer =>
-      normalize(`${customer.name} ${customer.email} ${customer.phone} ${customer.address}`).includes(query)
-    );
-    container.replaceChildren();
-    document.getElementById('customersEmpty').hidden = customers.length > 0;
-    customers.forEach(customer => {
-      const contact = document.createElement('td');
-      contact.append(
-        createText('span', 'table-primary', customer.phone || 'Chưa có số điện thoại'),
-        createText('span', 'table-secondary', customer.email || 'Chưa có email')
-      );
-      const row = document.createElement('tr');
-      row.append(
-        textCell(customer.name || 'Khách hàng'),
-        contact,
-        textCell(customer.address || '—'),
-        textCell(customer.orders.length),
-        textCell(formatCurrency(customer.spent))
-      );
-      container.appendChild(row);
-    });
-  }
-
-  function getCustomers() {
-    const customers = new Map();
-    state.orders.forEach(order => {
-      const info = order.customer || {};
-      const email = normalize(info.email || '');
-      const phone = normalize(info.phone || '');
-      const name = normalize(info.fullName || '');
-      const id = email || phone || name;
-      if (!id) return;
-      let customer = customers.get(id);
-      if (!customer) {
-        customer = {
-          name: info.fullName || '',
-          email: info.email || '',
-          phone: info.phone || '',
-          address: info.address || '',
-          orders: [],
-          spent: 0,
-          latest: 0,
-        };
-        customers.set(id, customer);
-      }
-      customer.orders.push(order);
-      customer.spent += getOrderStatus(order) === 'Đã hủy' ? 0 : getOrderTotal(order);
-      if (getTimestamp(order) >= customer.latest) {
-        customer.latest = getTimestamp(order);
-        customer.address = info.address || customer.address;
-      }
-    });
-    return [...customers.values()].sort((a, b) => b.latest - a.latest);
-  }
-
-  function renderRevenue() {
-    const period = document.getElementById('revenuePeriod').value;
-    const buckets = getRevenueBuckets(period);
-    if (!buckets) return;
-    revenueState.period = period;
-    revenueState.buckets = buckets;
-
-    const total = buckets.reduce((sum, bucket) => sum + bucket.total, 0);
-    const orderCount = buckets.reduce((sum, bucket) => sum + bucket.count, 0);
-    setText('revenueTotal', formatCurrency(total));
-    setText('deliveredCount', `${orderCount} đơn hoàn tất trong kỳ`);
-
-    const labels = {
-      day: { chart: 'Doanh thu theo ngày', table: 'Chi tiết doanh thu theo ngày', column: 'Ngày' },
-      month: { chart: 'Doanh thu theo tháng', table: 'Chi tiết doanh thu theo tháng', column: 'Tháng' },
-      year: { chart: 'Doanh thu theo năm', table: 'Chi tiết doanh thu theo năm', column: 'Năm' },
-    }[period];
-    setText('revenueChartTitle', labels.chart);
-    setText('revenueTableTitle', labels.table);
-    setText('revenuePeriodHeader', labels.column);
-    setText('revenueChartSubtitle', getRevenuePeriodDescription(period));
-    renderRevenueChart();
-
-    const container = document.getElementById('revenueTable');
-    container.replaceChildren();
-    const visibleBuckets = buckets.filter(bucket => bucket.total > 0 || bucket.count > 0);
-    document.getElementById('revenueEmpty').hidden = visibleBuckets.length > 0;
-    visibleBuckets.slice().reverse().forEach(bucket => {
-      const row = document.createElement('tr');
-      row.append(textCell(bucket.label), textCell(bucket.count), textCell(formatCurrency(bucket.total)));
-      container.appendChild(row);
-    });
-  }
-
-  function updateRevenueSearchFields() {
-    const period = document.getElementById('revenuePeriod').value;
-    document.getElementById('revenueMonthField').hidden = period !== 'day';
-    document.getElementById('revenueYearField').hidden = period !== 'month';
-    document.getElementById('revenueYearRange').hidden = period !== 'year';
-    setText('revenueSearchHint', {
-      day: 'Chọn tháng để xem doanh thu từng ngày trong tháng đó.',
-      month: 'Chọn năm để xem doanh thu theo từng tháng.',
-      year: 'Chọn khoảng năm để xem doanh thu theo từng năm.',
-    }[period]);
-  }
-
-  function renderRevenueChart() {
-    renderChart(document.getElementById('revenueChart'), revenueState.buckets);
-  }
-
-  function renderChart(container, buckets) {
-    container.replaceChildren();
-    const max = Math.max(...buckets.map(bucket => bucket.total), 1);
-    buckets.forEach((bucket, index) => {
-      const column = createElement('div', 'chart-column');
-      const amount = createText('span', 'chart-value', compactCurrency(bucket.total));
-      const barWrap = createElement('div', 'chart-bar-wrap');
-      const bar = createElement('div', `chart-bar${index === buckets.length - 1 ? ' is-current' : ''}`);
-      bar.style.height = `${bucket.total === 0 ? 2 : Math.max(5, (bucket.total / max) * 100)}%`;
-      bar.setAttribute('title', `${bucket.label}: ${formatCurrency(bucket.total)} (${bucket.count} đơn)`);
-      bar.setAttribute('aria-label', `${bucket.label}: ${formatCurrency(bucket.total)}`);
-      barWrap.appendChild(bar);
-      column.append(amount, barWrap, createText('span', 'chart-label', bucket.label));
-      container.appendChild(column);
-    });
-  }
-
-  function renderDashboardMonthlyChart() {
-    const now = new Date();
-    const buckets = [];
-    for (let offset = 5; offset >= 0; offset -= 1) {
-      const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-      buckets.push({
-        key: `${date.getFullYear()}-${date.getMonth()}`,
-        label: new Intl.DateTimeFormat('vi-VN', { month: 'short' }).format(date),
-        total: 0,
-        count: 0,
-      });
-    }
-    state.orders.forEach(order => {
-      if (getOrderStatus(order) !== 'Đã giao hàng') return;
-      const date = parseDate(order.createdAt || order.timestamp);
-      if (!date) return;
-      const bucket = buckets.find(item => item.key === `${date.getFullYear()}-${date.getMonth()}`);
-      if (bucket) {
-        bucket.total += getOrderTotal(order);
-        bucket.count += 1;
-      }
-    });
-    renderChart(document.getElementById('dashboardChart'), buckets);
-  }
-
-  function initializeRevenueSearch() {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    document.getElementById('revenueMonth').value = currentMonth;
-    document.getElementById('revenueYear').value = String(currentYear);
-    document.getElementById('revenueYearFrom').value = String(currentYear - 4);
-    document.getElementById('revenueYearTo').value = String(currentYear);
-    updateRevenueSearchFields();
-  }
-
-  function getRevenueBuckets(period) {
-    const delivered = state.orders.filter(order =>
-      getOrderStatus(order) === 'Đã giao hàng' && parseDate(order.createdAt || order.timestamp)
-    );
-    const buckets = [];
-
-    if (period === 'day') {
-      const value = document.getElementById('revenueMonth').value;
-      const match = /^(\d{4})-(\d{2})$/.exec(value);
-      if (!match) {
-        showToast('Vui lòng chọn tháng cần tra cứu.');
-        return null;
-      }
-      const year = Number(match[1]);
-      const month = Number(match[2]) - 1;
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      for (let day = 1; day <= daysInMonth; day += 1) {
-        buckets.push({ key: `${year}-${month}-${day}`, label: String(day), total: 0, count: 0 });
-      }
-    } else if (period === 'month') {
-      const year = Number(document.getElementById('revenueYear').value);
-      if (!isValidRevenueYear(year)) {
-        showToast('Vui lòng nhập năm hợp lệ từ 2000 đến 2100.');
-        return null;
-      }
-      for (let month = 0; month < 12; month += 1) {
-        buckets.push({
-          key: `${year}-${month}`,
-          label: new Intl.DateTimeFormat('vi-VN', { month: 'short' }).format(new Date(year, month, 1)),
-          total: 0,
-          count: 0,
-        });
-      }
-    } else if (period === 'year') {
-      const startYear = Number(document.getElementById('revenueYearFrom').value);
-      const endYear = Number(document.getElementById('revenueYearTo').value);
-      if (!isValidRevenueYear(startYear) || !isValidRevenueYear(endYear) || startYear > endYear) {
-        showToast('Vui lòng chọn khoảng năm hợp lệ (từ năm 2000 đến 2100).');
-        return null;
-      }
-      if (endYear - startYear > 20) {
-        showToast('Khoảng tra cứu không được vượt quá 20 năm.');
-        return null;
-      }
-      for (let year = startYear; year <= endYear; year += 1) {
-        buckets.push({ key: String(year), label: String(year), total: 0, count: 0 });
-      }
-    } else {
-      showToast('Vui lòng chọn cách thống kê doanh thu.');
-      return null;
-    }
-
-    delivered.forEach(order => {
-      const date = parseDate(order.createdAt || order.timestamp);
-      if (!date) return;
-      const key = period === 'day'
-        ? `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
-        : period === 'month'
-          ? `${date.getFullYear()}-${date.getMonth()}`
-          : String(date.getFullYear());
-      const bucket = buckets.find(item => item.key === key);
-      if (bucket) {
-        bucket.total += getOrderTotal(order);
-        bucket.count += 1;
-      }
-    });
-    return buckets;
-  }
-
-  function getRevenuePeriodDescription(period) {
-    if (period === 'day') {
-      const value = document.getElementById('revenueMonth').value;
-      const date = value ? new Date(`${value}-01T00:00:00`) : new Date();
-      return new Intl.DateTimeFormat('vi-VN', { month: 'long', year: 'numeric' }).format(date);
-    }
-    if (period === 'month') return `Năm ${document.getElementById('revenueYear').value}`;
-    return `Từ năm ${document.getElementById('revenueYearFrom').value} đến năm ${document.getElementById('revenueYearTo').value}`;
-  }
-
-  function isValidRevenueYear(year) {
-    return Number.isInteger(year) && year >= 2000 && year <= 2100;
-  }
-
-  function persistArray(key, value, successMessage) {
-    try {
-      const serialized = JSON.stringify(value);
-      localStorage.setItem(key, serialized);
-      if (localStorage.getItem(key) !== serialized) {
-        throw new Error('Dữ liệu lưu không khớp với nội dung vừa ghi.');
-      }
-      if (key === PRODUCTS_KEY) state.products = value;
-      if (key === ORDERS_KEY) state.orders = value;
-      document.getElementById('storageNotice').hidden = true;
-      renderAll();
-      showToast(successMessage);
-      return true;
-    } catch (error) {
-      console.error('[Admin] Không thể lưu dữ liệu:', error);
-      showToast('Không thể lưu thay đổi. Vui lòng kiểm tra bộ nhớ trình duyệt.');
-      return false;
-    }
-  }
-
-  function handleStorageChange(event) {
-    if (event.key === 'sz_currentUser' || event.key === 'sz_user') {
-      if (typeof Auth === 'undefined' || !Auth.isAdmin()) {
-        window.location.replace('../account.html');
-      }
-      return;
-    }
-    if (event.key !== PRODUCTS_KEY && event.key !== ORDERS_KEY && event.key !== null) return;
-    loadData();
-    renderAll();
-  }
-
-  function logoutAdmin() {
-    Auth.setCurrentUser(null);
-    window.location.replace('../account.html');
-  }
-
-  function actionButton(action, id, label, className) {
-    const button = createText('button', className, label);
-    button.type = 'button';
-    button.dataset.action = action;
-    button.dataset.id = String(id);
-    return button;
-  }
-
-  function textCell(value, primary) {
-    const cell = document.createElement('td');
-    cell.appendChild(createText('span', primary ? 'table-primary' : '', value));
-    return cell;
-  }
-
-  function statusCell(status) {
-    const cell = document.createElement('td');
-    const classByStatus = {
-      'Chờ xác nhận': 'waiting',
-      'Đã xác nhận': 'confirmed',
-      'Đang chuẩn bị hàng': 'preparing',
-      'Đang giao hàng': 'shipping',
-      'Đã giao hàng': 'delivered',
-      'Đã hủy': 'cancelled',
-    };
-    cell.appendChild(createText('span', `status-pill status-pill--${classByStatus[status] || 'waiting'}`, status));
-    return cell;
-  }
-
-  function createElement(tag, className) {
-    const element = document.createElement(tag);
-    if (className) element.className = className;
-    return element;
-  }
-
-  function createText(tag, className, value) {
-    const element = createElement(tag, className);
-    element.textContent = String(value ?? '');
-    return element;
-  }
-
-  function setText(id, value) {
-    document.getElementById(id).textContent = String(value);
-  }
-
-  function getOrderStatus(order) {
-    return typeof order.status === 'string' && order.status.trim()
-      ? order.status.trim()
-      : 'Chờ xác nhận';
-  }
-
-  function getOrderTotal(order) {
-    const value = Number(order.total);
-    return Number.isFinite(value) && value >= 0 ? value : 0;
-  }
-
-  function getProductPrice(product) {
-    const value = Number(product.price);
-    return Number.isFinite(value) && value >= 0 ? value : 0;
-  }
-
-  function getStock(product) {
-    const value = Number(product.stock ?? product.quantity ?? 0);
-    return Number.isInteger(value) && value >= 0 ? value : 0;
-  }
-
-  function getTimestamp(order) {
-    return parseDate(order.createdAt || order.timestamp)?.getTime() || 0;
-  }
-
-  function parseDate(value) {
-    if (!value) return null;
-    const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? null : date;
-  }
-
-  function formatDate(value) {
-    const date = parseDate(value);
-    return date
-      ? new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date)
-      : '—';
-  }
-
-  function formatCurrency(value) {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      maximumFractionDigits: 0,
-    }).format(Number.isFinite(value) ? value : 0);
-  }
-
-  function compactCurrency(value) {
-    if (value >= 1000000) return `${(value / 1000000).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} tr`;
-    if (value >= 1000) return `${Math.round(value / 1000)}k`;
-    return formatCurrency(value);
-  }
-
-  function normalize(value) {
-    return String(value || '').trim().toLocaleLowerCase('vi-VN');
-  }
-
-  function createId() {
-    return `SZP-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`.toUpperCase();
-  }
-
-  function showToast(message) {
-    const toast = document.getElementById('adminToast');
-    toast.textContent = message;
-    toast.classList.add('is-visible');
-    window.clearTimeout(state.toastTimer);
-    state.toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 3000);
-  }
-})();
+:root {
+  color-scheme: light;
+  --admin-ink: #172033;
+  --admin-muted: #68758a;
+  --admin-line: #e6eaf0;
+  --admin-surface: #fff;
+  --admin-canvas: #f4f7fb;
+  --admin-blue: #1769e0;
+  --admin-blue-dark: #0e4eae;
+  --admin-shadow: 0 8px 26px rgba(29, 48, 77, .07);
+  font-family: var(--font, "Segoe UI", Arial, sans-serif);
+  color: var(--admin-ink);
+  background: var(--admin-canvas);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--admin-canvas);
+  color: var(--admin-ink);
+  font-family: var(--font, "Segoe UI", Arial, sans-serif);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+[hidden] { display: none !important; }
+
+.admin-shell { min-height: 100vh; }
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 5;
+  display: flex;
+  width: 252px;
+  flex-direction: column;
+  padding: 26px 18px 20px;
+  color: #dce8fa;
+  background: #14243c;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px 30px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.brand small { display: block; margin-top: 2px; color: #98afd0; font-size: 9px; letter-spacing: 1.5px; }
+.brand__mark { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 12px; background: #2478ee; color: #fff; font-size: 22px; }
+.sidebar-nav { display: grid; gap: 7px; }
+.nav-link { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 13px; border: 0; border-radius: 9px; background: transparent; color: #b6c5dc; text-align: left; transition: background .18s, color .18s; }
+.nav-link > span { width: 20px; color: #9eb4d4; font-size: 18px; text-align: center; }
+.nav-link:hover, .nav-link.is-active { background: #243b5d; color: #fff; }
+.nav-link.is-active > span { color: #67a4ff; }
+.sidebar-home { margin: auto 10px 14px; color: #dce8fa; font-size: 13px; text-decoration: none; }
+.sidebar-home:hover { color: #fff; }
+.sidebar-note { margin: 0; padding: 13px 10px 0; border-top: 1px solid rgba(255,255,255,.12); color: #91a5c1; font-size: 11px; }
+
+.admin-main { width: min(100% - 252px, 1530px); margin-left: 252px; padding: 30px clamp(22px, 4vw, 58px) 28px; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 27px; }
+.topbar h1 { margin: 3px 0 0; font-size: clamp(25px, 3vw, 32px); line-height: 1.2; letter-spacing: -.7px; }
+.eyebrow { margin: 0; color: var(--admin-blue); font-size: 10px; font-weight: 800; letter-spacing: 1.4px; }
+.demo-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #dce8fc; border-radius: 999px; background: #eef5ff; color: #456287; font-size: 12px; white-space: nowrap; }
+.demo-badge span { color: #2da66a; font-size: 9px; }
+
+.admin-view { display: grid; gap: 21px; }
+.welcome-row, .section-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.welcome-row { margin-bottom: 1px; }
+.welcome-row h2, .section-toolbar h2 { margin: 0 0 4px; font-size: 20px; letter-spacing: -.25px; }
+.welcome-row p, .section-toolbar p, .panel-heading p { margin: 0; color: var(--admin-muted); font-size: 13px; }
+.welcome-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+
+.button { display: inline-flex; min-height: 39px; align-items: center; justify-content: center; padding: 9px 15px; border: 1px solid transparent; border-radius: 8px; font-weight: 700; transition: background .18s, border-color .18s, transform .18s; }
+.button:hover { transform: translateY(-1px); }
+.button--primary { background: var(--admin-blue); color: #fff; }
+.button--primary:hover { background: var(--admin-blue-dark); }
+.button--secondary { border-color: var(--admin-line); background: #fff; color: #43516a; }
+.button--secondary:hover { border-color: #b8c5d8; background: #f9fbfd; }
+
+.stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; }
+.stat-grid--single { grid-template-columns: minmax(220px, 1fr); }
+.stat-card { display: grid; min-height: 126px; align-content: center; gap: 6px; padding: 19px 21px; border: 1px solid var(--admin-line); border-radius: 12px; background: var(--admin-surface); box-shadow: var(--admin-shadow); }
+.stat-card > span { color: var(--admin-muted); font-size: 12px; font-weight: 600; }
+.stat-card strong { color: var(--admin-ink); font-size: 27px; line-height: 1.1; letter-spacing: -.6px; }
+.stat-card small { color: #8490a2; font-size: 11px; }
+.stat-card--accent { border-color: #d8e7ff; background: linear-gradient(135deg, #fff, #f1f7ff); }
+.stat-card--accent strong { color: var(--admin-blue); }
+
+.panel-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr); gap: 17px; }
+.panel { min-width: 0; padding: 20px; border: 1px solid var(--admin-line); border-radius: 12px; background: var(--admin-surface); box-shadow: var(--admin-shadow); }
+.panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 17px; }
+.panel-heading h2 { margin: 0 0 3px; font-size: 16px; }
+.panel-heading p { font-size: 12px; }
+.text-button { padding: 3px 0; border: 0; background: transparent; color: var(--admin-blue); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.text-button:hover { color: var(--admin-blue-dark); }
+
+.chart { display: flex; min-height: 210px; align-items: stretch; justify-content: space-around; gap: 10px; padding: 14px 5px 0; border-bottom: 1px solid var(--admin-line); }
+.chart-column { display: flex; min-width: 0; flex: 1; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; }
+.chart-value { max-width: 100%; overflow: hidden; color: var(--admin-muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.chart-bar-wrap { display: flex; width: min(34px, 72%); height: 132px; align-items: flex-end; justify-content: center; }
+.chart-bar { width: 100%; min-height: 4px; border-radius: 6px 6px 2px 2px; background: #b8d2fa; transition: height .25s ease; }
+.chart-bar.is-current { background: var(--admin-blue); }
+.chart-label { padding-bottom: 9px; color: var(--admin-muted); font-size: 10px; white-space: nowrap; }
+.chart--large { min-width: 600px; min-height: 280px; }
+.chart--large .chart-bar-wrap { height: 190px; }
+.chart-scroll { overflow-x: auto; }
+
+.compact-list { display: grid; gap: 9px; }
+.compact-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 12px; border: 1px solid #edf0f5; border-radius: 8px; background: #fbfcfe; }
+.compact-row strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.compact-row span { flex: 0 0 auto; color: #c17a13; font-size: 11px; font-weight: 700; }
+.compact-empty, .empty-inline { margin: 12px 0 0; color: var(--admin-muted); font-size: 13px; }
+
+.section-toolbar { margin-bottom: -2px; }
+.filter-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.search-box, .select-box { display: flex; min-height: 42px; align-items: center; gap: 9px; padding: 0 12px; border: 1px solid var(--admin-line); border-radius: 8px; background: #fff; color: #8390a3; }
+.search-box { flex: 1 1 280px; }
+.search-box input, .select-box select { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--admin-ink); }
+.select-box { flex: 0 1 210px; color: var(--admin-ink); }
+input:focus, select:focus { outline-color: #8db9fb; }
+
+.table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th { padding: 11px 12px; border-bottom: 1px solid var(--admin-line); color: #7d899a; font-size: 10px; font-weight: 800; letter-spacing: .45px; text-transform: uppercase; white-space: nowrap; }
+td { padding: 13px 12px; border-bottom: 1px solid #edf0f4; color: #445169; font-size: 12px; vertical-align: middle; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: #fafcff; }
+.table-primary, .table-secondary { display: block; }
+.table-primary { color: var(--admin-ink); font-weight: 700; }
+.table-secondary { margin-top: 2px; color: #8490a2; font-size: 10px; }
+.row-actions { white-space: nowrap; }
+.row-actions .button { min-height: 31px; margin-right: 5px; padding: 5px 9px; font-size: 11px; }
+.stock--low { color: #b8790e; font-weight: 700; }
+.stock--out { color: #cb3a43; font-weight: 700; }
+.status-pill { display: inline-flex; padding: 4px 9px; border-radius: 999px; background: #eff3f8; color: #526178; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.status-pill--waiting { background: #fff4dc; color: #9a6810; }
+.status-pill--confirmed, .status-pill--preparing { background: #eaf2ff; color: #2b5fa9; }
+.status-pill--shipping { background: #e8f7f5; color: #18776e; }
+.status-pill--delivered { background: #e8f6ed; color: #267343; }
+.status-pill--cancelled { background: #ffeded; color: #ad3c43; }
+td select { max-width: 190px; padding: 7px 9px; border: 1px solid var(--admin-line); border-radius: 7px; background: white; color: var(--admin-ink); font-size: 11px; }
+
+.revenue-search__fields { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.revenue-search__fields > label, .revenue-year-range label, #productForm label { display: grid; flex: 1 1 150px; gap: 6px; color: #59667b; font-size: 12px; font-weight: 700; }
+.revenue-search input, .revenue-search select, #productForm input, #productForm select { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid var(--admin-line); border-radius: 7px; background: #fff; color: var(--admin-ink); }
+.revenue-year-range { display: flex; flex: 1 1 300px; gap: 10px; }
+.revenue-year-range label { min-width: 100px; }
+.revenue-search__hint { margin: 12px 0 0; color: var(--admin-muted); font-size: 12px; }
+.storage-notice { padding: 12px 15px; border: 1px solid #f3d9a5; border-radius: 8px; background: #fff8e9; color: #865c0b; }
+.admin-footer { padding-top: 10px; color: #8a95a5; font-size: 11px; text-align: center; }
+
+.admin-dialog { width: min(540px, calc(100% - 28px)); max-height: min(90vh, 760px); padding: 0; overflow: auto; border: 0; border-radius: 14px; background: #fff; color: var(--admin-ink); box-shadow: 0 24px 80px rgba(14, 30, 55, .25); }
+.admin-dialog::backdrop { background: rgba(15, 27, 45, .55); backdrop-filter: blur(2px); }
+.admin-dialog form { display: grid; gap: 16px; padding: 24px; }
+.dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.dialog-heading h2 { margin: 4px 0 0; font-size: 20px; }
+.icon-button { width: 36px; height: 36px; border: 0; border-radius: 8px; background: #f0f3f8; color: #59667b; font-size: 23px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 9px; padding-top: 4px; }
+.toast { position: fixed; right: 24px; bottom: 24px; z-index: 20; max-width: min(400px, calc(100vw - 32px)); padding: 13px 17px; border-radius: 9px; background: #17243a; color: #fff; box-shadow: 0 8px 28px rgba(0,0,0,.2); opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .2s, transform .2s; }
+.toast.is-visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 1050px) {
+  .sidebar { width: 220px; }
+  .admin-main { width: calc(100% - 220px); margin-left: 220px; padding-right: 24px; padding-left: 24px; }
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .panel-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 680px) {
+  .sidebar { position: static; width: auto; padding: 13px 14px; }
+  .brand { padding: 0 4px 12px; }
+  .brand__mark { width: 34px; height: 34px; }
+  .sidebar-nav { display: flex; overflow-x: auto; gap: 6px; }
+  .nav-link { width: auto; flex: 0 0 auto; padding: 9px 11px; font-size: 12px; }
+  .nav-link > span { width: auto; }
+  .sidebar-home, .sidebar-note { display: none; }
+  .admin-main { width: 100%; margin: 0; padding: 20px 14px; }
+  .topbar { align-items: flex-start; margin-bottom: 21px; }
+  .demo-badge { padding: 6px 9px; font-size: 10px; }
+  .welcome-row, .section-toolbar { align-items: flex-start; flex-direction: column; }
+  .welcome-actions { width: 100%; }
+  .stat-grid { gap: 10px; }
+  .stat-card { min-height: 110px; padding: 14px; }
+  .stat-card strong { font-size: 23px; }
+  .panel { padding: 15px; }
+  .chart { gap: 4px; }
+  .chart-value { font-size: 8px; }
+  .filter-row { flex-direction: column; }
+  .search-box, .select-box { flex-basis: auto; width: 100%; }
+  .form-grid { grid-template-columns: 1fr; }
+  .revenue-year-range { flex-basis: 100%; }
+}
