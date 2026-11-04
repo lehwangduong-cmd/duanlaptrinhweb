@@ -441,21 +441,34 @@
               <!-- Cột phải: Đổi ảnh đại diện & Thông tin hạng thẻ -->
               <div>
                 <div class="avatar-edit-box">
-                  <img src="" id="prof-avatar-preview" class="avatar-preview-lg" alt="Avatar Preview" />
-                  <h4 style="font-size:14px; margin-bottom:4px;">Ảnh đại diện</h4>
-                  <p style="font-size:12px; color:#888;">Chọn một trong các avatar thể thao mẫu:</p>
+                  <div class="avatar-wrapper" onclick="document.getElementById('avatar-file-input').click()" title="Bấm để chọn ảnh từ máy tính">
+                    <img src="" id="prof-avatar-preview" class="avatar-preview-lg" alt="Avatar Preview" />
+                    <span class="avatar-upload-badge" title="Tải ảnh lên"><i class="fas fa-camera"></i></span>
+                  </div>
+                  <h4 style="font-size:14px; margin-top:4px; margin-bottom:2px;">Ảnh đại diện</h4>
+                  
+                  <!-- Nút tải ảnh từ máy tính (thư mục) -->
+                  <input type="file" id="avatar-file-input" accept="image/*" style="display:none;" onchange="handleAvatarFileUpload(event)" />
+                  <button type="button" class="btn-upload-avatar" onclick="document.getElementById('avatar-file-input').click()">
+                    <i class="fas fa-folder-open"></i> Tải ảnh từ thiết bị
+                  </button>
+                  <span id="avatar-file-name" class="avatar-file-name"></span>
+
+                  <div style="width:100%; height:1px; background:#e5e7eb; margin:12px 0;"></div>
+
+                  <p style="font-size:12px; color:#888; margin-bottom:8px;">Hoặc chọn avatar thể thao mẫu:</p>
                   
                   <div class="avatar-presets">
-                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')">
+                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')" title="Avatar mẫu 1">
                       <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Preset 1" />
                     </button>
-                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150')">
+                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150')" title="Avatar mẫu 2">
                       <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" alt="Preset 2" />
                     </button>
-                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150')">
+                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150')" title="Avatar mẫu 3">
                       <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" alt="Preset 3" />
                     </button>
-                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150')">
+                    <button type="button" class="avatar-preset-btn" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150')" title="Avatar mẫu 4">
                       <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" alt="Preset 4" />
                     </button>
                   </div>
@@ -980,6 +993,80 @@
   function selectPresetAvatar(url) {
     currentAvatarUrl = url;
     document.getElementById('prof-avatar-preview').src = url;
+    const nameEl = document.getElementById('avatar-file-name');
+    if (nameEl) {
+      nameEl.textContent = '';
+      nameEl.style.display = 'none';
+    }
+  }
+
+  // Chọn ảnh từ máy tính (thư mục thiết bị)
+  function handleAvatarFileUpload(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      Auth.showToast('Vui lòng chọn file hình ảnh hợp lệ (JPG, PNG, GIF, WebP)!', 'warning');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      Auth.showToast('Ảnh quá lớn! Vui lòng chọn ảnh dưới 10MB.', 'warning');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        // Nén ảnh về kích thước tối ưu (max 250x250) để lưu nhẹ nhàng vào LocalStorage
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 250;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height = Math.round((height * MAX_SIZE) / width);
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width = Math.round((width * MAX_SIZE) / height);
+            height = MAX_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        currentAvatarUrl = optimizedDataUrl;
+        document.getElementById('prof-avatar-preview').src = optimizedDataUrl;
+
+        const nameEl = document.getElementById('avatar-file-name');
+        if (nameEl) {
+          nameEl.textContent = `✓ Đã chọn: ${file.name}`;
+          nameEl.style.display = 'block';
+        }
+
+        Auth.showToast('Đã tải ảnh lên! Hãy nhấn "Lưu thay đổi" để cập nhật.', 'info');
+      };
+
+      img.onerror = function() {
+        Auth.showToast('Không thể đọc file ảnh này!', 'error');
+      };
+
+      img.src = e.target.result;
+    };
+
+    reader.onerror = function() {
+      Auth.showToast('Lỗi khi đọc file ảnh từ máy tính!', 'error');
+    };
+
+    reader.readAsDataURL(file);
   }
 
   // Cập nhật thông tin cá nhân
