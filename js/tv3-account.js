@@ -29,7 +29,6 @@ var Auth = (function () {
   const ADMIN_EMAILS = [
     'minhgialapnhua2k7@gmail.com',
     'nhomanhdangcapso1vn@gmail.com',
-    'abcdxyz@gmail.com',
     'admin@sportzone.vn'
   ];
 
@@ -98,84 +97,6 @@ var Auth = (function () {
           ward: 'Phường Bến Nghé',
           addressDetail: '123 Nguyễn Huệ',
           isDefault: false
-        }
-      ]
-    },
-    {
-      id: 'USR-GGL-02',
-      fullName: 'Minh Lê',
-      email: '4gkhongnen2k7@gmail.com',
-      phone: '0922334455',
-      password: 'user123',
-      role: 'user',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
-      gender: 'male',
-      birthday: '1997-03-20',
-      membership: 'Thành viên Google',
-      joinedDate: '2024-02-15',
-      addresses: [
-        {
-          id: 'ADDR-G2',
-          recipientName: 'Minh Lê',
-          phone: '0922334455',
-          city: 'Hồ Chí Minh',
-          district: 'Quận 3',
-          ward: 'Phường Võ Thị Sáu',
-          addressDetail: '88 Nam Kỳ Khởi Nghĩa',
-          isDefault: true
-        }
-      ]
-    },
-    {
-      id: 'USR-GGL-03',
-      fullName: 'Cong Minh',
-      email: 'congm3180@gmail.com',
-      phone: '0933445566',
-      password: 'user123',
-      role: 'user',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150',
-      gender: 'male',
-      birthday: '1999-07-10',
-      membership: 'Thành viên Google',
-      joinedDate: '2024-03-01',
-      addresses: [
-        {
-          id: 'ADDR-G3',
-          recipientName: 'Cong Minh',
-          phone: '0933445566',
-          city: 'Đà Nẵng',
-          district: 'Hải Châu',
-          ward: 'Phường Thạch Thang',
-          addressDetail: '24 Bạch Đằng',
-          isDefault: true
-        }
-      ]
-    },
-    {
-      id: 'USR-GGL-04',
-      fullName: 'Le Minh',
-      email: 'minhmuonacc07@gmail.com',
-      phone: '0944556677',
-      password: 'user123',
-      role: 'user',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150',
-      gender: 'male',
-      birthday: '1998-12-05',
-      membership: 'Thành viên Google',
-      joinedDate: '2024-04-12',
-      addresses: [
-        {
-          id: 'ADDR-G4',
-          recipientName: 'Le Minh',
-          phone: '0944556677',
-          city: 'Hà Nội',
-          district: 'Hoàn Kiếm',
-          ward: 'Phường Tràng Tiền',
-          addressDetail: '10 Tràng Tiền',
-          isDefault: true
         }
       ]
     },
@@ -401,17 +322,22 @@ var Auth = (function () {
     try {
       let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
 
-      // Đồng bộ các tài khoản Google mẫu chuẩn giao diện vào hệ thống
-      const PRESET_GOOGLE_ACCOUNTS = [
+      // Tự động dọn dẹp triệt để các tài khoản thử nghiệm cũ khỏi hệ thống
+      const REMOVED_EMAILS = [
+        '4gkhongnen2k7@gmail.com',
+        'abcdxyz@gmail.com',
+        'minhmuonacc07@gmail.com',
+        'congm3180@gmail.com'
+      ];
+      users = users.filter(x => !REMOVED_EMAILS.includes((x.email || '').toLowerCase().trim()));
+
+      // Đồng bộ thông tin các tài khoản Admin chính vào hệ thống
+      const PRESET_ADMIN_ACCOUNTS = [
         { email: 'minhgialapnhua2k7@gmail.com', fullName: 'Minh Lê', role: 'admin' },
-        { email: 'nhomanhdangcapso1vn@gmail.com', fullName: 'Minh Dương Anh Diện Phong', role: 'admin' },
-        { email: 'abcdxyz@gmail.com', fullName: 'Tài Khoản Thử Nghiệm', role: 'admin' },
-        { email: '4gkhongnen2k7@gmail.com', fullName: 'Minh Lê', role: 'user' },
-        { email: 'congm3180@gmail.com', fullName: 'Cong Minh', role: 'user' },
-        { email: 'minhmuonacc07@gmail.com', fullName: 'Le Minh', role: 'user' }
+        { email: 'nhomanhdangcapso1vn@gmail.com', fullName: 'Minh Dương Anh Diện Phong', role: 'admin' }
       ];
 
-      PRESET_GOOGLE_ACCOUNTS.forEach(p => {
+      PRESET_ADMIN_ACCOUNTS.forEach(p => {
         let u = users.find(x => x.email.toLowerCase() === p.email.toLowerCase());
         if (u) {
           u.fullName = p.fullName;
@@ -419,7 +345,7 @@ var Auth = (function () {
           u.status = 'active';
         } else {
           users.push({
-            id: 'USR-GGL-' + String(Date.now()).slice(-4) + Math.floor(Math.random() * 100),
+            id: 'USR-ADM-' + String(Date.now()).slice(-4),
             fullName: p.fullName,
             email: p.email,
             phone: '0912345678',
@@ -429,7 +355,7 @@ var Auth = (function () {
             avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
             gender: 'male',
             birthday: '1995-05-15',
-            membership: p.role === 'admin' ? 'Quản trị viên cấp cao' : 'Thành viên Google',
+            membership: 'Quản trị viên cấp cao',
             joinedDate: '2024-01-10',
             addresses: []
           });
@@ -572,11 +498,7 @@ var Auth = (function () {
 
     const KNOWN_MAP = {
       'minhgialapnhua2k7@gmail.com': { fullName: 'Minh Lê', role: 'admin' },
-      'abcdxyz@gmail.com': { fullName: 'Tài Khoản Thử Nghiệm', role: 'admin' },
-      'nhomanhdangcapso1vn@gmail.com': { fullName: 'Minh Dương Anh Diện Phong', role: 'admin' },
-      '4gkhongnen2k7@gmail.com': { fullName: 'Minh Lê', role: 'user' },
-      'congm3180@gmail.com': { fullName: 'Cong Minh', role: 'user' },
-      'minhmuonacc07@gmail.com': { fullName: 'Le Minh', role: 'user' }
+      'nhomanhdangcapso1vn@gmail.com': { fullName: 'Minh Dương Anh Diện Phong', role: 'admin' }
     };
 
     const isPreset = KNOWN_MAP[targetEmail];
@@ -635,6 +557,78 @@ var Auth = (function () {
    * @param {string} password - Mật khẩu
    * @returns {Object} { success: boolean, message: string, user?: Object }
    */
+  
+  /**
+   * ĐĂNG NHẬP BẰNG GOOGLE CREDENTIAL (Từ Google Identity Services chính thức)
+   * @param {Object} data { googleId, email, fullName, avatar, emailVerified, idToken }
+   */
+  function loginWithGoogleCredential(data) {
+    init();
+    if (!data) return { success: false, message: 'Dữ liệu đăng nhập Google rỗng!' };
+
+    const googleId = data.googleId || '';
+    const cleanEmail = (data.email || '').trim().toLowerCase();
+    const fullName = (data.fullName || cleanEmail.split('@')[0] || 'Người dùng Google').trim();
+    const avatar = data.avatar || '';
+    const idToken = data.idToken || '';
+
+    if (!cleanEmail) {
+      return { success: false, message: 'Email Google không hợp lệ!' };
+    }
+
+    const users = getUsers();
+    let user = users.find(u => u.email.toLowerCase() === cleanEmail);
+
+    const isAdminEmail = ADMIN_EMAILS.some(e => e.toLowerCase() === cleanEmail);
+
+    if (!user) {
+      user = {
+        id: 'USR-GGL-' + (googleId ? googleId.slice(-6) : String(Date.now()).slice(-6)),
+        googleId: googleId,
+        fullName: fullName,
+        email: cleanEmail,
+        phone: '',
+        password: 'google_oauth_pass',
+        role: isAdminEmail ? 'admin' : 'user',
+        status: 'active',
+        avatar: avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+        gender: 'other',
+        birthday: '',
+        membership: isAdminEmail ? 'Quản trị viên cấp cao' : 'Thành viên Google',
+        joinedDate: new Date().toISOString().slice(0, 10),
+        addresses: [],
+        loginMethod: 'google'
+      };
+      users.unshift(user);
+    } else {
+      if (googleId) user.googleId = googleId;
+      if (avatar) user.avatar = avatar;
+      if (fullName && (!user.fullName || user.fullName === cleanEmail)) user.fullName = fullName;
+      user.loginMethod = 'google';
+      if (isAdminEmail) user.role = 'admin';
+    }
+
+    if (user.status === 'locked') {
+      return {
+        success: false,
+        message: 'Tài khoản Google này đã bị khóa bởi Quản trị viên!'
+      };
+    }
+
+    saveUsers(users);
+    setCurrentUser(user);
+
+    try {
+      if (idToken) localStorage.setItem('sz_google_id_token', idToken);
+    } catch (e) {}
+
+    return {
+      success: true,
+      message: `Đăng nhập Google thành công! Xin chào ${user.fullName} (${user.role === 'admin' ? '👑 Admin' : 'Khách hàng'}).`,
+      user: user
+    };
+  }
+
   function login(identity, password) {
     init();
     const cleanId = (identity || '').trim().toLowerCase();
@@ -1330,6 +1324,7 @@ var Auth = (function () {
     isAdmin,
     login,
     loginWithGoogle,
+    loginWithGoogleCredential,
     register,
     logout,
     quickLogin,
