@@ -268,7 +268,7 @@
       stock: Number(document.getElementById('productStock').value),
       sku,
     };
-    if (!product.name || !product.category || !Number.isFinite(product.price) || product.price < 0 ||
+    if (!product.name || !product.category || !Number.isFinite(product.price) || product.price <= 0 ||
       !Number.isInteger(product.stock) || product.stock < 0) {
       showToast('Vui lòng kiểm tra thông tin sản phẩm.');
       return;
