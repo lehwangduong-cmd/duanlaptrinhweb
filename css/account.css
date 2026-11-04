@@ -594,6 +594,108 @@
 .btn-social.google i { color: #ea4335; }
 .btn-social.facebook i { color: #1877f2; }
 
+/* --- Google Identity Services (GIS Official Sign-In) --- */
+.google-signin-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.g-signin-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+}
+
+.btn-google-official {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+  height: 44px;
+  padding: 0 16px;
+  background-color: #ffffff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-family: 'Roboto', 'Be Vietnam Pro', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.25px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(60,64,67,0.1), 0 1px 3px 1px rgba(60,64,67,0.06);
+  transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+  user-select: none;
+}
+
+.btn-google-official:hover {
+  background-color: #f8fafd;
+  border-color: #c2d7fa;
+  box-shadow: 0 1px 3px 1px rgba(60,64,67,0.15), 0 2px 6px rgba(60,64,67,0.1);
+  transform: translateY(-1px);
+}
+
+.btn-google-official:active {
+  background-color: #e8f0fe;
+  box-shadow: inset 0 1px 2px rgba(60,64,67,0.2);
+  transform: translateY(0);
+}
+
+.btn-google-official .google-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.google-config-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.google-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  color: #475569;
+  font-weight: 500;
+}
+
+.btn-config-clientid {
+  background: none;
+  border: none;
+  color: #0284c7;
+  font-size: 11.5px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 2px 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s;
+}
+
+.btn-config-clientid:hover {
+  color: #0369a1;
+}
+
 /* --- Google Fast Sign-In --- */
 .google-onetap-container {
   margin-bottom: 20px;
