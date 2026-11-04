@@ -6,10 +6,9 @@
   const SHOP_ORDERS_KEY = 'sz_orders';
   const ORDER_STATUSES = [
     'Chờ xác nhận',
-    'Đã xác nhận',
-    'Đang chuẩn bị hàng',
+    'Đang xử lý',
     'Đang giao hàng',
-    'Đã giao hàng',
+    'Đã hoàn thành',
     'Đã hủy',
   ];
   const STOCK_WARNING_LEVEL = 5;
@@ -311,9 +310,10 @@
         : 'Không có thông tin';
       const status = document.createElement('td');
       const select = document.createElement('select');
-      select.dataset.orderIndex = String(index);
-      select.setAttribute('aria-label', `Cập nhật trạng thái đơn ${order.orderId || ''}`);
       const currentStatus = getOrderStatus(order);
+      select.dataset.orderIndex = String(index);
+      select.className = `order-status-select order-status-select--${getOrderStatusClass(currentStatus)}`;
+      select.setAttribute('aria-label', `Cập nhật trạng thái đơn ${order.orderId || ''}`);
       if (!ORDER_STATUSES.includes(currentStatus)) {
         const unknownOption = document.createElement('option');
         unknownOption.value = currentStatus;
@@ -358,7 +358,14 @@
       if (status !== 'Đã hủy') delete next.cancelledAt;
       return next;
     });
-    persistArray(ORDERS_KEY, updated, 'Đã cập nhật trạng thái đơn hàng.');
+    const orderId = getOrderIdentity(state.orders[index]);
+    const shopStatus = getShopOrderStatus(status);
+    const updatedShopOrders = state.shopOrders.map(order =>
+      orderId && getOrderIdentity(order) === orderId
+        ? { ...order, status: shopStatus.status, statusText: shopStatus.statusText }
+        : order
+    );
+    persistOrderUpdates(updated, updatedShopOrders, 'Đã cập nhật trạng thái đơn hàng.');
   }
 
   function renderCustomers() {
@@ -589,12 +596,28 @@
   }
 
   function getRevenueOrders() {
-    return state.shopOrders.filter(order =>
-      (order.status === 'delivered' ||
-        getOrderStatus(order) === 'Đã giao hàng' ||
-        order.statusText === 'Giao hàng thành công') &&
-      parseDate(order.createdAt || order.timestamp)
+    const adminOrders = new Map(
+      state.orders
+        .map(order => [getOrderIdentity(order), order])
+        .filter(([id]) => id)
     );
+    const revenueOrders = state.shopOrders.filter(order => {
+      const matchingAdminOrder = adminOrders.get(getOrderIdentity(order));
+      return !matchingAdminOrder && isCompletedOrder(order) &&
+        parseDate(order.createdAt || order.timestamp);
+    });
+    state.orders.forEach(order => {
+      if (getOrderStatus(order) === 'Đã hoàn thành' &&
+        parseDate(order.createdAt || order.timestamp)) {
+        revenueOrders.push(order);
+      }
+    });
+    return revenueOrders;
+  }
+
+  function isCompletedOrder(order) {
+    return getOrderStatus(order) === 'Đã hoàn thành' ||
+      order.statusText === 'Giao hàng thành công';
   }
 
   function getRevenueOrderTotal(order) {
@@ -636,6 +659,45 @@
     }
   }
 
+  function persistOrderUpdates(orders, shopOrders, successMessage) {
+    let previousOrders;
+    let previousShopOrders;
+    try {
+      previousOrders = localStorage.getItem(ORDERS_KEY);
+      previousShopOrders = localStorage.getItem(SHOP_ORDERS_KEY);
+      const serializedOrders = JSON.stringify(orders);
+      const serializedShopOrders = JSON.stringify(shopOrders);
+      localStorage.setItem(ORDERS_KEY, serializedOrders);
+      localStorage.setItem(SHOP_ORDERS_KEY, serializedShopOrders);
+      if (localStorage.getItem(ORDERS_KEY) !== serializedOrders ||
+        localStorage.getItem(SHOP_ORDERS_KEY) !== serializedShopOrders) {
+        throw new Error('Dữ liệu trạng thái đơn hàng lưu không khớp.');
+      }
+      state.orders = orders;
+      state.shopOrders = shopOrders;
+      document.getElementById('storageNotice').hidden = true;
+      renderAll();
+      showToast(successMessage);
+      return true;
+    } catch (error) {
+      try {
+        if (previousOrders !== undefined) {
+          if (previousOrders === null) localStorage.removeItem(ORDERS_KEY);
+          else localStorage.setItem(ORDERS_KEY, previousOrders);
+        }
+        if (previousShopOrders !== undefined) {
+          if (previousShopOrders === null) localStorage.removeItem(SHOP_ORDERS_KEY);
+          else localStorage.setItem(SHOP_ORDERS_KEY, previousShopOrders);
+        }
+      } catch (rollbackError) {
+        console.error('[Admin] Không thể khôi phục trạng thái đơn hàng:', rollbackError);
+      }
+      console.error('[Admin] Không thể lưu trạng thái đơn hàng:', error);
+      showToast('Không thể lưu thay đổi trạng thái đơn hàng.');
+      return false;
+    }
+  }
+
   function handleStorageChange(event) {
     if (event.key === 'sz_currentUser' || event.key === 'sz_user') {
       if (typeof Auth === 'undefined' || !Auth.isAdmin()) {
@@ -670,16 +732,53 @@
 
   function statusCell(status) {
     const cell = document.createElement('td');
-    const classByStatus = {
-      'Chờ xác nhận': 'waiting',
-      'Đã xác nhận': 'confirmed',
-      'Đang chuẩn bị hàng': 'preparing',
-      'Đang giao hàng': 'shipping',
-      'Đã giao hàng': 'delivered',
-      'Đã hủy': 'cancelled',
-    };
-    cell.appendChild(createText('span', `status-pill status-pill--${classByStatus[status] || 'waiting'}`, status));
+    const normalizedStatus = normalizeOrderStatus(status);
+    cell.appendChild(createText(
+      'span',
+      `status-pill status-pill--${getOrderStatusClass(normalizedStatus)}`,
+      normalizedStatus
+    ));
     return cell;
+  }
+
+  function getOrderStatusClass(status) {
+    return {
+      'Chờ xác nhận': 'waiting',
+      'Đang xử lý': 'processing',
+      'Đang giao hàng': 'shipping',
+      'Đã hoàn thành': 'completed',
+      'Đã hủy': 'cancelled',
+    }[normalizeOrderStatus(status)] || 'waiting';
+  }
+
+  function normalizeOrderStatus(status) {
+    const value = typeof status === 'string' ? status.trim() : '';
+    const aliases = {
+      pending: 'Chờ xác nhận',
+      'Đã xác nhận': 'Đang xử lý',
+      'Đang chuẩn bị hàng': 'Đang xử lý',
+      preparing: 'Đang xử lý',
+      shipping: 'Đang giao hàng',
+      'Đang vận chuyển': 'Đang giao hàng',
+      delivered: 'Đã hoàn thành',
+      completed: 'Đã hoàn thành',
+      'Đã giao hàng': 'Đã hoàn thành',
+      'Giao hàng thành công': 'Đã hoàn thành',
+      cancelled: 'Đã hủy',
+      canceled: 'Đã hủy',
+    };
+    return aliases[value] || value || 'Chờ xác nhận';
+  }
+
+  function getShopOrderStatus(status) {
+    const shopStatuses = {
+      'Chờ xác nhận': { status: 'Chờ xác nhận', statusText: 'Chờ xác nhận' },
+      'Đang xử lý': { status: 'Đang chuẩn bị hàng', statusText: 'Đang chuẩn bị hàng' },
+      'Đang giao hàng': { status: 'Đang giao hàng', statusText: 'Đang vận chuyển' },
+      'Đã hoàn thành': { status: 'Đã giao hàng', statusText: 'Giao hàng thành công' },
+      'Đã hủy': { status: 'Đã hủy', statusText: 'Đã hủy đơn' },
+    };
+    return shopStatuses[status];
   }
 
   function createElement(tag, className) {
@@ -699,9 +798,12 @@
   }
 
   function getOrderStatus(order) {
-    return typeof order.status === 'string' && order.status.trim()
-      ? order.status.trim()
-      : 'Chờ xác nhận';
+    return normalizeOrderStatus(order.status);
+  }
+
+  function getOrderIdentity(order) {
+    const id = order.orderId ?? order.id;
+    return id === null || id === undefined ? '' : String(id).trim();
   }
 
   function getOrderTotal(order) {
