@@ -138,8 +138,27 @@ tbody tr:hover { background: #fafcff; }
 .table-primary, .table-secondary { display: block; }
 .table-primary { color: var(--admin-ink); font-weight: 700; }
 .table-secondary { margin-top: 2px; color: #8490a2; font-size: 10px; }
-.row-actions { white-space: nowrap; }
-.row-actions .button { min-height: 31px; margin-right: 5px; padding: 5px 9px; font-size: 11px; }
+.row-actions { text-align: right; white-space: nowrap; }
+.row-actions .small-button {
+  display: inline-flex;
+  min-width: 72px;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  padding: 8px 14px;
+  border: 1px solid #1769e0;
+  border-radius: 8px;
+  background: #1769e0;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background .18s, border-color .18s, transform .18s;
+}
+.row-actions .small-button:hover { transform: translateY(-1px); background: #0e4eae; border-color: #0e4eae; }
+.row-actions .small-button--danger { border-color: #d9434b; background: #d9434b; }
+.row-actions .small-button--danger:hover { border-color: #b82e37; background: #b82e37; }
+.row-actions .small-button:focus-visible { outline: 3px solid rgba(23, 105, 224, .3); outline-offset: 2px; }
 .stock--low { color: #b8790e; font-weight: 700; }
 .stock--out { color: #cb3a43; font-weight: 700; }
 .status-pill { display: inline-flex; padding: 4px 9px; border-radius: 999px; background: #eff3f8; color: #526178; font-size: 10px; font-weight: 700; white-space: nowrap; }
