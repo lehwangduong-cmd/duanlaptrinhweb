@@ -163,11 +163,17 @@ tbody tr:hover { background: #fafcff; }
 .stock--out { color: #cb3a43; font-weight: 700; }
 .status-pill { display: inline-flex; padding: 4px 9px; border-radius: 999px; background: #eff3f8; color: #526178; font-size: 10px; font-weight: 700; white-space: nowrap; }
 .status-pill--waiting { background: #fff4dc; color: #9a6810; }
-.status-pill--confirmed, .status-pill--preparing { background: #eaf2ff; color: #2b5fa9; }
+.status-pill--processing { background: #eaf2ff; color: #2b5fa9; }
 .status-pill--shipping { background: #e8f7f5; color: #18776e; }
-.status-pill--delivered { background: #e8f6ed; color: #267343; }
+.status-pill--completed { background: #e8f6ed; color: #267343; }
 .status-pill--cancelled { background: #ffeded; color: #ad3c43; }
-td select { max-width: 190px; padding: 7px 9px; border: 1px solid var(--admin-line); border-radius: 7px; background: white; color: var(--admin-ink); font-size: 11px; }
+.order-status-select { max-width: 190px; padding: 8px 10px; border: 1px solid var(--admin-line); border-radius: 8px; font-size: 11px; font-weight: 700; }
+.order-status-select--waiting { border-color: #f0d99e; background: #fff4dc; color: #9a6810; }
+.order-status-select--processing { border-color: #c9dcfb; background: #eaf2ff; color: #2b5fa9; }
+.order-status-select--shipping { border-color: #bce6df; background: #e8f7f5; color: #18776e; }
+.order-status-select--completed { border-color: #bfe3ca; background: #e8f6ed; color: #267343; }
+.order-status-select--cancelled { border-color: #f0c4c6; background: #ffeded; color: #ad3c43; }
+.order-status-select option { background: #fff; color: var(--admin-ink); }
 
 .revenue-search__fields { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
 .revenue-search__fields > label, .revenue-year-range label, #productForm label { display: grid; flex: 1 1 150px; gap: 6px; color: #59667b; font-size: 12px; font-weight: 700; }
