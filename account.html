@@ -492,7 +492,7 @@
                   <span class="stat-value" id="prof-joined-date">15/03/2024</span>
                 </div>
               </div>
-              <div class="user-stat-card">
+              <div class="user-stat-card" id="card-stat-orders">
                 <i class="fas fa-shopping-bag"></i>
                 <div>
                   <span class="stat-label">Đơn hàng đã đặt</span>
@@ -591,6 +591,139 @@
 
   </div><!-- /container -->
 </main>
+
+
+<!-- ========================================== -->
+<!-- MODAL: CỬA SỔ ĐĂNG NHẬP GOOGLE CHROME     -->
+<!-- (Mô phỏng chuẩn giao diện Google OAuth     -->
+<!-- accounts.google.com popup)                 -->
+<!-- ========================================== -->
+<div class="sz-modal-overlay" id="modal-google-signin" onclick="if(event.target===this)closeModal('modal-google-signin')">
+  <div class="chrome-popup-window" onclick="event.stopPropagation()">
+    <!-- 1. Thanh tiêu đề Chrome (Window Title Bar) -->
+    <div class="chrome-window-titlebar">
+      <div class="chrome-window-left">
+        <svg class="chrome-tab-favicon" viewBox="0 0 24 24" width="16" height="16">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span class="chrome-tab-title">Đăng nhập - Tài khoản Google - Google Chrome</span>
+      </div>
+      <div class="chrome-window-controls">
+        <button type="button" class="chrome-btn win-minimize" aria-label="Minimize" onclick="closeModal('modal-google-signin')">
+          <svg width="10" height="1" viewBox="0 0 10 1"><rect width="10" height="1" fill="#1f1f1f"/></svg>
+        </button>
+        <button type="button" class="chrome-btn win-maximize" aria-label="Maximize">
+          <svg width="10" height="10" viewBox="0 0 10 10"><rect width="9" height="9" x="0.5" y="0.5" fill="none" stroke="#1f1f1f" stroke-width="1"/></svg>
+        </button>
+        <button type="button" class="chrome-btn win-close" aria-label="Close" onclick="closeModal('modal-google-signin')">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9" stroke="#1f1f1f" stroke-width="1.2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. Thanh địa chỉ Chrome (Omnibox URL Bar) -->
+    <div class="chrome-omnibox-row">
+      <div class="chrome-omnibox-capsule">
+        <svg class="chrome-tune-icon" viewBox="0 0 24 24" width="14" height="14">
+          <path fill="#5f6368" d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+        </svg>
+        <span class="chrome-url-text">accounts.google.com/v3/signin/identifier?authuser=0&continue=https://sportzone.vn</span>
+      </div>
+    </div>
+
+    <!-- 3. Nội dung trang Google OAuth (Google Accounts Chooser) -->
+    <div class="google-oauth-window-body">
+      <!-- Thương hiệu Google OAuth -->
+      <div class="google-oauth-header-brand">
+        <svg viewBox="0 0 24 24" width="22" height="22">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span>Đăng nhập bằng Google</span>
+      </div>
+
+      <!-- Tiêu đề Chọn tài khoản -->
+      <div class="google-oauth-headline-section">
+        <h1 class="google-oauth-title">Chọn tài khoản</h1>
+        <p class="google-oauth-subtitle">
+          Tiếp tục tới <a href="javascript:void(0)" class="google-oauth-site-link">sportzone.vn</a>
+        </p>
+      </div>
+
+      <!-- Danh sách tài khoản -->
+      <div class="google-oauth-account-list">
+        <!-- 1. Minh Dương Anh Diện Phong (nhomanhdangcapso1vn@gmail.com) - Admin -->
+        <button type="button" class="google-account-entry" onclick="handleGoogleSelect('nhomanhdangcapso1vn@gmail.com', 'Minh Dương Anh Diện Phong')">
+          <div class="google-entry-avatar" style="background-color: #0284c7;">P</div>
+          <div class="google-entry-info">
+            <div class="google-entry-name">Minh Dương Anh Diện Phong <span style="font-size:11px; padding:2px 6px; background:#fef3c7; color:#92400e; border-radius:10px; font-weight:700; margin-left:4px;">👑 Quản trị viên</span></div>
+            <div class="google-entry-email">nhomanhdangcapso1vn@gmail.com</div>
+          </div>
+        </button>
+
+        <!-- 2. Minh Lê (minhgialapnhua2k7@gmail.com) - Admin -->
+        <button type="button" class="google-account-entry" onclick="handleGoogleSelect('minhgialapnhua2k7@gmail.com', 'Minh Lê')">
+          <div class="google-entry-avatar" style="background-color: #7b1fa2;">M</div>
+          <div class="google-entry-info">
+            <div class="google-entry-name">Minh Lê <span style="font-size:11px; padding:2px 6px; background:#fef3c7; color:#92400e; border-radius:10px; font-weight:700; margin-left:4px;">👑 Quản trị viên</span></div>
+            <div class="google-entry-email">minhgialapnhua2k7@gmail.com</div>
+          </div>
+        </button>
+
+        <!-- 3. Khách Hàng SportZone (khachhang.sportzone@gmail.com) - Khách hàng -->
+        <button type="button" class="google-account-entry" onclick="handleGoogleSelect('khachhang.sportzone@gmail.com', 'Khách Hàng SportZone')">
+          <div class="google-entry-avatar" style="background-color: #10b981;">K</div>
+          <div class="google-entry-info">
+            <div class="google-entry-name">Khách Hàng SportZone <span style="font-size:11px; padding:2px 6px; background:#e0f2fe; color:#0369a1; border-radius:10px; font-weight:700; margin-left:4px;">👤 Khách hàng</span></div>
+            <div class="google-entry-email">khachhang.sportzone@gmail.com</div>
+          </div>
+        </button>
+
+        <!-- 4. Sử dụng một tài khoản khác -->
+        <button type="button" class="google-account-entry other-account-btn" onclick="toggleCustomGoogleInput()">
+          <div class="google-entry-avatar avatar-other-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <path fill="#5f6368" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
+          </div>
+          <div class="google-entry-info">
+            <div class="google-entry-name">Sử dụng một tài khoản khác (Nhập Gmail bất kỳ)</div>
+          </div>
+        </button>
+
+        <!-- Khung nhập email tài khoản khác (trượt xuống khi bấm) -->
+        <div id="custom-google-box" class="google-custom-input-box" style="display: none;">
+          <div class="google-custom-prompt">Nhập địa chỉ Email Google của bạn:</div>
+          <div class="google-custom-row">
+            <input type="email" id="custom-google-email" class="google-custom-field" placeholder="ví dụ: nguyenvana@gmail.com" onkeydown="if(event.key==='Enter'){event.preventDefault();submitCustomGoogleAccount();}">
+            <button type="button" class="google-custom-submit-btn" onclick="submitCustomGoogleAccount()">Đăng nhập ngay</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Chân trang Google OAuth (Footer) -->
+      <div class="google-oauth-footer-bar">
+        <div class="google-footer-left">
+          <span class="google-footer-lang">
+            Tiếng Việt
+            <svg viewBox="0 0 10 6" width="10" height="6">
+              <path fill="#5f6368" d="M0 0l5 6 5-6z"/>
+            </svg>
+          </span>
+        </div>
+        <div class="google-footer-right">
+          <a href="javascript:void(0)" class="google-footer-link" onclick="promptConfigureClientId()">⚙️ Cấu hình Client ID thật</a>
+          <a href="javascript:void(0)" class="google-footer-link" onclick="closeModal('modal-google-signin')">Đóng</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <!-- ========================================== -->
@@ -762,6 +895,12 @@
 <!-- Back to top -->
 <button id="back-to-top" aria-label="Lên đầu trang"><i class="fas fa-chevron-up"></i></button>
 
+<!-- Firebase SDK (v9 compat) for Cloud Realtime Sync -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/cloud-sync.js"></script>
+
 <!-- Shared Core API (Auth & Wishlist - TV3) -->
 <script src="js/shared.js"></script>
 <!-- Main Project Script -->
@@ -776,9 +915,13 @@
     checkPageState();
     initGoogleIdentityServices();
 
-    // Check query params for tab (ví dụ: account.html?tab=orders)
+    // Check query params for tab (ví dụ: account.html?tab=orders hoặc account.html?tab=addresses)
     const urlParams = new URLSearchParams(window.location.search);
-    const requestedTab = urlParams.get('tab');
+    let requestedTab = urlParams.get('tab');
+    const cur = typeof Auth !== 'undefined' ? Auth.getCurrentUser() : null;
+    if (cur && cur.role === 'admin' && (requestedTab === 'orders' || requestedTab === 'addresses')) {
+      requestedTab = 'profile';
+    }
     if (requestedTab && typeof Auth !== 'undefined' && Auth.isLoggedIn()) {
       switchProfileTab(requestedTab);
     }
@@ -789,6 +932,19 @@
   } else {
     initAccountPage();
   }
+
+  // Tự động làm mới khi Cloud Firestore hoặc Storage cập nhật dữ liệu Realtime
+  window.addEventListener('sz:cloud-sync', () => {
+    if (typeof Auth !== 'undefined') checkPageState();
+  });
+  window.addEventListener('sz:orders-updated', () => {
+    if (typeof Auth !== 'undefined') checkPageState();
+  });
+  window.addEventListener('storage', (e) => {
+    if (!e || e.key === 'sz_orders' || e.key === 'sportzone_orders' || e.key === 'sz_current_user') {
+      if (typeof Auth !== 'undefined') checkPageState();
+    }
+  });
 
   // Kiểm tra trạng thái đăng nhập để hiển thị View tương ứng
   function checkPageState() {
@@ -935,6 +1091,9 @@
     const badgesContainer = document.getElementById('user-header-badges');
     const btnGotoAdmin = document.getElementById('btn-goto-admin');
     const navItemAdmin = document.getElementById('nav-item-admin');
+    const navItemOrders = document.getElementById('nav-item-orders');
+    const navItemAddresses = document.getElementById('nav-item-addresses');
+    const cardStatOrders = document.getElementById('card-stat-orders');
 
     if (user.role === 'admin') {
       badgesContainer.innerHTML = `
@@ -944,6 +1103,18 @@
       `;
       btnGotoAdmin.style.display = 'inline-flex';
       navItemAdmin.style.display = 'block';
+
+      // Ẩn tab Lịch sử đơn hàng, Sổ địa chỉ và Thẻ thống kê đơn hàng đối với Quản trị viên (Admin)
+      if (navItemOrders) navItemOrders.style.display = 'none';
+      if (navItemAddresses) navItemAddresses.style.display = 'none';
+      if (cardStatOrders) cardStatOrders.style.display = 'none';
+
+      // Nếu đang mở tab đơn hàng hoặc sổ địa chỉ, tự động chuyển về tab profile
+      const paneOrders = document.getElementById('pane-orders');
+      const paneAddresses = document.getElementById('pane-addresses');
+      if ((paneOrders && paneOrders.classList.contains('active')) || (paneAddresses && paneAddresses.classList.contains('active'))) {
+        switchProfileTab('profile');
+      }
     } else {
       badgesContainer.innerHTML = `
         <span class="badge-role badge-user">
@@ -952,6 +1123,9 @@
       `;
       btnGotoAdmin.style.display = 'none';
       navItemAdmin.style.display = 'none';
+      if (navItemOrders) navItemOrders.style.display = 'block';
+      if (navItemAddresses) navItemAddresses.style.display = 'block';
+      if (cardStatOrders) cardStatOrders.style.display = 'flex';
     }
 
     // Form Thông tin
@@ -964,19 +1138,27 @@
     currentAvatarUrl = user.avatar;
 
     // Stat cards
-    document.getElementById('prof-membership').textContent = user.membership || (user.role === 'admin' ? 'Quản trị viên' : 'Thành viên Bạc');
+    document.getElementById('prof-membership').textContent = user.membership || (user.role === 'admin' ? 'Quản trị viên cấp cao' : 'Thành viên Bạc');
     document.getElementById('prof-joined-date').textContent = user.joinedDate ? formatDate(user.joinedDate) : '2024';
 
-    const orders = Auth.getUserOrders(user.id);
-    document.getElementById('prof-order-count').textContent = `${orders.length} đơn hàng`;
-
-    // Render Đơn hàng & Địa chỉ
-    renderOrdersList(orders);
-    renderAddressesList(user.addresses || []);
+    if (user.role !== 'admin') {
+      const orders = Auth.getUserOrders(user.id);
+      const profOrderCount = document.getElementById('prof-order-count');
+      if (profOrderCount) profOrderCount.textContent = `${orders.length} đơn hàng`;
+      // Render Đơn hàng
+      renderOrdersList(orders);
+      // Render Địa chỉ
+      renderAddressesList(user.addresses || []);
+    }
   }
 
   // Chuyển tab trong Dashboard Hồ sơ
   function switchProfileTab(tabName) {
+    const cur = typeof Auth !== 'undefined' ? Auth.getCurrentUser() : null;
+    if (cur && cur.role === 'admin' && (tabName === 'orders' || tabName === 'addresses')) {
+      tabName = 'profile';
+    }
+
     document.querySelectorAll('.profile-nav-item').forEach(item => item.classList.remove('active'));
     document.querySelectorAll('.profile-pane').forEach(pane => pane.classList.remove('active'));
 
@@ -1137,9 +1319,13 @@
     }
 
     container.innerHTML = filtered.map(order => {
+      const orderId = order.id || order.orderId;
+      const orderTotal = Number(order.totalAmount !== undefined ? order.totalAmount : (order.total || 0));
+      const orderDate = order.displayDate || order.createdAt || '';
+
       const itemsHtml = (order.items || []).map(item => `
         <div class="order-item-row">
-          <img src="${item.image}" alt="${item.name}" class="order-item-img" />
+          <img src="${item.image || item.img || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=120'}" alt="${item.name}" class="order-item-img" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=120'" />
           <div class="order-item-details">
             <div class="order-item-title">${item.name}</div>
             <div class="order-item-variant">${item.variant || ''} &bull; x${item.quantity}</div>
@@ -1152,8 +1338,8 @@
         <div class="order-card">
           <div class="order-card-header">
             <div>
-              <span class="order-code">Đơn #${order.id}</span>
-              <span class="order-date"><i class="far fa-clock"></i> ${order.createdAt}</span>
+              <span class="order-code">Đơn #${orderId}</span>
+              <span class="order-date"><i class="far fa-clock"></i> ${orderDate}</span>
             </div>
             <span class="order-status-badge ${order.status}">
               ${order.statusText}
@@ -1167,14 +1353,14 @@
           <div class="order-card-footer">
             <div>
               <span class="order-total-label">Tổng thanh toán: </span>
-              <span class="order-total-value">${formatMoney(order.totalAmount)}</span>
+              <span class="order-total-value">${formatMoney(orderTotal)}</span>
             </div>
             <div class="order-actions">
-              <button class="btn-order-detail" onclick="viewOrderDetail('${order.id}')">
+              <button class="btn-order-detail" onclick="viewOrderDetail('${orderId}')">
                 <i class="fas fa-eye"></i> Chi tiết
               </button>
               ${order.status === 'pending' ? `
-                <button class="btn-order-detail" style="color:#d32f2f; border-color:#fecaca;" onclick="cancelMyOrder('${order.id}')">
+                <button class="btn-order-detail" style="color:#d32f2f; border-color:#fecaca;" onclick="cancelMyOrder('${orderId}')">
                   Hủy đơn
                 </button>
               ` : ''}
@@ -1197,10 +1383,16 @@
 
   function viewOrderDetail(orderId) {
     const orders = Auth.getAllOrders();
-    const order = orders.find(o => o.id === orderId);
+    const order = orders.find(o => o.id === orderId || o.orderId === orderId);
     if (!order) return;
 
-    document.getElementById('modal-order-title').textContent = `Chi tiết đơn hàng #${order.id}`;
+    const displayId = order.id || order.orderId;
+    const orderTotal = Number(order.totalAmount !== undefined ? order.totalAmount : (order.total || 0));
+    const shippingFee = Number(order.shippingFee !== undefined ? order.shippingFee : (order.shipping || 0));
+    const discount = Number(order.discount || 0);
+    const subtotal = Number(order.subtotal !== undefined ? order.subtotal : Math.max(0, orderTotal - shippingFee + discount));
+
+    document.getElementById('modal-order-title').textContent = `Chi tiết đơn hàng #${displayId}`;
 
     const itemsRows = (order.items || []).map(i => `
       <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed #eee;">
@@ -1214,9 +1406,10 @@
 
     document.getElementById('modal-order-body').innerHTML = `
       <div style="background:#f8fafc; padding:14px; border-radius:10px; margin-bottom:16px; font-size:13.5px;">
-        <div><strong>Người nhận:</strong> ${order.recipientName || 'Khách hàng'} - ${order.recipientPhone || ''}</div>
-        <div style="margin-top:4px;"><strong>Địa chỉ giao:</strong> ${order.shippingAddress || 'Chưa cập nhật'}</div>
-        <div style="margin-top:4px;"><strong>Hình thức:</strong> ${order.paymentMethod || 'COD'}</div>
+        <div><strong>Người nhận:</strong> ${order.recipientName || order.customer?.fullName || 'Khách hàng'} - ${order.recipientPhone || order.customer?.phone || ''}</div>
+        <div style="margin-top:4px;"><strong>Địa chỉ giao:</strong> ${order.shippingAddress || order.customer?.address || 'Tại cửa hàng'}</div>
+        <div style="margin-top:4px;"><strong>Hình thức:</strong> ${order.paymentMethod || order.paymentLabel || 'Thanh toán khi nhận hàng (COD)'}</div>
+        <div style="margin-top:4px;"><strong>Thời gian:</strong> ${order.displayDate || order.createdAt}</div>
         <div style="margin-top:4px;"><strong>Trạng thái:</strong> <span class="order-status-badge ${order.status}">${order.statusText}</span></div>
       </div>
 
@@ -1226,19 +1419,19 @@
       <div style="margin-top:16px; font-size:13.5px; line-height:1.8;">
         <div style="display:flex; justify-content:space-between;">
           <span style="color:#666;">Tạm tính:</span>
-          <span>${formatMoney(order.totalAmount - (order.shippingFee || 0) + (order.discount || 0))}</span>
+          <span>${formatMoney(subtotal)}</span>
         </div>
         <div style="display:flex; justify-content:space-between;">
           <span style="color:#666;">Phí vận chuyển:</span>
-          <span>${formatMoney(order.shippingFee || 0)}</span>
+          <span>${shippingFee > 0 ? formatMoney(shippingFee) : 'Miễn phí'}</span>
         </div>
         <div style="display:flex; justify-content:space-between;">
           <span style="color:#666;">Giảm giá Voucher:</span>
-          <span style="color:#2e7d32;">-${formatMoney(order.discount || 0)}</span>
+          <span style="color:#2e7d32;">-${formatMoney(discount)}</span>
         </div>
         <div style="display:flex; justify-content:space-between; font-weight:800; font-size:16px; margin-top:6px; border-top:1.5px solid #eee; padding-top:6px;">
           <span>Tổng cộng:</span>
-          <span style="color:#e53935;">${formatMoney(order.totalAmount)}</span>
+          <span style="color:#e53935;">${formatMoney(orderTotal)}</span>
         </div>
       </div>
     `;
@@ -1251,7 +1444,9 @@
       Auth.updateOrderStatus(orderId, 'cancelled');
       Auth.showToast(`Đã hủy thành công đơn hàng #${orderId}`, 'info');
       const user = Auth.getCurrentUser();
-      renderOrdersList(Auth.getUserOrders(user.id));
+      if (user) {
+        renderOrdersList(Auth.getUserOrders(user.id));
+      }
     }
   }
 
@@ -1381,17 +1576,35 @@
   // 2. Khởi tạo Google Identity Services SDK và render nút đăng nhập
   function initGoogleIdentityServices() {
     const clientId = (window.APP_CONFIG && window.APP_CONFIG.GOOGLE_CLIENT_ID) || '';
+    const isSample = !clientId || clientId.includes('abcdefghijklm') || clientId.includes('YOUR_GOOGLE_CLIENT_ID');
 
     // Cập nhật trạng thái badge Client ID
     const statusPill = document.getElementById('google-status-pill');
     if (statusPill) {
-      const isDefault = clientId.includes('abcdefghijklm');
-      statusPill.innerHTML = isDefault
-        ? '<i class="fas fa-key" style="color:#f59e0b"></i> Client ID mẫu'
+      statusPill.innerHTML = isSample
+        ? '<i class="fab fa-google" style="color:#4285F4"></i> Đăng nhập Google Nhanh'
         : '<i class="fas fa-shield-alt" style="color:#10b981"></i> GIS Sẵn sàng';
-      statusPill.title = `Client ID: ${clientId}`;
+      statusPill.title = isSample
+        ? 'Đang dùng chế độ Đăng nhập Google Nhanh (Demo). Bấm để cấu hình Client ID thật.'
+        : `Client ID: ${clientId}`;
     }
 
+    const loginBtnContainer = document.getElementById('g_id_signin_btn');
+    const customLoginBtn = document.getElementById('g_id_custom_btn');
+    const signupBtnContainer = document.getElementById('g_id_signup_btn');
+    const customSignupBtn = document.getElementById('g_id_signup_custom_btn');
+
+    // Nếu là Client ID mẫu:
+    // Tuyệt đối không để Google render iframe nút vì bấm vào sẽ bị Google báo "401: invalid_client"
+    if (isSample) {
+      if (loginBtnContainer) loginBtnContainer.innerHTML = '';
+      if (customLoginBtn) customLoginBtn.style.display = 'inline-flex';
+      if (signupBtnContainer) signupBtnContainer.innerHTML = '';
+      if (customSignupBtn) customSignupBtn.style.display = 'inline-flex';
+      return;
+    }
+
+    // Nếu đã cấu hình Client ID thật: render nút chuẩn Google GIS
     if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
       if (!window._gisRetryCount) window._gisRetryCount = 0;
       if (window._gisRetryCount < 15) {
@@ -1412,7 +1625,6 @@
       });
 
       // Render nút chuẩn Google vào form Đăng nhập
-      const loginBtnContainer = document.getElementById('g_id_signin_btn');
       if (loginBtnContainer) {
         loginBtnContainer.innerHTML = '';
         google.accounts.id.renderButton(loginBtnContainer, {
@@ -1425,15 +1637,12 @@
           width: 320
         });
 
-        // Ẩn nút fallback nếu GIS render thành công
-        const customLoginBtn = document.getElementById('g_id_custom_btn');
         if (customLoginBtn && loginBtnContainer.children.length > 0) {
           customLoginBtn.style.display = 'none';
         }
       }
 
       // Render nút chuẩn Google vào form Đăng ký
-      const signupBtnContainer = document.getElementById('g_id_signup_btn');
       if (signupBtnContainer) {
         signupBtnContainer.innerHTML = '';
         google.accounts.id.renderButton(signupBtnContainer, {
@@ -1446,7 +1655,6 @@
           width: 320
         });
 
-        const customSignupBtn = document.getElementById('g_id_signup_custom_btn');
         if (customSignupBtn && signupBtnContainer.children.length > 0) {
           customSignupBtn.style.display = 'none';
         }
@@ -1458,27 +1666,63 @@
 
   // 3. Kích hoạt cửa sổ chọn tài khoản Google
   function triggerGoogleSignIn() {
+    const clientId = (window.APP_CONFIG && window.APP_CONFIG.GOOGLE_CLIENT_ID) || '';
+    const isSample = !clientId || clientId.includes('abcdefghijklm') || clientId.includes('YOUR_GOOGLE_CLIENT_ID');
+
+    // Nếu chưa cấu hình Client ID thật: mở popup Google Accounts chuẩn đẹp
+    if (isSample) {
+      openModal('modal-google-signin');
+      return;
+    }
+
+    // Nếu có Client ID thật: gọi Google prompt chính thức
     if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
       google.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed()) {
           console.warn('[GIS] Lý do prompt không hiển thị:', notification.getNotDisplayedReason());
-          const reason = notification.getNotDisplayedReason();
-          if (reason === 'suppressed_by_user') {
-            Auth.showToast('Bạn đã đóng cửa sổ Google trước đó. Vui lòng thử lại!', 'warning');
-          } else {
-            Auth.showToast('Vui lòng click vào nút Đăng nhập bằng Google trên màn hình!', 'info');
-          }
-        } else if (notification.isSkippedMoment()) {
-          console.log('[GIS] Người dùng bỏ qua prompt:', notification.getSkippedReason());
-        } else if (notification.isDismissedMoment()) {
-          console.log('[GIS] Người dùng đóng prompt:', notification.getDismissedReason());
+          openModal('modal-google-signin');
+        } else if (notification.isSkippedMoment() || notification.isDismissedMoment()) {
           Auth.showToast('Đã đóng cửa sổ đăng nhập Google.', 'info');
         }
       });
     } else {
-      Auth.showToast('Đang kết nối tới dịch vụ Google, vui lòng thử lại sau 2 giây...', 'warning');
-      initGoogleIdentityServices();
+      openModal('modal-google-signin');
     }
+  }
+
+  function handleGoogleSelect(email, name) {
+    closeModal('modal-google-signin');
+    const res = Auth.loginWithGoogle(email, name);
+    if (res.success) {
+      Auth.showToast(res.message, 'success');
+      checkPageState();
+    } else {
+      Auth.showToast(res.message, 'error');
+    }
+  }
+
+  function toggleCustomGoogleInput() {
+    const box = document.getElementById('custom-google-box');
+    const input = document.getElementById('custom-google-email');
+    if (box) {
+      const isVisible = (box.style.display === 'block');
+      box.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible && input) {
+        input.value = '';
+        input.focus();
+      }
+    }
+  }
+
+  function submitCustomGoogleAccount() {
+    const input = document.getElementById('custom-google-email');
+    const email = (input ? input.value : '').trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      Auth.showToast('Vui lòng nhập đúng định dạng email Google!', 'warning');
+      return;
+    }
+    const name = email.split('@')[0];
+    handleGoogleSelect(email, name);
   }
 
   // 4. Xử lý phản hồi Token trả về sau khi người dùng chọn tài khoản Google

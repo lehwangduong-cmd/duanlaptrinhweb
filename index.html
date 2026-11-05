@@ -16,10 +16,9 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-  <!-- Main CSS -->
-  <link rel="stylesheet" href="css/style.css" />
-  <!-- Account & Auth CSS (TV3) -->
-  <link rel="stylesheet" href="css/account.css" />
+  <!-- [SHARED] Variables & [TV1] Layout CSS: Navbar, Footer, Banner, Trang chu -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/tv1-layout.css" />
 
   <style>
     body { font-family: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif; }
@@ -52,6 +51,7 @@
       <span class="extra"><i class="fas fa-map-marker-alt"></i> 150+ Cửa hàng toàn quốc</span>
     </div>
     <div class="topbar-right">
+      <a href="admin/index.html"><i class="fas fa-user-shield"></i> Trang Quản Trị</a>
       <a href="#"><i class="fas fa-truck"></i> Miễn phí vận chuyển &gt;499K</a>
       <a href="#"><i class="fas fa-globe"></i> VI</a>
     </div>
@@ -72,8 +72,8 @@
 
     <!-- Search Bar -->
     <div class="navbar-search">
-      <form action="#" role="search" aria-label="Tìm kiếm sản phẩm">
-        <input type="search" placeholder="Tìm sản phẩm, môn thể thao..." aria-label="Tìm kiếm" />
+      <form action="products.html" method="GET" role="search" aria-label="Tìm kiếm sản phẩm">
+        <input type="search" name="q" placeholder="Tìm sản phẩm, môn thể thao..." aria-label="Tìm kiếm" />
         <button class="search-btn" type="submit" aria-label="Tìm kiếm">
           <i class="fas fa-search"></i>
         </button>
@@ -89,15 +89,15 @@
         <i class="far fa-user"></i>
         <span>Tài khoản</span>
       </a>
-      <a href="wishlist.html" class="nav-action-btn" aria-label="Yêu thích">
+      <a href="wishlist.html" class="nav-action-btn" id="wishlist-action" aria-label="Yêu thích">
         <i class="far fa-heart"></i>
         <span>Yêu thích</span>
         <span class="badge" id="wishlist-count">0</span>
       </a>
-      <a href="cart.html" class="nav-action-btn" aria-label="Giỏ hàng">
+      <a href="pages/cart.html" class="nav-action-btn" aria-label="Giỏ hàng">
         <i class="fas fa-shopping-cart"></i>
         <span>Giỏ hàng</span>
-        <span class="badge">5</span>
+        <span class="badge" id="cart-count">0</span>
       </a>
     </nav>
 
@@ -119,47 +119,47 @@
         <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
       </li>
       <li class="has-dropdown">
-        <a href="#"><i class="fas fa-running"></i> Chạy bộ <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <a href="products.html?cat=chay-bo"><i class="fas fa-running"></i> Chạy bộ <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
         <ul class="dropdown">
-          <li><a href="#"><i class="fas fa-shoe-prints"></i> Giày chạy bộ</a></li>
-          <li><a href="#"><i class="fas fa-tshirt"></i> Áo chạy bộ</a></li>
-          <li><a href="#"><i class="fas fa-stopwatch"></i> Đồng hồ thể thao</a></li>
-          <li><a href="#"><i class="fas fa-socks"></i> Phụ kiện chạy bộ</a></li>
+          <li><a href="products.html?cat=chay-bo"><i class="fas fa-shoe-prints"></i> Giày chạy bộ</a></li>
+          <li><a href="products.html?cat=chay-bo"><i class="fas fa-tshirt"></i> Áo chạy bộ</a></li>
+          <li><a href="products.html?cat=chay-bo"><i class="fas fa-stopwatch"></i> Đồng hồ thể thao</a></li>
+          <li><a href="products.html?cat=chay-bo"><i class="fas fa-socks"></i> Phụ kiện chạy bộ</a></li>
         </ul>
       </li>
       <li class="has-dropdown">
-        <a href="#"><i class="fas fa-futbol"></i> Bóng đá <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <a href="products.html?cat=bong-da"><i class="fas fa-futbol"></i> Bóng đá <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
         <ul class="dropdown">
-          <li><a href="#"><i class="fas fa-futbol"></i> Bóng thi đấu</a></li>
-          <li><a href="#"><i class="fas fa-shoe-prints"></i> Giày bóng đá</a></li>
-          <li><a href="#"><i class="fas fa-tshirt"></i> Áo thi đấu</a></li>
-          <li><a href="#"><i class="fas fa-shield-alt"></i> Bảo hộ</a></li>
+          <li><a href="products.html?cat=bong-da"><i class="fas fa-futbol"></i> Bóng thi đấu</a></li>
+          <li><a href="products.html?cat=bong-da"><i class="fas fa-shoe-prints"></i> Giày bóng đá</a></li>
+          <li><a href="products.html?cat=bong-da"><i class="fas fa-tshirt"></i> Áo thi đấu</a></li>
+          <li><a href="products.html?cat=bong-da"><i class="fas fa-shield-alt"></i> Bảo hộ</a></li>
         </ul>
       </li>
       <li class="has-dropdown">
-        <a href="#"><i class="fas fa-swimmer"></i> Bơi lội <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <a href="products.html?cat=boi-loi"><i class="fas fa-swimmer"></i> Bơi lội <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
         <ul class="dropdown">
-          <li><a href="#"><i class="fas fa-swimmer"></i> Đồ bơi</a></li>
-          <li><a href="#"><i class="fas fa-glasses"></i> Kính bơi</a></li>
-          <li><a href="#"><i class="fas fa-hat-cowboy"></i> Mũ bơi</a></li>
+          <li><a href="products.html?cat=boi-loi"><i class="fas fa-swimmer"></i> Đồ bơi</a></li>
+          <li><a href="products.html?cat=boi-loi"><i class="fas fa-glasses"></i> Kính bơi</a></li>
+          <li><a href="products.html?cat=boi-loi"><i class="fas fa-hat-cowboy"></i> Mũ bơi</a></li>
         </ul>
       </li>
       <li class="has-dropdown">
-        <a href="#"><i class="fas fa-dumbbell"></i> Gym & Fitness <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <a href="products.html?cat=gym"><i class="fas fa-dumbbell"></i> Gym & Fitness <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
         <ul class="dropdown">
-          <li><a href="#"><i class="fas fa-dumbbell"></i> Tạ & Máy tập</a></li>
-          <li><a href="#"><i class="fas fa-tape"></i> Yoga & Pilates</a></li>
-          <li><a href="#"><i class="fas fa-tshirt"></i> Quần áo gym</a></li>
+          <li><a href="products.html?cat=gym"><i class="fas fa-dumbbell"></i> Tạ & Máy tập</a></li>
+          <li><a href="products.html?cat=gym"><i class="fas fa-tape"></i> Yoga & Pilates</a></li>
+          <li><a href="products.html?cat=gym"><i class="fas fa-tshirt"></i> Quần áo gym</a></li>
         </ul>
       </li>
       <li>
-        <a href="#"><i class="fas fa-bicycle"></i> Xe đạp</a>
+        <a href="products.html?cat=xe-dap"><i class="fas fa-bicycle"></i> Xe đạp</a>
       </li>
       <li>
-        <a href="#"><i class="fas fa-mountain"></i> Ngoài trời</a>
+        <a href="products.html?cat=ngoai-troi"><i class="fas fa-mountain"></i> Ngoài trời</a>
       </li>
       <li class="sale">
-        <a href="#"><i class="fas fa-tags"></i> Khuyến mãi</a>
+        <a href="products.html?sale=1"><i class="fas fa-tags"></i> Khuyến mãi</a>
       </li>
     </ul>
   </div>
@@ -171,6 +171,7 @@
 
     <!-- Slide 1 -->
     <div class="hero-slide" style="background: linear-gradient(135deg,#003c64 0%,#0082c3 100%);">
+      <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=1600&amp;h=900&amp;fit=crop" alt="Giày chạy bộ trên đường chạy" fetchpriority="high">
       <div class="hero-overlay">
         <div class="hero-content">
           <span class="hero-badge">🔥 Bộ sưu tập mới 2025</span>
@@ -186,6 +187,7 @@
 
     <!-- Slide 2 -->
     <div class="hero-slide" style="background: linear-gradient(135deg,#1b5e20 0%,#43a047 100%);">
+      <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=1600&amp;h=900&amp;fit=crop" alt="Trận đấu bóng đá trên sân cỏ" loading="lazy">
       <div class="hero-overlay">
         <div class="hero-content">
           <span class="hero-badge">⚽ Mùa giải 2025</span>
@@ -193,7 +195,7 @@
           <p class="hero-desc">Áo thi đấu, giày đinh cao cấp từ các thương hiệu hàng đầu thế giới.</p>
           <div class="hero-actions">
             <a href="products.html" class="btn btn-primary"><i class="fas fa-futbol"></i> Xem bộ sưu tập</a>
-            <a href="#" class="btn btn-outline">Flash Sale –40%</a>
+            <a href="products.html?sale=1" class="btn btn-outline">Flash Sale –40%</a>
           </div>
         </div>
       </div>
@@ -201,6 +203,7 @@
 
     <!-- Slide 3 -->
     <div class="hero-slide" style="background: linear-gradient(135deg,#4a148c 0%,#7b1fa2 60%,#e91e63 100%);">
+      <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1600&amp;h=900&amp;fit=crop" alt="Tập yoga trong không gian sáng" loading="lazy">
       <div class="hero-overlay">
         <div class="hero-content">
           <span class="hero-badge">🧘 Yoga & Wellness</span>
@@ -208,7 +211,7 @@
           <p class="hero-desc">Thảm yoga, dụng cụ Pilates và trang phục co giãn 4 chiều thoải mái tuyệt đối.</p>
           <div class="hero-actions">
             <a href="products.html" class="btn btn-primary"><i class="fas fa-spa"></i> Khám phá</a>
-            <a href="#" class="btn btn-outline">Ưu đãi thành viên</a>
+            <a href="account.html" class="btn btn-outline">Ưu đãi thành viên</a>
           </div>
         </div>
       </div>
@@ -333,7 +336,7 @@
 <section class="section" style="background:var(--bg-light);">
   <div class="container">
     <div class="section-header">
-      <h2 class="section-title">Sản phẩm nổi bật</h2>
+      <h2 class="section-title" id="featured-products">Sản phẩm nổi bật</h2>
       <a href="products.html" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
     </div>
     <div class="product-grid">
@@ -342,14 +345,14 @@
       <div class="product-card">
         <span class="product-badge">-30%</span>
         <div class="product-img" style="background:linear-gradient(135deg,#e3f2fd,#bbdefb);">
-          <i class="fas fa-shoe-prints" style="font-size:64px;color:#0082c3;opacity:0.5;"></i>
+          <img src="assets/products/featured-running-shoe.png" alt="Giày chạy bộ Run Active Pro" loading="lazy" decoding="async">
         </div>
         <div class="product-body">
           <div class="product-brand">Kalenji</div>
           <div class="product-name">Giày chạy bộ Run Active Pro</div>
           <div class="product-price">
-            <span class="price-current">699.000đ</span>
-            <span class="price-old">999.000đ</span>
+            <span class="price-current">3.180.000 ₫</span>
+            <span class="price-old">4.539.000 ₫</span>
           </div>
         </div>
         <div class="product-actions">
@@ -362,13 +365,14 @@
       <div class="product-card">
         <span class="product-badge">Mới</span>
         <div class="product-img" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);">
-          <i class="fas fa-tshirt" style="font-size:64px;color:#43a047;opacity:0.5;"></i>
+          <img src="assets/products/featured-man-city-jersey.png" alt="Áo thi đấu CLB Man City 2026" loading="lazy" decoding="async">
         </div>
         <div class="product-body">
           <div class="product-brand">Kipsta</div>
-          <div class="product-name">Áo bóng đá thi đấu CLB 2025</div>
+          <div class="product-name">Áo thi đấu CLB Man City 2026</div>
           <div class="product-price">
-            <span class="price-current">349.000đ</span>
+            <span class="price-current">2.800.000 đ</span>
+            <span class="price-old">3.000.000 đ</span>
           </div>
         </div>
         <div class="product-actions">
@@ -381,14 +385,14 @@
       <div class="product-card">
         <span class="product-badge">-40%</span>
         <div class="product-img" style="background:linear-gradient(135deg,#f3e5f5,#e1bee7);">
-          <i class="fas fa-tape" style="font-size:64px;color:#7b1fa2;opacity:0.5;"></i>
+          <img src="assets/products/featured-yoga-mat.png" alt="Thảm Yoga TPE 6mm cao cấp" loading="lazy" decoding="async">
         </div>
         <div class="product-body">
           <div class="product-brand">Domyos</div>
           <div class="product-name">Thảm Yoga TPE 6mm cao cấp</div>
           <div class="product-price">
-            <span class="price-current">299.000đ</span>
-            <span class="price-old">499.000đ</span>
+            <span class="price-current">1.590.000 đ</span>
+            <span class="price-old">1.900.000 đ</span>
           </div>
         </div>
         <div class="product-actions">
@@ -400,7 +404,7 @@
       <!-- Product 4 -->
       <div class="product-card">
         <div class="product-img" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);">
-          <i class="fas fa-glasses" style="font-size:64px;color:#f57c00;opacity:0.5;"></i>
+          <img src="assets/products/featured-swim-goggles.png" alt="Kính bơi chống tia UV Easy" loading="lazy" decoding="async">
         </div>
         <div class="product-body">
           <div class="product-brand">Nabaiji</div>
@@ -424,7 +428,7 @@
 <section class="promo-banners">
   <div class="container">
     <a href="products.html?cat=chay-bo" class="promo-banner-card">
-      <div class="bg" style="background:linear-gradient(135deg,#003c64 0%,#0082c3 100%);"></div>
+      <div class="bg" style="background:linear-gradient(135deg,rgba(0,60,100,.2),rgba(0,130,195,.2)),url('https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=1000&amp;h=600&amp;fit=crop') center/cover;"></div>
       <div class="overlay"></div>
       <div class="content">
         <div class="tag">Chạy bộ</div>
@@ -433,7 +437,7 @@
       </div>
     </a>
     <a href="products.html?cat=gym" class="promo-banner-card">
-      <div class="bg" style="background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%);"></div>
+      <div class="bg" style="background:linear-gradient(135deg,rgba(183,28,28,.2),rgba(229,57,53,.2)),url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1000&amp;h=600&amp;fit=crop') center/cover;"></div>
       <div class="overlay"></div>
       <div class="content">
         <div class="tag">Gym & Fitness</div>
@@ -449,14 +453,14 @@
   <div class="container">
     <div class="section-header">
       <h2 class="section-title">Hàng mới về</h2>
-      <a href="products.html?sort=newest" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+      <a href="products.html" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
     </div>
     <div class="product-grid">
 
       <div class="product-card">
         <span class="product-badge" style="background:var(--green);">Mới</span>
         <div class="product-img" style="background:linear-gradient(135deg,#e0f2f1,#b2dfdb);">
-          <i class="fas fa-bicycle" style="font-size:64px;color:#00796b;opacity:0.5;"></i>
+          <img src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600&amp;h=500&amp;fit=crop" alt="Xe đạp đô thị Riverside 100" loading="lazy" decoding="async">
         </div>
         <div class="product-body">
           <div class="product-brand">B'Twin</div>
@@ -474,7 +478,7 @@
       <div class="product-card">
         <span class="product-badge" style="background:var(--green);">Mới</span>
         <div class="product-img" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0);">
-          <i class="fas fa-dumbbell" style="font-size:64px;color:#c2185b;opacity:0.5;"></i>
+          <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&amp;h=500&amp;fit=crop" alt="Bộ tạ tay cao su" loading="lazy" decoding="async">
         </div>
         <div class="product-body">
           <div class="product-brand">Domyos</div>
@@ -492,7 +496,7 @@
       <div class="product-card">
         <span class="product-badge" style="background:var(--green);">Mới</span>
         <div class="product-img" style="background:linear-gradient(135deg,#e8eaf6,#c5cae9);">
-          <i class="fas fa-basketball-ball" style="font-size:64px;color:#3949ab;opacity:0.5;"></i>
+          <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&amp;h=500&amp;fit=crop" alt="Bóng rổ thi đấu" loading="lazy" decoding="async">
         </div>
         <div class="product-body">
           <div class="product-brand">Tarmak</div>
@@ -510,7 +514,7 @@
       <div class="product-card">
         <span class="product-badge" style="background:var(--green);">Mới</span>
         <div class="product-img" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);">
-          <i class="fas fa-mountain" style="font-size:64px;color:#f9a825;opacity:0.5;"></i>
+          <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&amp;h=500&amp;fit=crop" alt="Leo núi ngoài trời với balo" loading="lazy" decoding="async">
         </div>
         <div class="product-body">
           <div class="product-brand">Quechua</div>
@@ -554,12 +558,12 @@
 <section class="section" style="background:var(--bg-light);">
   <div class="container">
     <div class="section-header">
-      <h2 class="section-title">Mẹo & Kiến thức thể thao</h2>
-      <a href="blog.html" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+      <h2 class="section-title" id="tips">Mẹo & Kiến thức thể thao</h2>
+      <a href="products.html" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
     </div>
     <div class="blog-grid">
-      <a href="blog.html#1" class="blog-card">
-        <div class="blog-img">🏃</div>
+      <a href="#tips" class="blog-card">
+        <img class="blog-img" src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=900&amp;h=500&amp;fit=crop" alt="Người chạy bộ tập luyện ngoài trời" loading="lazy" decoding="async">
         <div class="blog-body">
           <div class="blog-cat">Chạy bộ</div>
           <div class="blog-title">5 bài tập khởi động giúp bạn chạy bộ không đau gối</div>
@@ -569,8 +573,8 @@
           </div>
         </div>
       </a>
-      <a href="blog.html#2" class="blog-card">
-        <div class="blog-img">🏋️</div>
+      <a href="#tips" class="blog-card">
+        <img class="blog-img" src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=900&amp;h=500&amp;fit=crop" alt="Tập luyện thể hình trong phòng gym" loading="lazy" decoding="async">
         <div class="blog-body">
           <div class="blog-cat">Gym & Fitness</div>
           <div class="blog-title">Lịch tập gym 5 buổi/tuần cho người mới bắt đầu</div>
@@ -580,8 +584,8 @@
           </div>
         </div>
       </a>
-      <a href="blog.html#3" class="blog-card">
-        <div class="blog-img">🧘</div>
+      <a href="#tips" class="blog-card">
+        <img class="blog-img" src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=900&amp;h=500&amp;fit=crop" alt="Tập yoga buổi sáng" loading="lazy" decoding="async">
         <div class="blog-body">
           <div class="blog-cat">Yoga</div>
           <div class="blog-title">Yoga buổi sáng: 10 phút để bắt đầu ngày mới năng động</div>
@@ -652,8 +656,8 @@
           <li><a href="#"><i class="fas fa-chevron-right"></i> Chính sách đổi trả</a></li>
           <li><a href="#"><i class="fas fa-chevron-right"></i> Chính sách bảo hành</a></li>
           <li><a href="#"><i class="fas fa-chevron-right"></i> Hướng dẫn chọn size</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i> Theo dõi đơn hàng</a></li>
-          <li><a href="#"><i class="fas fa-chevron-right"></i> Liên hệ chúng tôi</a></li>
+          <li><a href="pages/my-orders.html"><i class="fas fa-chevron-right"></i> Theo dõi đơn hàng</a></li>
+          <li><a href="admin/index.html"><i class="fas fa-user-shield"></i> Trang Quản trị (Admin)</a></li>
         </ul>
       </div>
 
@@ -718,9 +722,14 @@
 <!-- Back to top -->
 <button id="back-to-top" aria-label="Lên đầu trang"><i class="fas fa-chevron-up"></i></button>
 
-<!-- Shared API & Auth (TV3) -->
+<!-- Firebase SDK (v9 compat) for Cloud Realtime Sync -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/cloud-sync.js"></script>
+
+<!-- Shared & Main JS -->
 <script src="js/shared.js"></script>
-<!-- Main JS -->
-<script src="js/main.js"></script>
+<script src="js/tv1-main.js"></script>
 </body>
 </html>

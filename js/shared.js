@@ -285,6 +285,13 @@ var Auth = (function () {
     secretKey: 'SPORTZONE@ADMIN'
   };
 
+  
+  // ============================================================
+  // CẤU HÌNH & TRẠNG THÁI CLOUD REALTIME SYNC (FIREBASE FIRESTORE)
+  // ============================================================
+  let _cloudDb = null;
+  let _isCloudReady = false;
+  let _cloudUnsubscribe = null;
   const STORAGE_KEYS = {
     USERS: 'sz_users',
     CURRENT_USER: 'sz_currentUser',
@@ -550,12 +557,178 @@ var Auth = (function () {
   ];
 
   // Khởi tạo dữ liệu ban đầu
+  
+  // ============================================================
+  // CÁC HÀM XỬ LÝ ĐỒNG BỘ CLOUD FIRESTORE REALTIME
+  // ============================================================
+
+  // Khởi tạo kết nối Firebase Firestore Realtime
+  function initCloudSync() {
+    if (_isCloudReady) return;
+    try {
+      if (typeof firebase === 'undefined') {
+        return;
+      }
+      const fbConfig = (typeof window !== 'undefined' && window.SportZoneFirebase && typeof window.SportZoneFirebase.getConfig === 'function')
+        ? window.SportZoneFirebase.getConfig()
+        : (typeof window !== 'undefined' ? window.FIREBASE_CONFIG : null);
+
+      if (!fbConfig || !fbConfig.projectId || !fbConfig.apiKey || fbConfig.apiKey.includes('YOUR_')) {
+        return;
+      }
+
+      if (!firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp(fbConfig);
+      }
+      _cloudDb = firebase.firestore();
+      _isCloudReady = true;
+      console.log('[SportZone Cloud] Đã kích hoạt Firebase Firestore Realtime Sync!');
+
+      setupCloudUsersListener();
+    } catch (err) {
+      console.warn('[SportZone Cloud] Lỗi khởi tạo Firebase Firestore:', err);
+    }
+  }
+
+  // Lắng nghe thay đổi Realtime từ Firestore collection 'sz_users'
+  function setupCloudUsersListener() {
+    if (!_cloudDb) return;
+    if (_cloudUnsubscribe) {
+      _cloudUnsubscribe();
+    }
+
+    let isInitialSnapshot = true;
+    _cloudUnsubscribe = _cloudDb.collection('sz_users').onSnapshot(
+      snapshot => {
+        if (snapshot.empty && isInitialSnapshot) {
+          console.log('[SportZone Cloud] Firestore chưa có dữ liệu. Đang tải tài khoản khởi tạo lên Cloud...');
+          isInitialSnapshot = false;
+          seedCloudUsers();
+          return;
+        }
+        isInitialSnapshot = false;
+
+        const cloudUsers = [];
+        let deletedList = [];
+        try {
+          deletedList = JSON.parse(localStorage.getItem('sz_deleted_users') || '[]');
+        } catch (e) {}
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (data && data.id) {
+            // Không nhận lại tài khoản đã được Admin bấm xóa
+            const isDeleted = deletedList.includes(data.id) || (data.email && deletedList.includes(data.email.toLowerCase()));
+            if (!isDeleted) {
+              cloudUsers.push(data);
+            }
+          }
+        });
+
+        if (cloudUsers.length > 0) {
+          // Hợp nhất Cloud users với Local users & DEFAULT_USERS để không làm mất tài khoản cục bộ
+          let localUsers = [];
+          try {
+            localUsers = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
+          } catch (e) {}
+
+          const mergedMap = new Map();
+          DEFAULT_USERS.forEach(u => {
+            if (!deletedList.includes(u.id) && !deletedList.includes((u.email || '').toLowerCase())) {
+              mergedMap.set(u.id, u);
+            }
+          });
+          localUsers.forEach(u => {
+            if (u && u.id && !deletedList.includes(u.id) && !deletedList.includes((u.email || '').toLowerCase())) {
+              mergedMap.set(u.id, u);
+            }
+          });
+          cloudUsers.forEach(u => {
+            if (u && u.id) {
+              mergedMap.set(u.id, u);
+            }
+          });
+
+          const finalUsers = Array.from(mergedMap.values());
+          localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(finalUsers));
+
+          // Đồng bộ phiên người dùng hiện tại nếu có cập nhật quyền/avatar từ Cloud
+          const cur = getCurrentUser();
+          if (cur) {
+            const freshCur = finalUsers.find(
+              u => u.id === cur.id || (u.email && cur.email && u.email.toLowerCase() === cur.email.toLowerCase())
+            );
+            if (freshCur) {
+              localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(freshCur));
+              try { localStorage.setItem('sz_current_user', JSON.stringify(freshCur)); } catch (e) {}
+            }
+          }
+
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('sz:cloud-sync', { detail: { users: finalUsers } }));
+            window.dispatchEvent(new Event('storage'));
+          }
+        }
+      },
+      err => {
+        console.warn('[SportZone Cloud] Lỗi lắng nghe Firestore Snapshot:', err);
+      }
+    );
+  }
+
+  // Tải danh sách tài khoản mẫu lên Cloud khi Firestore mới tinh
+  function seedCloudUsers() {
+    if (!_cloudDb) return;
+    const currentUsers = getUsers();
+    const batch = _cloudDb.batch();
+    currentUsers.forEach(u => {
+      if (u && u.id) {
+        const ref = _cloudDb.collection('sz_users').doc(u.id);
+        batch.set(ref, u, { merge: true });
+      }
+    });
+    batch.commit()
+      .then(() => console.log('[SportZone Cloud] Đã khởi tạo ' + currentUsers.length + ' tài khoản lên Cloud Firestore thành công!'))
+      .catch(err => console.warn('[SportZone Cloud] Lỗi tải dữ liệu mẫu lên Cloud:', err));
+  }
+
+  // Đồng bộ một tài khoản người dùng lên Cloud Firestore
+  function syncUserToCloud(user) {
+    if (!_cloudDb || !user || !user.id) return;
+    try {
+      const cleanData = JSON.parse(JSON.stringify(user));
+      _cloudDb.collection('sz_users').doc(user.id).set(cleanData, { merge: true })
+        .then(() => console.log('[SportZone Cloud] Đã đồng bộ tài khoản ' + (user.email || user.id) + ' lên Cloud.'))
+        .catch(err => console.warn('[SportZone Cloud] Lỗi đồng bộ tài khoản lên Cloud:', err));
+    } catch (e) {
+      console.warn('[SportZone Cloud] Lỗi chuẩn bị dữ liệu user đồng bộ:', e);
+    }
+  }
+
+  // Xóa tài khoản người dùng trên Cloud Firestore
+  function deleteUserFromCloud(userId) {
+    if (!_cloudDb || !userId) return;
+    try {
+      _cloudDb.collection('sz_users').doc(userId).delete()
+        .then(() => console.log('[SportZone Cloud] Đã xóa tài khoản ' + userId + ' trên Cloud.'))
+        .catch(err => console.warn('[SportZone Cloud] Lỗi xóa tài khoản trên Cloud:', err));
+    } catch (e) {
+      console.warn('[SportZone Cloud] Lỗi gửi yêu cầu xóa tài khoản:', e);
+    }
+  }
+
+  function isCloudSyncActive() {
+    return _isCloudReady;
+  }
+
   function init() {
     if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
     }
     // Tự động đồng bộ cấu hình Admin riêng nếu người dùng thay đổi ADMIN_CONFIG
     syncAdminConfig();
+
+    initCloudSync();
 
     if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
       localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(DEFAULT_ORDERS));
@@ -566,63 +739,25 @@ var Auth = (function () {
   function syncAdminConfig() {
     try {
       let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
+      if (!Array.isArray(users) || users.length === 0) {
+        return;
+      }
 
-      // Tự động dọn dẹp triệt để các tài khoản thử nghiệm cũ khỏi hệ thống
-      const REMOVED_EMAILS = [
-        '4gkhongnen2k7@gmail.com',
-        'abcdxyz@gmail.com',
-        'minhmuonacc07@gmail.com',
-        'congm3180@gmail.com'
-      ];
-      users = users.filter(x => !REMOVED_EMAILS.includes((x.email || '').toLowerCase().trim()));
+      let deletedList = [];
+      try {
+        deletedList = JSON.parse(localStorage.getItem('sz_deleted_users') || '[]');
+      } catch (e) {}
 
-      // Đồng bộ thông tin các tài khoản Admin chính vào hệ thống
-      const PRESET_ADMIN_ACCOUNTS = [
-        { email: 'minhgialapnhua2k7@gmail.com', fullName: 'Minh Lê', role: 'admin' },
-        { email: 'nhomanhdangcapso1vn@gmail.com', fullName: 'Minh Dương Anh Diện Phong', role: 'admin' }
-      ];
-
-      PRESET_ADMIN_ACCOUNTS.forEach(p => {
-        let u = users.find(x => x.email.toLowerCase() === p.email.toLowerCase());
-        if (u) {
-          u.fullName = p.fullName;
-          u.role = p.role;
-          u.status = 'active';
-        } else {
-          users.push({
-            id: 'USR-ADM-' + String(Date.now()).slice(-4),
-            fullName: p.fullName,
-            email: p.email,
-            phone: '0912345678',
-            password: 'admin123',
-            role: p.role,
-            status: 'active',
-            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-            gender: 'male',
-            birthday: '1995-05-15',
-            membership: 'Quản trị viên cấp cao',
-            joinedDate: '2024-01-10',
-            addresses: []
-          });
-        }
-      });
+      // Lọc bỏ triệt để mọi tài khoản đã bị xóa bởi Quản trị viên
+      users = users.filter(x => !deletedList.includes(x.id) && !deletedList.includes((x.email || '').toLowerCase().trim()));
 
       ADMIN_EMAILS.forEach(adminEmail => {
-        let u = users.find(x => x.email.toLowerCase() === adminEmail.toLowerCase());
-        if (u) {
+        if (deletedList.includes(adminEmail.toLowerCase())) return;
+        let u = users.find(x => (x.email || '').toLowerCase() === adminEmail.toLowerCase());
+        if (u && !u.role) {
           u.role = 'admin';
-          u.status = 'active';
-          if (adminEmail.includes('minhgialapnhua')) {
-            u.fullName = 'Minh Lê';
-          }
         }
       });
-
-      // Đảm bảo không trùng SĐT với tài khoản mẫu khác nếu đã có trong storage
-      const usr3 = users.find(u => u.id === 'USR-003' || u.email === 'nam.le@gmail.com');
-      if (usr3 && usr3.phone === '0912345678') {
-        usr3.phone = '0933112233';
-      }
 
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
 
@@ -700,7 +835,10 @@ var Auth = (function () {
   // Lấy người dùng đang đăng nhập
   function getCurrentUser() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_USER));
+      const raw = localStorage.getItem(STORAGE_KEYS.CURRENT_USER)
+               || localStorage.getItem('sz_current_user')
+               || localStorage.getItem('sz_user');
+      return raw ? JSON.parse(raw) : null;
     } catch (e) {
       return null;
     }
@@ -710,13 +848,46 @@ var Auth = (function () {
   function setCurrentUser(user) {
     if (!user) {
       localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+      try { localStorage.removeItem('sz_current_user'); } catch (e) {}
       try { localStorage.removeItem('sz_user'); } catch (e) {}
     } else {
       localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+      try { localStorage.setItem('sz_current_user', JSON.stringify(user)); } catch (e) {}
       try { localStorage.setItem('sz_user', JSON.stringify(user)); } catch (e) {}
     }
     // Cập nhật lại thanh navbar trên trang hiện tại
     renderNavbarAuth();
+  }
+
+  // Tìm vị trí người dùng hiện tại trong mảng users một cách tuyệt đối an toàn
+  function findCurrentUserIndex(users, cur) {
+    if (!cur) return -1;
+    // 1. Tìm theo ID
+    if (cur.id) {
+      const idx = users.findIndex(u => u && u.id === cur.id);
+      if (idx !== -1) return idx;
+    }
+    // 2. Tìm theo Email
+    if (cur.email) {
+      const cleanEmail = cur.email.toLowerCase().trim();
+      const idx = users.findIndex(u => u && (u.email || '').toLowerCase().trim() === cleanEmail);
+      if (idx !== -1) {
+        if (cur.id && users[idx]) users[idx].id = cur.id;
+        return idx;
+      }
+    }
+    // 3. Tìm theo SĐT
+    if (cur.phone) {
+      const cleanPhone = cur.phone.replace(/\s/g, '');
+      const idx = users.findIndex(u => u && (u.phone || '').replace(/\s/g, '') === cleanPhone);
+      if (idx !== -1) return idx;
+    }
+    // 4. Nếu chưa có trong users (do Cloud sync làm mất hoặc phiên cục bộ mới tạo),
+    // tự động khôi phục user vào mảng users để không bao giờ bị lỗi 'Không tìm thấy tài khoản!'
+    users.push(cur);
+    saveUsers(users);
+    syncUserToCloud(cur);
+    return users.length - 1;
   }
 
   // Kiểm tra đã đăng nhập chưa
@@ -768,6 +939,7 @@ var Auth = (function () {
       };
       users.unshift(user);
       saveUsers(users);
+      syncUserToCloud(user);
     } else {
       if (isPreset) {
         user.fullName = isPreset.fullName;
@@ -861,6 +1033,7 @@ var Auth = (function () {
     }
 
     saveUsers(users);
+    syncUserToCloud(user);
     setCurrentUser(user);
 
     try {
@@ -971,6 +1144,7 @@ var Auth = (function () {
 
     users.push(newUser);
     saveUsers(users);
+    syncUserToCloud(newUser);
 
     // Tự động đăng nhập luôn sau khi đăng ký
     setCurrentUser(newUser);
@@ -1031,22 +1205,26 @@ var Auth = (function () {
     if (!cur) return { success: false, message: 'Bạn chưa đăng nhập!' };
 
     const users = getUsers();
-    const idx = users.findIndex(u => u.id === cur.id);
+    const idx = findCurrentUserIndex(users, cur);
     if (idx === -1) return { success: false, message: 'Không tìm thấy thông tin tài khoản!' };
 
     // Cập nhật các trường cho phép
     if (updatedData.fullName) users[idx].fullName = updatedData.fullName.trim();
     if (updatedData.phone) {
+      const cleanPhone = updatedData.phone.trim();
       const phoneRegex = /^0\d{9}$/;
-      if (!phoneRegex.test(updatedData.phone.trim())) {
+      if (!phoneRegex.test(cleanPhone)) {
         return { success: false, message: 'Số điện thoại không hợp lệ (10 số, bắt đầu số 0)!' };
       }
-      // Kiểm tra trùng SĐT với người khác
-      const exists = users.some(u => u.phone === updatedData.phone.trim() && u.id !== cur.id);
-      if (exists) {
-        return { success: false, message: 'Số điện thoại này đã thuộc về người dùng khác!' };
+      // Chỉ kiểm tra trùng SĐT nếu người dùng thay đổi số điện thoại mới
+      const currentPhone = (users[idx].phone || '').trim();
+      if (cleanPhone !== currentPhone) {
+        const exists = users.some(u => (u.phone || '').trim() === cleanPhone && u.id !== cur.id);
+        if (exists) {
+          return { success: false, message: 'Số điện thoại này đã thuộc về người dùng khác!' };
+        }
       }
-      users[idx].phone = updatedData.phone.trim();
+      users[idx].phone = cleanPhone;
     }
     if (updatedData.gender) users[idx].gender = updatedData.gender;
     if (updatedData.birthday) users[idx].birthday = updatedData.birthday;
@@ -1054,6 +1232,7 @@ var Auth = (function () {
 
     saveUsers(users);
     setCurrentUser(users[idx]);
+    syncUserToCloud(users[idx]);
 
     return {
       success: true,
@@ -1086,11 +1265,12 @@ var Auth = (function () {
     }
 
     const users = getUsers();
-    const idx = users.findIndex(u => u.id === cur.id);
+    const idx = findCurrentUserIndex(users, cur);
     if (idx !== -1) {
       users[idx].password = newPassword;
       saveUsers(users);
       setCurrentUser(users[idx]);
+      syncUserToCloud(users[idx]);
       return { success: true, message: 'Đổi mật khẩu thành công! Hãy ghi nhớ mật khẩu mới của bạn.' };
     }
 
@@ -1105,19 +1285,19 @@ var Auth = (function () {
     if (!cur) return { success: false, message: 'Chưa đăng nhập!' };
 
     const users = getUsers();
-    const idx = users.findIndex(u => u.id === cur.id);
+    const idx = findCurrentUserIndex(users, cur);
     if (idx === -1) return { success: false, message: 'Không tìm thấy tài khoản!' };
 
     if (!users[idx].addresses) users[idx].addresses = [];
 
     const newAddr = {
       id: 'ADDR-' + Date.now(),
-      recipientName: addressData.recipientName.trim(),
-      phone: addressData.phone.trim(),
-      city: addressData.city.trim(),
-      district: addressData.district.trim(),
-      ward: addressData.ward.trim(),
-      addressDetail: addressData.addressDetail.trim(),
+      recipientName: (addressData.recipientName || '').trim(),
+      phone: (addressData.phone || '').trim(),
+      city: (addressData.city || '').trim(),
+      district: (addressData.district || '').trim(),
+      ward: (addressData.ward || '').trim(),
+      addressDetail: (addressData.addressDetail || '').trim(),
       isDefault: addressData.isDefault || users[idx].addresses.length === 0
     };
 
@@ -1128,6 +1308,7 @@ var Auth = (function () {
     users[idx].addresses.push(newAddr);
     saveUsers(users);
     setCurrentUser(users[idx]);
+    syncUserToCloud(users[idx]);
 
     return { success: true, message: 'Đã thêm địa chỉ giao hàng mới thành công!' };
   }
@@ -1137,7 +1318,7 @@ var Auth = (function () {
     if (!cur) return { success: false, message: 'Chưa đăng nhập!' };
 
     const users = getUsers();
-    const idx = users.findIndex(u => u.id === cur.id);
+    const idx = findCurrentUserIndex(users, cur);
     if (idx === -1) return { success: false, message: 'Không tìm thấy tài khoản!' };
 
     const oldAddresses = users[idx].addresses || [];
@@ -1151,6 +1332,7 @@ var Auth = (function () {
     users[idx].addresses = filtered;
     saveUsers(users);
     setCurrentUser(users[idx]);
+    syncUserToCloud(users[idx]);
 
     return { success: true, message: 'Đã xóa địa chỉ thành công!' };
   }
@@ -1160,7 +1342,7 @@ var Auth = (function () {
     if (!cur) return { success: false, message: 'Chưa đăng nhập!' };
 
     const users = getUsers();
-    const idx = users.findIndex(u => u.id === cur.id);
+    const idx = findCurrentUserIndex(users, cur);
     if (idx === -1) return { success: false, message: 'Không tìm thấy tài khoản!' };
 
     (users[idx].addresses || []).forEach(a => {
@@ -1169,8 +1351,72 @@ var Auth = (function () {
 
     saveUsers(users);
     setCurrentUser(users[idx]);
+    syncUserToCloud(users[idx]);
 
     return { success: true, message: 'Đã thiết lập địa chỉ mặc định!' };
+  }
+
+  /**
+   * Chuẩn hóa cấu trúc bản ghi đơn hàng để tương thích giữa các module TV3, TV4, TV5
+   */
+  function normalizeOrder(o) {
+    if (!o || typeof o !== 'object') return null;
+    const id = o.id || o.orderId || ('SZ-' + Math.floor(Math.random() * 100000));
+    const total = Number(o.totalAmount !== undefined ? o.totalAmount : (o.total !== undefined ? o.total : 0));
+
+    // Chuẩn hóa trạng thái
+    let rawStatus = (o.status || o.statusCode || '').toString().trim().toLowerCase();
+    let code = 'pending';
+    let text = 'Chờ xác nhận';
+
+    if (rawStatus.includes('hủy') || rawStatus === 'cancelled') {
+      code = 'cancelled';
+      text = 'Đã hủy đơn';
+    } else if (rawStatus.includes('hoàn thành') || rawStatus.includes('đã giao') || rawStatus === 'delivered') {
+      code = 'delivered';
+      text = 'Giao hàng thành công';
+    } else if (rawStatus.includes('giao') || rawStatus.includes('xử lý') || rawStatus === 'shipping') {
+      code = 'shipping';
+      text = 'Đang giao hàng';
+    } else {
+      code = 'pending';
+      text = 'Chờ xác nhận';
+    }
+
+    // Format ngày giờ hiển thị
+    let displayDate = o.createdAt || '';
+    try {
+      if (displayDate && displayDate.includes('T')) {
+        const d = new Date(displayDate);
+        if (!isNaN(d.getTime())) {
+          displayDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        }
+      }
+    } catch (e) {}
+
+    return {
+      ...o,
+      id: id,
+      orderId: id,
+      total: total,
+      totalAmount: total,
+      status: code,
+      statusCode: code,
+      statusText: o.statusText || text,
+      displayDate: displayDate,
+      shippingAddress: o.shippingAddress || o.customer?.address || 'Tại cửa hàng',
+      recipientName: o.recipientName || o.customer?.fullName || 'Khách hàng',
+      recipientPhone: o.recipientPhone || o.customer?.phone || '',
+      paymentMethod: o.paymentMethod || o.paymentLabel || 'Thanh toán khi nhận hàng (COD)',
+      items: (o.items || []).map(item => ({
+        ...item,
+        name: item.name || 'Sản phẩm thể thao',
+        price: Number(item.price || 0),
+        quantity: Number(item.quantity || 1),
+        variant: item.variant || (item.size ? `Size: ${item.size}` : '') + (item.color ? ` - ${item.color}` : ''),
+        image: item.image || item.img || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=120'
+      }))
+    };
   }
 
   /**
@@ -1179,11 +1425,47 @@ var Auth = (function () {
   function getUserOrders(userId) {
     init();
     try {
-      const allOrders = JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS)) || [];
-      const uid = userId || (getCurrentUser() && getCurrentUser().id);
-      if (!uid) return [];
-      return allOrders.filter(o => o.userId === uid).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      // Đọc từ cả 2 nguồn: sz_orders (TV3) và sportzone_orders (TV4/Checkout)
+      const rawSz = localStorage.getItem('sz_orders');
+      const rawSp = localStorage.getItem('sportzone_orders');
+      const listSz = rawSz ? JSON.parse(rawSz) : [];
+      const listSp = rawSp ? JSON.parse(rawSp) : [];
+
+      const map = new Map();
+      [...listSz, ...listSp].forEach(o => {
+        if (!o || typeof o !== 'object') return;
+        const key = o.id || o.orderId;
+        if (key && !map.has(key)) {
+          map.set(key, o);
+        }
+      });
+      const allOrders = Array.from(map.values());
+
+      const cur = getCurrentUser();
+      const uid = userId || cur?.id;
+      const curEmail = (cur?.email || '').toLowerCase().trim();
+      const curPhone = (cur?.phone || '').replace(/\s/g, '');
+
+      if (!uid && !curEmail && !curPhone) return [];
+
+      // Lọc các đơn thuộc về người dùng:
+      // Khớp theo userId HOẶC theo email khách đặt HOẶC theo SĐT khách đặt
+      const userOrders = allOrders.filter(o => {
+        if (uid && o.userId === uid) return true;
+        const oEmail = (o.customer?.email || '').toLowerCase().trim();
+        if (curEmail && oEmail && oEmail === curEmail) return true;
+        const oPhone = (o.customer?.phone || o.recipientPhone || '').replace(/\s/g, '');
+        if (curPhone && oPhone && oPhone === curPhone) return true;
+        return false;
+      });
+
+      return userOrders.map(normalizeOrder).filter(Boolean).sort((a, b) => {
+        const tA = new Date(a.createdAt || 0).getTime() || 0;
+        const tB = new Date(b.createdAt || 0).getTime() || 0;
+        return tB - tA;
+      });
     } catch (e) {
+      console.warn('[Auth] Lỗi đọc đơn hàng người dùng:', e);
       return [];
     }
   }
@@ -1191,28 +1473,54 @@ var Auth = (function () {
   function getAllOrders() {
     init();
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS)) || [];
+      const rawSz = localStorage.getItem('sz_orders');
+      const rawSp = localStorage.getItem('sportzone_orders');
+      const listSz = rawSz ? JSON.parse(rawSz) : [];
+      const listSp = rawSp ? JSON.parse(rawSp) : [];
+
+      const map = new Map();
+      [...listSz, ...listSp].forEach(o => {
+        if (!o || typeof o !== 'object') return;
+        const key = o.id || o.orderId;
+        if (key && !map.has(key)) {
+          map.set(key, o);
+        }
+      });
+      return Array.from(map.values()).map(normalizeOrder).filter(Boolean).sort((a, b) => {
+        const tA = new Date(a.createdAt || 0).getTime() || 0;
+        const tB = new Date(b.createdAt || 0).getTime() || 0;
+        return tB - tA;
+      });
     } catch (e) {
       return [];
     }
   }
 
   function updateOrderStatus(orderId, newStatus) {
-    const orders = getAllOrders();
-    const idx = orders.findIndex(o => o.id === orderId);
+    const rawOrders = getAllOrders();
+    const idx = rawOrders.findIndex(o => o.id === orderId || o.orderId === orderId);
     if (idx === -1) return { success: false, message: 'Không tìm thấy đơn hàng!' };
 
-    orders[idx].status = newStatus;
     const mapText = {
       pending: 'Chờ xác nhận',
-      shipping: 'Đang vận chuyển',
+      shipping: 'Đang giao hàng',
       delivered: 'Giao hàng thành công',
       cancelled: 'Đã hủy đơn'
     };
-    orders[idx].statusText = mapText[newStatus] || newStatus;
+    rawOrders[idx].status = newStatus;
+    rawOrders[idx].statusCode = newStatus;
+    rawOrders[idx].statusText = mapText[newStatus] || newStatus;
 
-    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-    return { success: true, message: `Đã cập nhật trạng thái đơn ${orderId} thành "${orders[idx].statusText}"!` };
+    // Lưu đồng bộ vào cả 2 key
+    localStorage.setItem('sz_orders', JSON.stringify(rawOrders));
+    localStorage.setItem('sportzone_orders', JSON.stringify(rawOrders));
+
+    // Đẩy lên Firestore nếu có Cloud Sync
+    if (window.SportZoneCloud && typeof window.SportZoneCloud.saveSingleOrder === 'function') {
+      window.SportZoneCloud.saveSingleOrder(rawOrders[idx]);
+    }
+
+    return { success: true, message: `Đã cập nhật trạng thái đơn #${orderId} thành "${rawOrders[idx].statusText}"!` };
   }
 
   /**
@@ -1241,6 +1549,7 @@ var Auth = (function () {
     users[idx].membership = newRole === 'admin' ? 'Quản trị viên' : 'Thành viên Bạc';
 
     saveUsers(users);
+    syncUserToCloud(users[idx]);
     return {
       success: true,
       message: `Đã đổi quyền của "${users[idx].fullName}" thành ${newRole === 'admin' ? 'Quản trị viên (Admin)' : 'Khách hàng (User)'}!`
@@ -1266,6 +1575,7 @@ var Auth = (function () {
     users[idx].status = newStatus;
 
     saveUsers(users);
+    syncUserToCloud(users[idx]);
     return {
       success: true,
       message: `Đã ${newStatus === 'locked' ? 'KHÓA' : 'MỞ KHÓA'} tài khoản "${users[idx].fullName}"!`
@@ -1289,6 +1599,19 @@ var Auth = (function () {
 
     const filtered = users.filter(u => u.id !== userId);
     saveUsers(filtered);
+
+    // Ghi nhận tài khoản đã xóa để không bao giờ tự ý hồi sinh khi reload
+    try {
+      const deletedList = JSON.parse(localStorage.getItem('sz_deleted_users') || '[]');
+      if (!deletedList.includes(userId)) deletedList.push(userId);
+      if (target.email && !deletedList.includes(target.email.toLowerCase())) {
+        deletedList.push(target.email.toLowerCase());
+      }
+      localStorage.setItem('sz_deleted_users', JSON.stringify(deletedList));
+    } catch (e) {}
+
+    // Xóa vĩnh viễn trên Cloud Firestore
+    deleteUserFromCloud(userId);
 
     return {
       success: true,
@@ -1335,6 +1658,7 @@ var Auth = (function () {
 
     users.push(newUser);
     saveUsers(users);
+    syncUserToCloud(newUser);
 
     return {
       success: true,
@@ -1494,12 +1818,14 @@ var Auth = (function () {
           <a href="${prefix}account.html?tab=profile" class="user-dropdown-item">
             <i class="far fa-user-circle"></i> Hồ sơ của tôi
           </a>
+          ${cur.role !== 'admin' ? `
           <a href="${prefix}account.html?tab=orders" class="user-dropdown-item">
             <i class="fas fa-box-open"></i> Lịch sử đơn hàng
           </a>
           <a href="${prefix}account.html?tab=addresses" class="user-dropdown-item">
             <i class="fas fa-map-marked-alt"></i> Sổ địa chỉ nhận hàng
           </a>
+          ` : ''}
           <a href="${prefix}account.html?tab=password" class="user-dropdown-item">
             <i class="fas fa-key"></i> Đổi mật khẩu
           </a>
@@ -1559,6 +1885,10 @@ var Auth = (function () {
   // Xuất API công khai
   return {
     init,
+    initCloudSync,
+    isCloudSyncActive,
+    syncUserToCloud,
+    deleteUserFromCloud,
     getUsers,
     saveUsers,
     getCurrentUser,
@@ -1600,29 +1930,3 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = Auth;
 }
 
-
-
-// Auto update badges on DOM load
-if (typeof document !== 'undefined') {
-  function initSharedDOM() {
-    Cart.updateBadge();
-    Wishlist.updateBadge();
-    if (typeof Auth !== 'undefined' && Auth.renderNavbarAuth) {
-      Auth.renderNavbarAuth();
-    }
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSharedDOM);
-  } else {
-    initSharedDOM();
-  }
-}
-
-if (typeof window !== 'undefined') {
-  window.Cart = Cart;
-  window.Wishlist = Wishlist;
-  window.Auth = Auth;
-}
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Cart, Wishlist, Auth };
-}
