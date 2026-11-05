@@ -24,6 +24,10 @@ const historyState = {
 
 document.addEventListener('DOMContentLoaded', initializeOrderHistory);
 window.addEventListener('storage', handleStorageChange);
+window.addEventListener('sz:orders-updated', () => {
+    loadOrders();
+    renderOrders();
+});
 
 function initializeOrderHistory() {
     const searchInput = document.getElementById('orderSearch');
@@ -41,16 +45,31 @@ function initializeOrderHistory() {
 function loadOrders() {
     try {
         const raw = localStorage.getItem(ORDER_HISTORY_KEY);
+        const rawSz = localStorage.getItem('sz_orders');
         const parsed = raw ? JSON.parse(raw) : [];
-        if (!Array.isArray(parsed)) {
-            throw new Error('Dữ liệu lịch sử đơn hàng không phải là danh sách.');
-        }
+        const parsedSz = rawSz ? JSON.parse(rawSz) : [];
 
-        historyState.orders = parsed.filter(order => {
-            const valid = isValidOrder(order);
-            if (!valid) console.warn('[OrderHistory] Bỏ qua bản ghi đơn hàng không hợp lệ.');
-            return valid;
+        // Gộp các đơn hàng từ cả 2 nguồn, tránh trùng lặp
+        const map = new Map();
+        [...parsed, ...parsedSz].forEach(o => {
+            if (!o || typeof o !== 'object') return;
+            const key = o.orderId || o.id;
+            if (key && !map.has(key)) map.set(key, o);
         });
+        const combined = Array.from(map.values());
+
+        historyState.orders = combined.filter(isValidOrder).map(order => ({
+            ...order,
+            orderId: order.orderId || order.id,
+            total: Number(order.total !== undefined ? order.total : order.totalAmount),
+            status: order.status || order.statusText || 'Chờ xác nhận',
+            items: (order.items || []).map(item => ({
+                ...item,
+                name: item.name || 'Sản phẩm thể thao',
+                price: Number(item.price || 0),
+                quantity: Number(item.quantity || 1)
+            }))
+        }));
         historyState.storageError = false;
     } catch (error) {
         historyState.orders = [];
@@ -62,21 +81,13 @@ function loadOrders() {
 }
 
 function isValidOrder(order) {
-    return Boolean(
-        order &&
-        typeof order.orderId === 'string' &&
-        order.orderId.trim() &&
-        Array.isArray(order.items) &&
-        order.items.every(item =>
-            item &&
-            typeof item === 'object' &&
-            typeof item.name === 'string' &&
-            Number.isFinite(item.price) && item.price >= 0 &&
-            Number.isInteger(item.quantity) && item.quantity > 0
-        ) &&
-        Number.isFinite(order.total) &&
-        order.total >= 0
-    );
+    if (!order || typeof order !== 'object') return false;
+    const orderId = order.orderId || order.id;
+    if (!orderId || typeof orderId !== 'string' || !orderId.trim()) return false;
+    const total = Number(order.total !== undefined ? order.total : order.totalAmount);
+    if (!Number.isFinite(total) || total < 0) return false;
+    if (!Array.isArray(order.items)) return false;
+    return true;
 }
 
 function renderOrders() {

@@ -101,6 +101,9 @@
         <p style="font-size: 13.5px; color: #64748b;">Phân quyền người dùng & Quản lý toàn bộ tài khoản SportZone (TV3)</p>
       </div>
       <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="btn-secondary" id="btn-cloud-status" onclick="SportZoneFirebase.openConfigModal()" style="display:inline-flex; align-items:center; gap:6px; padding:10px 16px; font-size:13.5px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; cursor:pointer;" title="Cài đặt kết nối Cloud Firebase Realtime Sync">
+          <i class="fas fa-cloud" style="color:#0284c7;"></i> <span id="cloud-status-text">Cloud Realtime</span>
+        </button>
         <a href="admin/index.html" class="btn-submit-auth" style="width: auto; padding: 10px 18px; font-size: 13.5px; text-decoration: none; background: #0082c3;">
           <i class="fas fa-chart-line" aria-hidden="true"></i> Dashboard
         </a>
@@ -280,6 +283,12 @@
   </div>
 </div>
 
+<!-- Firebase SDK (v9 compat) for Cloud Realtime Sync -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/cloud-sync.js"></script>
+
 <!-- Main Script & Shared Core Script (TV3) -->
 <script src="js/shared.js"></script>
 <script src="js/main.js"></script>
@@ -289,6 +298,26 @@
     document.addEventListener('DOMContentLoaded', checkAdminAccess);
   } else {
     checkAdminAccess();
+  }
+
+  // Tự động cập nhật giao diện Admin khi Cloud Firestore sync dữ liệu mới
+  window.addEventListener('sz:cloud-sync', () => {
+    updateCloudStatusBadge();
+    if (Auth.isAdmin()) {
+      renderStats();
+      filterUsersTable();
+    }
+  });
+
+  function updateCloudStatusBadge() {
+    const cloudText = document.getElementById('cloud-status-text');
+    if (cloudText && window.SportZoneFirebase) {
+      if (SportZoneFirebase.isConfigured()) {
+        cloudText.innerHTML = '<span style="color:#16a34a; font-weight:700;">● Cloud Bật</span>';
+      } else {
+        cloudText.innerHTML = '<span style="color:#64748b;">☁️ Kết nối Cloud</span>';
+      }
+    }
   }
 
   // Kiểm tra quyền truy cập (Route Guard)
@@ -323,6 +352,7 @@
   }
 
   function loadAdminDashboard() {
+    updateCloudStatusBadge();
     renderStats();
     renderUsersTable();
     renderAdminOrdersTable();

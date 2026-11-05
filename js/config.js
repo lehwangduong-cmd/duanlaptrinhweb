@@ -8,8 +8,8 @@
  */
 
 (function () {
-  // Client ID mặc định (Thay thế bằng Client ID thực tế từ Google Cloud Console)
-  const DEFAULT_CLIENT_ID = '928531123456-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com';
+  // Client ID chính thức từ Google Cloud Console (Dự án SportZone)
+  const DEFAULT_CLIENT_ID = '141452785289-0a64d4elgufr19i1u5mfjnkvcv2m17fj.apps.googleusercontent.com';
 
   // Lấy Google Client ID theo thứ tự ưu tiên:
   // 1. Cấu hình đã lưu trong localStorage (cho phép nhập nhanh trên web)
@@ -18,7 +18,7 @@
   function getGoogleClientId() {
     try {
       const stored = localStorage.getItem('sz_google_client_id');
-      if (stored && stored.trim() && !stored.includes('YOUR_GOOGLE_CLIENT_ID')) {
+      if (stored && stored.trim() && !stored.includes('YOUR_GOOGLE_CLIENT_ID') && !stored.includes('abcdefghijklm')) {
         return stored.trim();
       }
     } catch (e) {}
@@ -62,4 +62,3 @@
     }
   };
 })();
-

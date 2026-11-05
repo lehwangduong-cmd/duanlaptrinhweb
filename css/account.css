@@ -1565,7 +1565,7 @@
 /* Summary stats badge list */
 .user-stat-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 14px;
   margin-top: 24px;
   border-top: 1px solid #f0f0f0;

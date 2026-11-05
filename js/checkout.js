@@ -139,6 +139,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 7. Cập nhật nội dung chuyển khoản với số điện thoại (sau khi nhập)
     updateBankContent();
+
+    // 8. Tự động điền thông tin nếu khách hàng đã đăng nhập tài khoản
+    prefillCustomerInfo();
 });
 
 /* ============================================================
@@ -217,8 +220,44 @@ function loadFullCart() {
 }
 
 /**
+ * Tự động điền thông tin khách hàng từ tài khoản đang đăng nhập
+ */
+function prefillCustomerInfo() {
+    try {
+        const rawUser = localStorage.getItem('sz_current_user');
+        if (!rawUser) return;
+        const user = JSON.parse(rawUser);
+        if (!user) return;
+
+        const fullNameInput = document.getElementById('fullName');
+        const phoneInput = document.getElementById('phone');
+        const emailInput = document.getElementById('email');
+        const addressInput = document.getElementById('address');
+
+        if (fullNameInput && !fullNameInput.value && user.fullName) {
+            fullNameInput.value = user.fullName;
+        }
+        if (phoneInput && !phoneInput.value && user.phone) {
+            phoneInput.value = user.phone;
+        }
+        if (emailInput && !emailInput.value && user.email) {
+            emailInput.value = user.email;
+        }
+        if (addressInput && !addressInput.value && Array.isArray(user.addresses) && user.addresses.length > 0) {
+            const defAddr = user.addresses.find(a => a.isDefault) || user.addresses[0];
+            if (defAddr && defAddr.address) {
+                addressInput.value = defAddr.address;
+            }
+        }
+    } catch (e) {
+        console.warn('[Checkout] Lỗi tự động điền thông tin người dùng:', e);
+    }
+}
+
+/**
  * Lưu đơn hàng mới vào lịch sử đơn hàng
  * Đẩy vào đầu mảng để đơn hàng mới nhất hiển thị trước
+ * Đồng bộ vào cả sportzone_orders và sz_orders, đồng thời đẩy lên Firebase Cloud
  * @param {Object} newOrder - Đơn hàng vừa tạo
  */
 function saveOrderToHistory(newOrder) {
@@ -233,6 +272,23 @@ function saveOrderToHistory(newOrder) {
         history.unshift(newOrder);
 
         localStorage.setItem(ORDERS_HISTORY_KEY, JSON.stringify(history));
+
+        // Đồng thời cập nhật vào sz_orders để trang Account & TV3 nhận ngay lập tức
+        try {
+            const rawSz = localStorage.getItem('sz_orders');
+            const szHistory = rawSz ? JSON.parse(rawSz) : [];
+            if (Array.isArray(szHistory)) {
+                const filtered = szHistory.filter(o => (o.orderId || o.id) !== (newOrder.orderId || newOrder.id));
+                filtered.unshift(newOrder);
+                localStorage.setItem('sz_orders', JSON.stringify(filtered));
+            }
+        } catch (e) {}
+
+        // Đẩy đơn hàng lên Cloud Firestore Realtime
+        if (window.SportZoneCloud && typeof window.SportZoneCloud.saveSingleOrder === 'function') {
+            window.SportZoneCloud.saveSingleOrder(newOrder);
+        }
+
         console.log('[Checkout] Đã lưu đơn hàng:', newOrder.orderId);
         return true;
     } catch (err) {
@@ -903,13 +959,27 @@ function placeOrder() {
     };
 
     // === Bước 8: Tổng hợp object đơn hàng hoàn chỉnh ===
+    // Đọc thông tin người dùng đang đăng nhập nếu có
+    let loggedInUser = null;
+    try {
+        const rawUser = localStorage.getItem('sz_current_user');
+        if (rawUser) loggedInUser = JSON.parse(rawUser);
+    } catch (e) {}
+
     const completedOrder = {
         orderId:        orderId,
+        id:             orderId,
+        userId:         loggedInUser?.id || null,
         status:         'Chờ xác nhận',           // Trạng thái ban đầu
+        statusCode:     'pending',
+        statusText:     'Chờ xác nhận',
         createdAt:      new Date().toISOString(),  // Thời điểm đặt hàng
 
         // Thông tin khách hàng
         customer:       customerInfo,
+        recipientName:  customerInfo.fullName,
+        recipientPhone: customerInfo.phone,
+        shippingAddress: customerInfo.address,
 
         // Sản phẩm
         items:          orderData.items,
@@ -923,8 +993,10 @@ function placeOrder() {
         // Tài chính
         subtotal:       subtotal,
         shipping:       shippingFee,
+        shippingFee:    shippingFee,
         discount:       discount,
         total:          total,
+        totalAmount:    total,
 
         // Thông tin coupon
         coupon:         orderData.coupon || null,

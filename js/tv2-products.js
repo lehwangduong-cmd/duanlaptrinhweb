@@ -8,8 +8,8 @@
  * <script src="js/tv2-products.js"></script>
  */
 
-// Danh sách sản phẩm của SportZone
-const PRODUCTS = [
+// Danh sách 12 sản phẩm gốc của SportZone (dùng làm mặc định / fallback)
+const DEFAULT_PRODUCTS = [
   {id:1,name:'Giày chạy bộ JogFlow 500 nam',category:'Chạy bộ',price:899000,oldPrice:1290000,rating:4.7,reviews:128,badge:'-30%',image:'images/products-real/giay-chay-bo.jpg',icon:'fa-person-running',sizes:['39','40','41','42','43'],stock:18,description:'Giày chạy bộ nhẹ, êm ái với đế EVA hỗ trợ tốt cho các buổi tập hàng ngày trên đường trường.'},
   {id:2,name:'Bóng đá UCL Size 5',category:'Bóng đá',price:450000,oldPrice:0,rating:4.8,reviews:94,badge:'Mới',image:'images/products-real/bong-da.jpg',icon:'fa-futbol',sizes:['Size 5'],stock:25,description:'Bóng thi đấu size 5 với lớp da PU chắc chắn, độ bền cao và độ nảy ổn định.'},
   {id:3,name:'Áo chạy bộ Dry Feel nam',category:'Chạy bộ',price:249000,oldPrice:399000,rating:4.5,reviews:76,badge:'-38%',image:'images/products-real/ao-chay-bo.jpg',icon:'fa-shirt',sizes:['S','M','L','XL'],stock:30,description:'Áo thể thao co giãn nhẹ, thoáng khí và thấm hút mồ hôi nhanh trong mọi hoạt động.'},
@@ -23,6 +23,37 @@ const PRODUCTS = [
   {id:11,name:'Áo đấu đội tuyển Việt Nam',category:'Bóng đá',price:399000,oldPrice:499000,rating:4.6,reviews:71,badge:'Mới',image:'images/products-real/ao-dau.jpg',icon:'fa-shirt',sizes:['S','M','L','XL','XXL'],stock:16,description:'Áo thi đấu thể thao fabric thoáng mát, sắc đỏ truyền thống và đường may chắc chắn.'},
   {id:12,name:'Balo gym 30L',category:'Gym',price:349000,oldPrice:449000,rating:4.5,reviews:49,image:'images/products-real/balo-gym.jpg',icon:'fa-bag-shopping',sizes:['30L'],stock:19,description:'Balo thể thao nhiều ngăn, quai đeo êm và ngăn riêng chống thấm cho đồ dùng tập luyện.'}
 ];
+
+// Hàm nạp danh sách sản phẩm từ Cloud / LocalStorage
+function getStoredProducts() {
+  try {
+    const raw = localStorage.getItem('sportzone_products');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+  return DEFAULT_PRODUCTS;
+}
+
+let PRODUCTS = getStoredProducts();
+
+// Tự động cập nhật sản phẩm khi Cloud Firestore đồng bộ
+window.addEventListener('storage', (e) => {
+  if (e.key === 'sportzone_products' || e.key === null) {
+    PRODUCTS = getStoredProducts();
+    if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) renderCatalog();
+    if (typeof renderProductDetail === 'function' && document.getElementById('product-detail')) renderProductDetail();
+  }
+});
+
+window.addEventListener('sz:products-updated', (e) => {
+  if (Array.isArray(e.detail) && e.detail.length > 0) {
+    PRODUCTS = e.detail;
+    if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) renderCatalog();
+    if (typeof renderProductDetail === 'function' && document.getElementById('product-detail')) renderProductDetail();
+  }
+});
 
 const formatMoney = value => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 const removeAccents = str => (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().trim();
