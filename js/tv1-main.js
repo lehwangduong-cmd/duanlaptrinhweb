@@ -127,6 +127,7 @@ document.querySelectorAll('.btn-wishlist').forEach(btn => {
     const oldPrice = card?.querySelector('.price-old')?.textContent.trim() || '';
     const badge = card?.querySelector('.product-badge')?.textContent.trim() || '';
     const imgEl = card?.querySelector('.product-img');
+    const productImage = imgEl?.querySelector('img');
     const iconEl = imgEl?.querySelector('i');
     const iconClass = iconEl?.className || 'fas fa-box';
     const iconColor = iconEl?.style.color || '#0082c3';
@@ -139,6 +140,7 @@ document.querySelectorAll('.btn-wishlist').forEach(btn => {
       price,
       oldPrice,
       badge,
+      image: productImage?.currentSrc || productImage?.src || '',
       iconClass,
       iconColor,
       bgGradient
@@ -173,9 +175,45 @@ document.querySelectorAll('.btn-wishlist').forEach(btn => {
   });
 });
 
+// ===== ADD TO CART BUTTONS =====
+document.querySelectorAll('.btn-add-cart').forEach(btn => {
+  btn.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const card = btn.closest('.product-card');
+    const name = card?.querySelector('.product-name')?.textContent.trim();
+    const priceText = card?.querySelector('.price-current')?.textContent || '';
+    const price = Number(priceText.replace(/[^\d]/g, ''));
+    if (!card || !name || !Number.isFinite(price) || price <= 0) {
+      console.error('[Cart] Không thể thêm sản phẩm: thiếu tên hoặc giá hợp lệ.');
+      return;
+    }
+
+    const image = card.querySelector('.product-img img');
+    const productId = card.dataset.productId ||
+      `featured-${[...name.normalize('NFD').replace(/[\u0300-\u036f]/g, '')]
+        .join('').toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+    const product = {
+      id: productId,
+      name,
+      brand: card.querySelector('.product-brand')?.textContent.trim() || 'SportZone',
+      price,
+      image: image?.currentSrc || image?.src || '',
+      category: card.dataset.category || '',
+      quantity: 1,
+    };
+
+    if (typeof Cart === 'undefined') {
+      console.error('[Cart] API chưa được nạp; không thể thêm sản phẩm.');
+      return;
+    }
+    Cart.addItem(product);
+  });
+});
+
 // ===== STICKY NAVBAR SHADOW =====
 window.addEventListener('scroll', () => {
   const navbar = document.querySelector('.navbar');
   navbar?.classList.toggle('scrolled', window.scrollY > 10);
 });
-

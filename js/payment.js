@@ -6,6 +6,7 @@ const PAYMENT_STATUS = {
     pending: 'Chờ xác nhận thanh toán',
     paid: 'Đã thanh toán',
 };
+const BANK_QR_IMAGE_URL = 'https://img.vietqr.io/image/MB-0337737705-compact2.png';
 
 const paymentState = {
     order: null,
@@ -97,6 +98,47 @@ function renderOrder(order) {
     backLink.href = `checkout.html?orderId=${encodeURIComponent(order.orderId)}`;
 }
 
+function renderBankQr(order) {
+    const image = document.getElementById('bankQr');
+    const errorMessage = document.getElementById('bankQrError');
+    if (!image || !errorMessage) return;
+    if (image.dataset.orderId === order.orderId && image.dataset.status === 'loaded') return;
+
+    if (!Number.isSafeInteger(order.total) || order.total <= 0) {
+        image.hidden = true;
+        errorMessage.textContent = 'Đơn hàng không có số tiền thanh toán hợp lệ nên không thể tạo mã QR.';
+        errorMessage.hidden = false;
+        image.dataset.orderId = order.orderId;
+        image.dataset.status = 'error';
+        return;
+    }
+    if (image.dataset.orderId === order.orderId && image.dataset.status === 'loading') return;
+
+    const qrUrl = new URL(BANK_QR_IMAGE_URL);
+    qrUrl.search = new URLSearchParams({
+        amount: String(order.total),
+        addInfo: `SPORTZONE ${order.orderId}`,
+        accountName: document.getElementById('bankOwner').textContent.trim(),
+    }).toString();
+
+    image.onload = () => {
+        errorMessage.hidden = true;
+        image.hidden = false;
+        image.dataset.status = 'loaded';
+    };
+    image.onerror = () => {
+        image.hidden = true;
+        errorMessage.hidden = false;
+        image.dataset.status = 'error';
+    };
+    image.dataset.orderId = order.orderId;
+    image.dataset.status = 'loading';
+    image.hidden = true;
+    errorMessage.textContent = 'Không tải được mã QR. Bạn có thể nhập số tài khoản, số tiền và nội dung chuyển khoản hiển thị bên trái.';
+    errorMessage.hidden = false;
+    image.src = qrUrl.toString();
+}
+
 function renderProducts(items) {
     const productList = document.getElementById('productList');
     productList.replaceChildren();
@@ -181,10 +223,12 @@ function bindPaymentEvents() {
 }
 
 function renderPaymentMethod() {
-    document.getElementById('bankDetails').hidden = paymentState.method !== 'transfer';
+    const isTransfer = paymentState.method === 'transfer';
+    document.getElementById('bankDetails').hidden = !isTransfer;
+    if (isTransfer) renderBankQr(paymentState.order);
     setText(
         'confirmLabel',
-        paymentState.method === 'transfer' ? 'Xác nhận đã chuyển khoản' : 'Xác nhận thanh toán COD'
+        isTransfer ? 'Xác nhận đã chuyển khoản' : 'Xác nhận thanh toán COD'
     );
 }
 

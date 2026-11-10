@@ -65,69 +65,6 @@ const COUPON_CODES = {
 };
 
 /* ============================================================
-   DỮ LIỆU SẢN PHẨM MẪU (Sample Data)
-   Dùng để demo khi chưa tích hợp với trang sản phẩm (Member 2)
-   Mỗi môn thể thao có ít nhất 1 sản phẩm đại diện
-   ============================================================ */
-const SAMPLE_PRODUCTS = [
-    {
-        id:       'SP001',
-        name:     'Giày Đá Bóng Predator Accuracy.3 TF',
-        brand:    'Adidas',
-        price:    1290000,
-        image:    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
-        size:     '42',
-        color:    'Đen / Vàng',
-        category: 'Bóng đá',
-        quantity:  1,
-    },
-    {
-        id:       'SP002',
-        name:     'Áo Thi Đấu Bóng Rổ Dri-FIT DNA',
-        brand:    'Nike',
-        price:    750000,
-        image:    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=400&fit=crop',
-        size:     'L',
-        color:    'Đỏ / Trắng',
-        category: 'Bóng rổ',
-        quantity:  2,
-    },
-    {
-        id:       'SP003',
-        name:     'Vợt Cầu Lông Nanoflare 1000 Tour',
-        brand:    'Yonex',
-        price:    3500000,
-        image:    'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=400&fit=crop',
-        size:     'Tiêu chuẩn',
-        color:    'Xanh dương',
-        category: 'Cầu lông',
-        quantity:  1,
-    },
-    {
-        id:       'SP004',
-        name:     'Giày Chạy Bộ Gel-Nimbus 25',
-        brand:    'ASICS',
-        price:    2890000,
-        image:    'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=400&h=400&fit=crop',
-        size:     '43',
-        color:    'Trắng / Xám',
-        category: 'Chạy bộ',
-        quantity:  1,
-    },
-    {
-        id:       'SP005',
-        name:     'Tạ Tay Cao Su 10kg (Cặp)',
-        brand:    'Domyos',
-        price:    650000,
-        image:    'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=400&fit=crop',
-        size:     '10kg',
-        color:    'Đen',
-        category: 'Gym',
-        quantity:  1,
-    },
-];
-
-/* ============================================================
    BIẾN TRẠNG THÁI (State Variables)
    Lưu trạng thái hiện tại của giỏ hàng trong bộ nhớ
    ============================================================ */
@@ -150,30 +87,30 @@ let calcDebounceTimer = null;
 
 /**
  * Hàm khởi tạo chính - chạy ngay khi DOM sẵn sàng
- * Thứ tự: Load data → Nếu rỗng thì thêm data mẫu → Render → Gán events
+ * Thứ tự: Load dữ liệu thật → Render → Gán events
  */
 document.addEventListener('DOMContentLoaded', function () {
     // 1. Đọc dữ liệu từ localStorage
     cartItems = loadCartFromStorage();
 
-    // 2. Nếu giỏ trống và đang ở môi trường dev → thêm sản phẩm mẫu để test
-    //    COMMENT dòng này khi tích hợp thực tế với Member 2
-    if (cartItems.length === 0) {
-        cartItems = [...SAMPLE_PRODUCTS];
-        saveCartToStorage(cartItems);
-    }
-
-    // 3. Chọn tất cả sản phẩm mặc định
+    // 2. Chọn tất cả sản phẩm mặc định
     cartItems.forEach(item => selectedIds.add(item.id));
 
-    // 4. Render giao diện
+    // 3. Render giao diện
     renderCart();
 
-    // 5. Cập nhật badge số lượng trên icon giỏ hàng
+    // 4. Cập nhật badge số lượng trên icon giỏ hàng
     updateCartBadge();
 
-    // 6. Gán các sự kiện
+    // 5. Gán các sự kiện
     bindEvents();
+});
+
+window.addEventListener('storage', event => {
+    if (event.key !== CART_KEY && event.key !== null) return;
+    cartItems = loadCartFromStorage();
+    selectedIds = new Set(cartItems.map(item => item.id));
+    renderCart();
 });
 
 /* ============================================================
@@ -187,7 +124,30 @@ document.addEventListener('DOMContentLoaded', function () {
 function loadCartFromStorage() {
     try {
         const raw = localStorage.getItem(CART_KEY);
-        return raw ? JSON.parse(raw) : [];
+        if (raw !== null) {
+            const items = JSON.parse(raw);
+            return Array.isArray(items)
+                ? items.map(item => ({
+                    ...item,
+                    id: String(item.id),
+                    quantity: Number(item.quantity || item.qty || 1),
+                    size: item.size || item.selectedSize || '',
+                    color: item.color || item.selectedColor || '',
+                }))
+                : [];
+        }
+
+        const legacyItems = JSON.parse(localStorage.getItem('sz_cart') || '[]');
+        if (!Array.isArray(legacyItems)) return [];
+        const migratedItems = legacyItems.map(item => ({
+            ...item,
+            id: String(item.id),
+            quantity: Number(item.quantity || item.qty || 1),
+            size: item.size || item.selectedSize || item.sizes?.[0] || '',
+            color: item.color || item.selectedColor || '',
+        }));
+        if (migratedItems.length) saveCartToStorage(migratedItems);
+        return migratedItems;
     } catch (err) {
         console.error('[Cart] Lỗi đọc localStorage:', err);
         return [];

@@ -25,71 +25,134 @@ if (typeof localStorage === 'undefined') {
 
 /* ── Quản lý Giỏ hàng (LocalStorage) ── */
 var Cart = (function() {
+  const CART_KEY = 'sportzone_cart';
+  const LEGACY_CART_KEY = 'sz_cart';
+
   function getItems() {
     try {
-      return JSON.parse(localStorage.getItem('sz_cart') || '[]');
+      const storedItems = localStorage.getItem(CART_KEY);
+      if (storedItems !== null) {
+        const items = JSON.parse(storedItems);
+        return Array.isArray(items) ? items : [];
+      }
+
+      const legacyItems = JSON.parse(localStorage.getItem(LEGACY_CART_KEY) || '[]');
+      if (!Array.isArray(legacyItems)) return [];
+
+      const migratedItems = legacyItems.map(item => ({
+        ...item,
+        id: String(item.id),
+        quantity: Number(item.quantity || item.qty || 1),
+        size: item.size || item.selectedSize || item.sizes?.[0] || '',
+        color: item.color || item.selectedColor || '',
+      }));
+      if (migratedItems.length) saveItems(migratedItems);
+      return migratedItems;
     } catch (e) {
+      console.error('[Cart] Không thể đọc dữ liệu giỏ hàng:', e);
       return [];
     }
   }
 
-  function addItem(product) {
-    if (!product) return;
-    const items = getItems();
-    const existing = items.find(i => i.id === product.id);
-    if (existing) {
-      existing.qty = (existing.qty || 1) + 1;
-    } else {
-      items.push({ ...product, qty: 1 });
-    }
+  function saveItems(items) {
     try {
-      localStorage.setItem('sz_cart', JSON.stringify(items));
-    } catch (e) {}
-    updateBadge();
-    showToast(`Đã thêm "${product.name || 'sản phẩm'}" vào giỏ hàng!`);
+      localStorage.setItem(CART_KEY, JSON.stringify(items));
+      updateBadge(items);
+      return true;
+    } catch (e) {
+      console.error('[Cart] Không thể lưu dữ liệu giỏ hàng:', e);
+      showToast('Không thể lưu giỏ hàng. Vui lòng kiểm tra bộ nhớ trình duyệt.', 'error');
+      return false;
+    }
+  }
+
+  function addItem(product) {
+    if (!product || typeof product !== 'object' || !product.name) {
+      showToast('Không thể thêm sản phẩm không hợp lệ vào giỏ hàng.', 'error');
+      return false;
+    }
+
+    const price = Number(product.price);
+    if (!Number.isFinite(price) || price < 0) {
+      showToast('Sản phẩm không có giá hợp lệ nên chưa thể thêm vào giỏ.', 'error');
+      return false;
+    }
+
+    const quantity = Number(product.quantity ?? product.qty ?? 1);
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      showToast('Số lượng sản phẩm không hợp lệ.', 'error');
+      return false;
+    }
+
+    const image = typeof product.image === 'string' && product.image
+      ? new URL(product.image, document.baseURI).href
+      : '';
+    const item = {
+      ...product,
+      id: String(product.id ?? product.name),
+      price,
+      image,
+      size: product.size || product.selectedSize || product.sizes?.[0] || '',
+      color: product.color || product.selectedColor || '',
+      category: product.category || '',
+      quantity,
+    };
+    const items = getItems();
+    const existing = items.find(i =>
+      String(i.id) === item.id &&
+      (i.size || '') === item.size &&
+      (i.color || '') === item.color
+    );
+    if (existing) {
+      existing.quantity = Number(existing.quantity || existing.qty || 1) + quantity;
+    } else {
+      items.push(item);
+    }
+    if (!saveItems(items)) return false;
+    showToast(`Đã thêm "${item.name}" vào giỏ hàng!`);
+    return true;
   }
 
   function removeItem(id) {
-    const items = getItems().filter(i => i.id !== id);
-    try {
-      localStorage.setItem('sz_cart', JSON.stringify(items));
-    } catch (e) {}
-    updateBadge();
+    saveItems(getItems().filter(i => String(i.id) !== String(id)));
   }
 
   function updateQty(id, qty) {
     const items = getItems();
-    const item = items.find(i => i.id === id);
-    if (item) {
-      item.qty = Math.max(1, qty);
-      try {
-        localStorage.setItem('sz_cart', JSON.stringify(items));
-      } catch (e) {}
-      updateBadge();
+    const item = items.find(i => String(i.id) === String(id));
+    if (!item) return;
+    const quantity = Number(qty);
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      showToast('Số lượng sản phẩm không hợp lệ.', 'error');
+      return;
     }
+    item.quantity = quantity;
+    delete item.qty;
+    saveItems(items);
   }
 
   function clearCart() {
-    try {
-      localStorage.removeItem('sz_cart');
-    } catch (e) {}
-    updateBadge();
+    saveItems([]);
   }
 
   function getTotalQty() {
-    return getItems().reduce((sum, i) => sum + (i.qty || 1), 0);
+    return getItems().reduce((sum, i) => sum + Number(i.quantity || i.qty || 1), 0);
   }
 
   function getTotalPrice() {
-    return getItems().reduce((sum, i) => sum + (i.price || 0) * (i.qty || 1), 0);
+    return getItems().reduce((sum, i) => sum + (Number(i.price) || 0) * Number(i.quantity || i.qty || 1), 0);
   }
 
-  function updateBadge() {
-    const qty = getTotalQty();
+  function updateBadge(items = getItems()) {
+    const qty = items.reduce((sum, i) => sum + Number(i.quantity || i.qty || 1), 0);
     if (typeof document !== 'undefined') document.querySelectorAll('#cart-count, .cart-badge').forEach(el => {
       el.textContent = qty;
       el.style.display = qty > 0 ? 'inline-flex' : 'none';
     });
+  }
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', updateBadge);
   }
 
   function showToast(msg, type = 'success') {
@@ -137,6 +200,7 @@ var Wishlist = (function() {
       price: '2.850.000₫',
       oldPrice: '3.200.000₫',
       badge: '-11%',
+      image: 'images/products-real/giay-chay-bo.jpg',
       iconClass: 'fas fa-shoe-prints',
       iconColor: '#0082c3',
       bgGradient: 'linear-gradient(135deg, #e0f2fe, #bae6fd)'
@@ -148,6 +212,7 @@ var Wishlist = (function() {
       price: '550.000₫',
       oldPrice: '650.000₫',
       badge: 'Hot',
+      image: 'images/products-real/ao-dau.jpg',
       iconClass: 'fas fa-tshirt',
       iconColor: '#dc2626',
       bgGradient: 'linear-gradient(135deg, #fee2e2, #fecaca)'
@@ -159,6 +224,7 @@ var Wishlist = (function() {
       price: '380.000₫',
       oldPrice: '',
       badge: 'Bán chạy',
+      image: 'images/products-real/kinh-boi.jpg',
       iconClass: 'fas fa-glasses',
       iconColor: '#0284c7',
       bgGradient: 'linear-gradient(135deg, #e0f2fe, #cbd5e1)'
@@ -191,7 +257,17 @@ var Wishlist = (function() {
     const idx = items.findIndex(i => (typeof i === 'object' ? i.id === productId : i === productId));
     let added = false;
     if (idx === -1) {
-      items.push(productOrId);
+      if (productOrId && typeof productOrId === 'object') {
+        const product = { ...productOrId };
+        const imageField = typeof product.image === 'string' ? 'image' :
+          typeof product.imageUrl === 'string' ? 'imageUrl' : null;
+        if (imageField && product[imageField]) {
+          product[imageField] = new URL(product[imageField], document.baseURI).href;
+        }
+        items.push(product);
+      } else {
+        items.push(productOrId);
+      }
       added = true;
     } else {
       items.splice(idx, 1);

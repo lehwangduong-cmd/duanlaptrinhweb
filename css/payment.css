@@ -106,6 +106,7 @@ h1, h2, h3, p { margin-top: 0; }
 .bank-qr { display: grid; justify-items: center; gap: 9px; margin: 0; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
 .bank-qr img { display: block; width: 100%; max-width: 210px; height: auto; border-radius: 6px; }
 .bank-qr figcaption { color: var(--muted); font-size: 11px; line-height: 1.45; text-align: center; }
+.bank-qr__error { margin: 0; color: var(--amber); font-size: 12px; line-height: 1.45; text-align: center; }
 .bank-warning { display: flex; gap: 8px; margin: 13px 0 0; color: var(--amber); font-size: 12px; }
 .bank-warning i { margin-top: 3px; }
 

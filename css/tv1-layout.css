@@ -1155,17 +1155,88 @@ img.blog-img { display: block; }
   .hero-slide { height: 420px; }
 }
 
+@media (max-width: 900px) {
+  .topbar-left .extra { display: none; }
+  .navbar .container { height: 60px; gap: 8px; }
+  .navbar-logo { gap: 6px; }
+  .logo-icon { width: 36px; height: 36px; font-size: 19px; }
+  .logo-name { font-size: 17px; }
+  .logo-sub { display: none; }
+  .navbar-search { display: none; }
+  #search-toggle { display: flex; }
+  .navbar-actions .nav-action-btn span { display: none; }
+  .navbar-actions { gap: 0; }
+  .nav-action-btn { padding: 5px 6px; }
+  .nav-action-btn i { font-size: 18px; }
+  .hamburger { display: flex; width: 34px; height: 34px; flex: 0 0 34px; }
+  .nav-menu {
+    position: fixed;
+    top: 60px;
+    left: -100%;
+    width: 80%;
+    max-width: 300px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    transition: left var(--transition);
+    z-index: 999;
+    box-shadow: 4px 0 20px rgba(0,0,0,.3);
+  }
+  .nav-menu.open { left: 0; }
+  .nav-menu .container { display: block; padding: 0; }
+  .nav-menu ul { flex-direction: column; }
+  .nav-menu ul li > a { height: auto; padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .dropdown {
+    position: static;
+    display: none;
+    opacity: 1;
+    pointer-events: all;
+    transform: none;
+    border-radius: 0;
+    background: rgba(0,0,0,.2);
+    box-shadow: none;
+  }
+  .nav-menu ul li.open > .dropdown { display: block; }
+  .dropdown li a { padding: 10px 36px; color: rgba(255,255,255,.8); }
+  .dropdown li a:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .nav-menu-overlay {
+    position: fixed;
+    display: none;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 998;
+  }
+  .nav-menu-overlay.show { display: block; }
+  .navbar-search.mobile-open {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    display: flex;
+    padding: 10px 16px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    z-index: 1000;
+  }
+  .navbar-search.mobile-open form { width: 100%; }
+}
+
 @media (max-width: 768px) {
   /* Topbar */
   .topbar-left .extra { display: none; }
 
   /* Navbar */
-  .navbar .container { height: 60px; }
+  .navbar .container { height: 60px; gap: 8px; }
+  .navbar-logo { gap: 6px; }
+  .logo-icon { width: 36px; height: 36px; font-size: 19px; }
+  .logo-name { font-size: 17px; }
+  .logo-sub { display: none; }
   .navbar-search { display: none; }
   #search-toggle { display: flex; }   /* ← hiện icon search mobile */
   .navbar-actions .nav-action-btn span { display: none; }
-  .nav-action-btn { padding: 6px 8px; }
-  .hamburger { display: flex; }
+  .navbar-actions { gap: 0; }
+  .nav-action-btn { padding: 5px 6px; }
+  .nav-action-btn i { font-size: 18px; }
+  .hamburger { display: flex; width: 34px; height: 34px; flex: 0 0 34px; }
 
   /* Nav menu */
   .nav-menu {
@@ -1233,10 +1304,28 @@ img.blog-img { display: block; }
 }
 
 @media (max-width: 480px) {
-  .product-grid { grid-template-columns: 1fr; }
+  .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .product-body { padding: 10px; }
+  .product-name { font-size: 12px; }
+  .product-price { flex-wrap: wrap; gap: 5px; }
+  .price-current { font-size: 15px; }
+  .price-old { font-size: 11px; }
+  .product-actions { gap: 6px; padding: 0 10px 10px; }
   .hero-slide { height: 260px; }
   .hero-title { font-size: 22px; }
   .btn { padding: 10px 18px; font-size: 13px; }
   .slider-btn { display: none; }
   .categories-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 360px) {
+  .navbar .container { gap: 5px; }
+  .logo-icon { width: 32px; height: 32px; }
+  .logo-name { font-size: 15px; }
+  .nav-action-btn { padding-inline: 4px; }
+  .nav-action-btn i { font-size: 16px; }
+  .hamburger { width: 32px; height: 32px; flex-basis: 32px; }
+  .product-grid { grid-template-columns: 1fr; }
+  .categories-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .payment-icons { max-width: 100%; flex-wrap: wrap; }
 }

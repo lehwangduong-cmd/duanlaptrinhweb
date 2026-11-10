@@ -2325,6 +2325,13 @@
   gap: 24px;
 }
 
+.wishlist-products-grid .product-img img {
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  object-fit: contain;
+}
+
 .btn-remove-wishlist {
   width: 42px;
   height: 42px;

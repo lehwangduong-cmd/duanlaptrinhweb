@@ -254,34 +254,55 @@
     subText.innerHTML = `Bạn đang có <strong>${items.length}</strong> sản phẩm thể thao trong danh sách mong muốn.`;
 
     grid.innerHTML = items.map(p => {
-      const badgeHtml = p.badge ? `<span class="product-badge">${p.badge}</span>` : '';
-      const oldPriceHtml = p.oldPrice ? `<span class="price-old">${p.oldPrice}</span>` : '';
+      const badgeHtml = p.badge ? `<span class="product-badge">${escapeWishlistHtml(p.badge)}</span>` : '';
+      const oldPriceHtml = p.oldPrice ? `<span class="price-old">${escapeWishlistHtml(p.oldPrice)}</span>` : '';
+      const image = p.image || p.imageUrl;
+      const productVisual = image
+        ? `<img src="${escapeWishlistHtml(image)}" alt="${escapeWishlistHtml(p.name || 'Sản phẩm')}" loading="lazy">`
+        : `<i class="${escapeWishlistHtml(p.iconClass || 'fas fa-box')}" style="font-size:64px; color:${escapeWishlistHtml(p.iconColor || '#0082c3')}; opacity:0.6;"></i>`;
 
       return `
-        <div class="product-card wishlist-card" id="wishlist-item-${p.id}">
+        <div class="product-card wishlist-card" id="wishlist-item-${escapeWishlistHtml(p.id)}">
           ${badgeHtml}
-          <div class="product-img" style="background:${p.bgGradient || 'linear-gradient(135deg,#f1f5f9,#e2e8f0)'}">
-            <i class="${p.iconClass || 'fas fa-box'}" style="font-size:64px; color:${p.iconColor || '#0082c3'}; opacity:0.6;"></i>
+          <div class="product-img" style="background:${escapeWishlistHtml(p.bgGradient || 'linear-gradient(135deg,#f1f5f9,#e2e8f0)')}">
+            ${productVisual}
           </div>
           <div class="product-body">
-            <div class="product-brand">${p.brand || 'SportZone'}</div>
-            <div class="product-name">${p.name}</div>
+            <div class="product-brand">${escapeWishlistHtml(p.brand || 'SportZone')}</div>
+            <div class="product-name">${escapeWishlistHtml(p.name || 'Sản phẩm')}</div>
             <div class="product-price">
-              <span class="price-current">${p.price}</span>
+              <span class="price-current">${escapeWishlistHtml(p.price ?? '')}</span>
               ${oldPriceHtml}
             </div>
           </div>
           <div class="product-actions" style="display:flex; gap:8px;">
-            <button type="button" class="btn-add-cart" onclick="handleAddToCart('${p.name}')" style="flex:1;">
+            <button type="button" class="btn-add-cart" data-wishlist-add="${escapeWishlistHtml(p.name || 'Sản phẩm')}" style="flex:1;">
               <i class="fas fa-cart-plus"></i> Thêm giỏ
             </button>
-            <button type="button" class="btn-remove-wishlist" title="Xóa khỏi yêu thích" onclick="handleRemoveWishlist('${p.id || p.name}')">
+            <button type="button" class="btn-remove-wishlist" data-wishlist-remove="${escapeWishlistHtml(p.id || p.name || '')}" title="Xóa khỏi yêu thích">
               <i class="far fa-trash-alt"></i>
             </button>
           </div>
         </div>
       `;
     }).join('');
+
+    grid.querySelectorAll('[data-wishlist-add]').forEach(button => {
+      button.addEventListener('click', () => handleAddToCart(button.dataset.wishlistAdd));
+    });
+    grid.querySelectorAll('[data-wishlist-remove]').forEach(button => {
+      button.addEventListener('click', () => handleRemoveWishlist(button.dataset.wishlistRemove));
+    });
+  }
+
+  function escapeWishlistHtml(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[character]);
   }
 
   function handleRemoveWishlist(id) {
@@ -299,13 +320,27 @@
   }
 
   function handleAddToCart(name) {
-    Auth.showToast(`Đã thêm "${name}" vào giỏ hàng!`, 'success');
-    const badge = document.getElementById('cart-count');
-    if (badge) {
-      badge.textContent = parseInt(badge.textContent || '0', 10) + 1;
+    const product = Wishlist.getItems().find(item =>
+      item && typeof item === 'object' && item.name === name
+    );
+    if (!product) {
+      Auth.showToast('Không tìm thấy thông tin sản phẩm để thêm vào giỏ.', 'error');
+      return;
     }
+
+    const price = Number(String(product.price ?? '').replace(/[^\d]/g, ''));
+    if (!Number.isFinite(price) || price <= 0) {
+      Auth.showToast('Sản phẩm không có giá hợp lệ nên chưa thể thêm vào giỏ.', 'error');
+      return;
+    }
+
+    Cart.addItem({
+      ...product,
+      id: String(product.id ?? product.name),
+      price,
+      quantity: 1,
+    });
   }
 </script>
 </body>
 </html>
-

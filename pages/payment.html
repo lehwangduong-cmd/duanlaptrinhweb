@@ -122,16 +122,18 @@
                         <div class="bank-transfer-layout">
                             <dl class="bank-data">
                                 <div><dt>Ngân hàng</dt><dd id="bankName">MB Bank</dd></div>
-                                <div><dt>Số tài khoản</dt><dd class="bank-data__account"><span id="bankAccount">ACCOUNT_NUMBER</span><button type="button" class="copy-button" id="copyAccount" aria-label="Sao chép số tài khoản"><i class="fa-regular fa-copy" aria-hidden="true"></i></button></dd></div>
-                                <div><dt>Chủ tài khoản</dt><dd id="bankOwner">ACCOUNT_HOLDER</dd></div>
+                                <div><dt>Số tài khoản</dt><dd class="bank-data__account"><span id="bankAccount">0337737705</span><button type="button" class="copy-button" id="copyAccount" aria-label="Sao chép số tài khoản"><i class="fa-regular fa-copy" aria-hidden="true"></i></button></dd></div>
+                                <div><dt>Chủ tài khoản</dt><dd id="bankOwner">PHAM TOAN DIEN</dd></div>
                                 <div><dt>Số tiền</dt><dd class="bank-data__amount" id="bankAmount">0 ₫</dd></div>
                                 <div><dt>Nội dung chuyển khoản</dt><dd class="bank-data__reference"><code id="transferContent">SPORTZONE</code><button type="button" class="copy-button" id="copyReference" aria-label="Sao chép nội dung chuyển khoản"><i class="fa-regular fa-copy" aria-hidden="true"></i></button></dd></div>
                             </dl>
                             <figure class="bank-qr">
-                                <figcaption>Thêm mã QR nhận tiền sau khi cấu hình thông tin ngân hàng riêng cho môi trường triển khai.</figcaption>
+                                <img id="bankQr" alt="Mã VietQR MB Bank đã điền sẵn số tiền và nội dung của đơn hàng" loading="eager" hidden>
+                                <p class="bank-qr__error" id="bankQrError" role="status" hidden>Không tải được mã QR. Bạn có thể nhập số tài khoản, số tiền và nội dung chuyển khoản hiển thị bên trái.</p>
+                                <figcaption>Quét mã bằng ứng dụng ngân hàng; số tiền và nội dung chuyển khoản đã được điền sẵn.</figcaption>
                             </figure>
                         </div>
-                        <p class="bank-warning"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Chuyển khoản thử nghiệm: nếu mã QR không điền đúng số tiền hoặc nội dung, hãy nhập theo thông tin đơn hàng ở bên trái. Hệ thống không tự xác nhận tiền đã về tài khoản.</p>
+                        <p class="bank-warning"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Vui lòng kiểm tra người nhận và số tiền trên ứng dụng ngân hàng trước khi xác nhận. Website không tự xác nhận tiền đã về tài khoản.</p>
                     </section>
 
                     <div class="payment-state" id="paymentState" role="status" aria-live="polite"></div>

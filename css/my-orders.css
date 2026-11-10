@@ -156,19 +156,43 @@ h1, h2, h3, p { margin-top: 0; }
     .page-main { padding-top: 17px; padding-bottom: 36px; }
     .breadcrumbs { margin-bottom: 18px; }
     .page-heading { align-items: flex-start; flex-direction: column; gap: 13px; margin-bottom: 18px; }
+    .page-heading > div { min-width: 0; }
+    .page-heading .button { width: 100%; }
     .toolbar { grid-template-columns: 1fr; padding: 11px; }
     .result-count { grid-column: auto; }
-    .order-card__header { padding: 15px; }
+    .search-control, .filter-control { min-height: 46px; }
+    .order-card__header { flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px; }
     .order-card__body { grid-template-columns: 1fr; padding: 14px 15px; }
     .order-total { text-align: left; }
     .order-total span { display: inline; margin-right: 8px; }
-    .tracking-timeline { min-width: 540px; padding-inline: 12px; }
+    .order-product { align-items: flex-start; gap: 8px; }
+    .order-product__name { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
+    .tracking-timeline { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; min-width: 0; padding: 16px 10px; }
+    .tracking-step { min-width: 0; gap: 6px; }
+    .tracking-step:not(:last-child)::after { top: 10px; left: calc(50% + 11px); width: calc(100% - 22px); }
+    .tracking-step__marker { width: 22px; height: 22px; font-size: 10px; }
+    .tracking-step__label { max-width: none; font-size: 9px; overflow-wrap: anywhere; }
     .order-card__footer { align-items: flex-start; flex-direction: column; padding: 12px 15px; }
-    .order-actions { width: 100%; justify-content: flex-start; }
+    .order-actions { width: 100%; justify-content: stretch; }
+    .order-actions .button { flex: 1 1 140px; min-height: 42px; }
     .order-details { padding-inline: 15px; }
     .order-details__grid { grid-template-columns: 1fr; gap: 14px; }
+    .detail-item { align-items: flex-start; }
+    .detail-item strong { flex: 0 0 auto; white-space: nowrap; }
     .empty-state, .message { padding: 22px 16px; }
     .site-footer__inner { flex-direction: column; }
+    .toast { right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); max-width: calc(100% - 28px); }
+}
+
+@media (max-width: 360px) {
+    .container { width: calc(100% - 24px); }
+    .brand { gap: 7px; font-size: 18px; }
+    .brand__mark { width: 30px; height: 30px; }
+    .header-nav { gap: 9px; }
+    .header-nav a { font-size: 11px; }
+    .eyebrow { font-size: 9px; letter-spacing: .7px; }
+    .tracking-timeline { padding-inline: 6px; }
+    .tracking-step__label { font-size: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

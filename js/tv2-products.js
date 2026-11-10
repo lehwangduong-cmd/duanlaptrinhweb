@@ -307,7 +307,8 @@ function bindCatalogActions() {
     btn.onclick = () => {
       const id = Number(btn.dataset.wishlist);
       if (typeof Wishlist !== 'undefined') {
-        const added = Wishlist.toggle(id);
+        const product = PRODUCTS.find(item => item.id === id);
+        const added = Wishlist.toggle(product || id);
         btn.classList.toggle('active', added);
         btn.innerHTML = `<i class="${added ? 'fas' : 'far'} fa-heart"></i>`;
       }
@@ -445,15 +446,13 @@ function initDetail() {
     const selectedSize = document.querySelector('.size-options .option-btn.active')?.dataset.size || product.sizes[0];
     const selectedColor = document.querySelector('.color-options .option-btn.active')?.textContent.trim() || 'Xanh';
     const qty = parseInt(qtyInput?.value || '1', 10);
-    for (let i = 0; i < qty; i++) {
-      Cart.addItem({ ...product, selectedSize, selectedColor });
-    }
+    Cart.addItem({ ...product, selectedSize, selectedColor, quantity: qty });
   });
 
   // Yêu thích
   document.getElementById('detail-wishlist')?.addEventListener('click', e => {
     if (typeof Wishlist === 'undefined') return;
-    const added = Wishlist.toggle(product.id);
+    const added = Wishlist.toggle(product);
     e.currentTarget.classList.toggle('active', added);
     e.currentTarget.querySelector('i').className = `${added ? 'fas' : 'far'} fa-heart`;
   });

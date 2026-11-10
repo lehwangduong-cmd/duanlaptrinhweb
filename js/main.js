@@ -127,6 +127,7 @@ document.querySelectorAll('.btn-wishlist').forEach(btn => {
     const oldPrice = card?.querySelector('.price-old')?.textContent.trim() || '';
     const badge = card?.querySelector('.product-badge')?.textContent.trim() || '';
     const imgEl = card?.querySelector('.product-img');
+    const productImage = imgEl?.querySelector('img');
     const iconEl = imgEl?.querySelector('i');
     const iconClass = iconEl?.className || 'fas fa-box';
     const iconColor = iconEl?.style.color || '#0082c3';
@@ -139,6 +140,7 @@ document.querySelectorAll('.btn-wishlist').forEach(btn => {
       price,
       oldPrice,
       badge,
+      image: productImage?.currentSrc || productImage?.src || '',
       iconClass,
       iconColor,
       bgGradient
@@ -178,4 +180,3 @@ window.addEventListener('scroll', () => {
   const navbar = document.querySelector('.navbar');
   navbar?.classList.toggle('scrolled', window.scrollY > 10);
 });
-
