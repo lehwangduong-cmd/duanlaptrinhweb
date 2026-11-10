@@ -165,3 +165,7 @@ Thông tin tài khoản và mã QR nhận tiền phải được cấu hình ri�
 ---
 
 *Mục tiêu: Xây dựng website bán đồ thể thao đa môn theo phong cách Decathlon.*
+
+### Ảnh sản phẩm
+
+Ảnh sản phẩm được lưu cục bộ trong `images/products-real/` dưới dạng ảnh vuông 800×800 để dùng thống nhất trên trang chủ, danh sách, chi tiết, giỏ hàng và quản trị. Các ảnh mới tải về lấy từ Unsplash; một số ảnh sản phẩm do chủ dự án cung cấp. Website không phụ thuộc URL ảnh bên ngoài để hiển thị danh mục.
