@@ -103,6 +103,18 @@ var Cart = (function() {
       (i.size || '') === item.size &&
       (i.color || '') === item.color
     );
+    if (product.stock !== undefined && product.stock !== null && product.stock !== '') {
+      const stock = Number(product.stock);
+      const currentProductQuantity = items
+        .filter(cartItem => String(cartItem.id) === item.id)
+        .reduce((sum, cartItem) => sum + Number(cartItem.quantity || cartItem.qty || 1), 0);
+      if (!Number.isInteger(stock) || stock < currentProductQuantity + quantity) {
+        showToast(stock > 0
+          ? `Chỉ còn ${stock} sản phẩm trong kho.`
+          : 'Sản phẩm đã hết hàng.', 'error');
+        return false;
+      }
+    }
     if (existing) {
       existing.quantity = Number(existing.quantity || existing.qty || 1) + quantity;
     } else {
@@ -124,6 +136,10 @@ var Cart = (function() {
     const quantity = Number(qty);
     if (!Number.isInteger(quantity) || quantity < 1) {
       showToast('Số lượng sản phẩm không hợp lệ.', 'error');
+      return;
+    }
+    if (item.stock !== undefined && item.stock !== null && quantity > Number(item.stock)) {
+      showToast(`Chỉ còn ${item.stock} sản phẩm trong kho.`, 'error');
       return;
     }
     item.quantity = quantity;
@@ -152,7 +168,7 @@ var Cart = (function() {
   }
 
   if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', updateBadge);
+    document.addEventListener('DOMContentLoaded', () => updateBadge());
   }
 
   function showToast(msg, type = 'success') {
@@ -2005,4 +2021,3 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = Auth;
 }
-

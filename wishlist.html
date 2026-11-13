@@ -257,8 +257,9 @@
       const badgeHtml = p.badge ? `<span class="product-badge">${escapeWishlistHtml(p.badge)}</span>` : '';
       const oldPriceHtml = p.oldPrice ? `<span class="price-old">${escapeWishlistHtml(p.oldPrice)}</span>` : '';
       const image = p.image || p.imageUrl;
+      const imageFallback = p.placeholderImage || 'images/products/balo-gym.svg';
       const productVisual = image
-        ? `<img src="${escapeWishlistHtml(image)}" alt="${escapeWishlistHtml(p.name || 'Sản phẩm')}" loading="lazy">`
+        ? `<img src="${escapeWishlistHtml(image)}" alt="${escapeWishlistHtml(p.name || 'Sản phẩm')}" loading="lazy" onerror="this.onerror=null;this.src='${escapeWishlistHtml(imageFallback)}'">`
         : `<i class="${escapeWishlistHtml(p.iconClass || 'fas fa-box')}" style="font-size:64px; color:${escapeWishlistHtml(p.iconColor || '#0082c3')}; opacity:0.6;"></i>`;
 
       return `

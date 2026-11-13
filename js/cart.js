@@ -81,6 +81,38 @@ let appliedCoupon = null; // { code, discount, label }
 /** ID timer để delay khi tính tổng (debounce) */
 let calcDebounceTimer = null;
 
+function getCartLineId(item) {
+    return [
+        encodeURIComponent(String(item.id)),
+        encodeURIComponent(item.size || ''),
+        encodeURIComponent(item.color || ''),
+    ].join('__');
+}
+
+function getCartItemMax(item) {
+    if (item.stock === undefined || item.stock === null || item.stock === '') return 99;
+    const stock = Number(item.stock);
+    if (!Number.isInteger(stock)) return 99;
+    const otherVariantsQuantity = cartItems
+        .filter(product => String(product.id) === String(item.id) && getCartLineId(product) !== getCartLineId(item))
+        .reduce((sum, product) => sum + Number(product.quantity || 0), 0);
+    return Math.max(1, Math.min(99, stock - otherVariantsQuantity));
+}
+
+function getCartPlaceholder(item) {
+    const images = {
+        'Chạy bộ': '../images/products/ao-chay-bo.svg',
+        'Bóng đá': '../images/products/bong-da.svg',
+        'Gym': '../images/products/ta-tay.svg',
+        'Bơi lội': '../images/products/kinh-boi.svg',
+        'Yoga': '../images/products/tham-yoga.svg',
+        'Xe đạp': '../images/products/dong-ho-gps.svg',
+        'Bóng rổ': '../images/products/bong-da.svg',
+        'Cầu lông': '../images/products/vot-cau-long.svg',
+    };
+    return images[item.category] || '../images/products/balo-gym.svg';
+}
+
 /* ============================================================
    KHỞI TẠO KHI TRANG TẢI XONG
    ============================================================ */
@@ -94,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
     cartItems = loadCartFromStorage();
 
     // 2. Chọn tất cả sản phẩm mặc định
-    cartItems.forEach(item => selectedIds.add(item.id));
+    cartItems.forEach(item => selectedIds.add(getCartLineId(item)));
 
     // 3. Render giao diện
     renderCart();
@@ -109,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
 window.addEventListener('storage', event => {
     if (event.key !== CART_KEY && event.key !== null) return;
     cartItems = loadCartFromStorage();
-    selectedIds = new Set(cartItems.map(item => item.id));
+    selectedIds = new Set(cartItems.map(getCartLineId));
     renderCart();
 });
 
@@ -221,18 +253,20 @@ function renderCart() {
  * @returns {String} HTML string
  */
 function renderCartItem(item) {
-    const isChecked = selectedIds.has(item.id) ? 'checked' : '';
-    const isSelected = selectedIds.has(item.id) ? 'selected' : '';
+    const lineId = getCartLineId(item);
+    const imageFallback = getCartPlaceholder(item);
+    const isChecked = selectedIds.has(lineId) ? 'checked' : '';
+    const isSelected = selectedIds.has(lineId) ? 'selected' : '';
     const lineTotal = item.price * item.quantity;
 
     return `
-    <div class="cart-item ${isSelected}" data-id="${item.id}" id="item-${item.id}">
+    <div class="cart-item ${isSelected}" data-id="${lineId}" id="item-${lineId}">
 
         <!-- Nút xóa (góc trên phải) -->
         <button
             class="cart-item__delete"
             data-action="delete"
-            data-id="${item.id}"
+            data-id="${lineId}"
             title="Xóa sản phẩm"
             aria-label="Xóa ${item.name}"
         >
@@ -245,7 +279,7 @@ function renderCartItem(item) {
                 <input
                     type="checkbox"
                     class="checkbox-input item-checkbox"
-                    data-id="${item.id}"
+                    data-id="${lineId}"
                     ${isChecked}
                 >
                 <span class="checkbox-custom"></span>
@@ -255,9 +289,9 @@ function renderCartItem(item) {
         <!-- Ảnh sản phẩm -->
         <div class="cart-item__image">
             <img
-                src="${item.image}"
+                src="${item.image || imageFallback}"
                 alt="${item.name}"
-                onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'"
+                onerror="this.onerror=null;this.src='${imageFallback}'"
                 loading="lazy"
             >
         </div>
@@ -287,7 +321,7 @@ function renderCartItem(item) {
                     <button
                         class="quantity-btn"
                         data-action="decrease"
-                        data-id="${item.id}"
+                        data-id="${lineId}"
                         ${item.quantity <= 1 ? 'disabled' : ''}
                         aria-label="Giảm số lượng"
                     >−</button>
@@ -295,17 +329,17 @@ function renderCartItem(item) {
                     <input
                         type="number"
                         class="quantity-value"
-                        data-id="${item.id}"
+                        data-id="${lineId}"
                         value="${item.quantity}"
                         min="1"
-                        max="99"
+                        max="${getCartItemMax(item)}"
                         aria-label="Số lượng"
                     >
 
                     <button
                         class="quantity-btn"
                         data-action="increase"
-                        data-id="${item.id}"
+                        data-id="${lineId}"
                         aria-label="Tăng số lượng"
                     >+</button>
                 </div>
@@ -424,9 +458,12 @@ function handleQuantityInput(e) {
     calcDebounceTimer = setTimeout(() => {
         let newQty = parseInt(e.target.value) || 1;
 
-        // Giới hạn min = 1, max = 99
+        // Giới hạn số lượng theo tồn kho sản phẩm.
         if (newQty < 1)  newQty = 1;
-        if (newQty > 99) newQty = 99;
+        const item = cartItems.find(product => getCartLineId(product) === id);
+        const stockLimit = item ? getCartItemMax(item) : 99;
+        if (newQty > stockLimit) newQty = stockLimit;
+        if (newQty < 1) newQty = 1;
 
         e.target.value = newQty; // Cập nhật lại giá trị đã giới hạn
 
@@ -447,7 +484,7 @@ function handleSelectAll(e) {
 
     if (isChecked) {
         // Chọn tất cả: thêm tất cả ID vào selectedIds
-        cartItems.forEach(item => selectedIds.add(item.id));
+        cartItems.forEach(item => selectedIds.add(getCartLineId(item)));
     } else {
         // Bỏ chọn tất cả: xóa hết selectedIds
         selectedIds.clear();
@@ -499,7 +536,7 @@ function updateSelectAllState() {
  * @param {Number} delta  - Lượng thay đổi: +1 hoặc -1
  */
 function changeQuantity(id, delta) {
-    const item = cartItems.find(p => p.id === id);
+    const item = cartItems.find(p => getCartLineId(p) === id);
     if (!item) return;
 
     const newQty = item.quantity + delta;
@@ -507,6 +544,10 @@ function changeQuantity(id, delta) {
     // Không cho phép số lượng < 1
     if (newQty < 1) {
         showToast('Số lượng tối thiểu là 1. Muốn xóa? Nhấn vào nút ✕', 'warning');
+        return;
+    }
+    if (Number.isInteger(Number(item.stock)) && newQty > getCartItemMax(item)) {
+        showToast(`Chỉ còn ${getCartItemMax(item)} sản phẩm khả dụng với biến thể này.`, 'warning');
         return;
     }
 
@@ -524,8 +565,12 @@ function changeQuantity(id, delta) {
  * @param {Number} newQty - Số lượng mới
  */
 function setQuantity(id, newQty) {
-    const item = cartItems.find(p => p.id === id);
+    const item = cartItems.find(p => getCartLineId(p) === id);
     if (!item || newQty < 1) return;
+    if (Number.isInteger(Number(item.stock)) && newQty > getCartItemMax(item)) {
+        showToast(`Chỉ còn ${getCartItemMax(item)} sản phẩm khả dụng với biến thể này.`, 'warning');
+        return;
+    }
 
     item.quantity = newQty;
     saveCartToStorage(cartItems);
@@ -539,7 +584,7 @@ function setQuantity(id, newQty) {
  * @param {String} id - ID sản phẩm
  */
 function updateItemQuantityUI(id) {
-    const item = cartItems.find(p => p.id === id);
+    const item = cartItems.find(p => getCartLineId(p) === id);
     if (!item) return;
 
     const itemEl = document.getElementById(`item-${id}`);
@@ -590,11 +635,11 @@ function deleteItem(id) {
  * @param {String} id - ID sản phẩm
  */
 function removeItemFromData(id) {
-    const item = cartItems.find(p => p.id === id);
+    const item = cartItems.find(p => getCartLineId(p) === id);
     if (!item) return;
 
     // Xóa khỏi mảng
-    cartItems = cartItems.filter(p => p.id !== id);
+    cartItems = cartItems.filter(p => getCartLineId(p) !== id);
 
     // Xóa khỏi tập hợp đã chọn
     selectedIds.delete(id);
@@ -625,7 +670,7 @@ function handleDeleteSelected() {
     const count = selectedIds.size;
 
     // Xóa tất cả sản phẩm đã chọn
-    cartItems  = cartItems.filter(item => !selectedIds.has(item.id));
+    cartItems  = cartItems.filter(item => !selectedIds.has(getCartLineId(item)));
     selectedIds.clear();
 
     saveCartToStorage(cartItems);
@@ -650,7 +695,7 @@ function handleDeleteSelected() {
  */
 function calculateTotals() {
     // Lọc chỉ lấy sản phẩm đang được chọn
-    const selectedItems = cartItems.filter(item => selectedIds.has(item.id));
+    const selectedItems = cartItems.filter(item => selectedIds.has(getCartLineId(item)));
 
     // Tính tổng tiền hàng (subtotal)
     const subtotal = selectedItems.reduce(
@@ -809,7 +854,7 @@ function fillCoupon(code) {
  * }
  */
 function proceedToCheckout() {
-    const selectedItems = cartItems.filter(item => selectedIds.has(item.id));
+    const selectedItems = cartItems.filter(item => selectedIds.has(getCartLineId(item)));
 
     // Kiểm tra lần nữa trước khi chuyển trang
     if (selectedItems.length === 0) {
@@ -952,6 +997,15 @@ function addToCart(product) {
                 item.size  === product.size  &&
                 item.color === product.color
     );
+    const requestedQuantity = Number(product.quantity || 1);
+    const newQuantity = (existingIndex >= 0 ? currentCart[existingIndex].quantity : 0) + requestedQuantity;
+    if (!Number.isInteger(requestedQuantity) || requestedQuantity < 1 ||
+        (Number.isInteger(Number(product.stock)) && newQuantity > Number(product.stock))) {
+        showToast(Number(product.stock) > 0
+            ? `Chỉ còn ${product.stock} sản phẩm trong kho.`
+            : 'Sản phẩm đã hết hàng.', 'warning');
+        return;
+    }
 
     if (existingIndex >= 0) {
         // Đã có: tăng số lượng
@@ -969,7 +1023,7 @@ function addToCart(product) {
     // Nếu đang ở trang giỏ hàng: cập nhật UI luôn
     if (document.getElementById('cartItems')) {
         cartItems = currentCart;
-        selectedIds.add(product.id);
+        selectedIds.add(getCartLineId(product));
         renderCart();
     } else {
         // Nếu không ở trang giỏ hàng: chỉ cập nhật badge

@@ -919,6 +919,8 @@ function placeOrder() {
         return;
     }
 
+    if (!validateOrderStock(orderData.items)) return;
+
     // === Bước 2: Disable nút để tránh double-submit ===
     const placeBtn = document.getElementById('placeOrderBtn');
     isSubmittingOrder = true;
@@ -1013,6 +1015,8 @@ function placeOrder() {
         return;
     }
 
+    const inventoryUpdated = deductProductStock(orderData.items);
+
     // === Bước 10: Xóa SP đã đặt khỏi giỏ hàng ===
     const cartUpdated = removeOrderedItemsFromCart(orderData.items);
 
@@ -1023,10 +1027,72 @@ function placeOrder() {
     updateCartBadge();
 
     // === Bước 13: Hiển thị modal thành công ===
-    const cleanupWarning = !cartUpdated || !orderTempCleared
-        ? 'Đơn hàng đã được lưu, nhưng giỏ hàng chưa được cập nhật hoàn toàn. Vui lòng không đặt lại đơn này.'
+    const warnings = [];
+    if (!inventoryUpdated) warnings.push('tồn kho chưa được cập nhật');
+    if (!cartUpdated || !orderTempCleared) warnings.push('giỏ hàng chưa được cập nhật hoàn toàn');
+    const cleanupWarning = warnings.length
+        ? `Đơn hàng đã được lưu, nhưng ${warnings.join(' và ')}. Vui lòng không đặt lại đơn này.`
         : '';
     showSuccessModal(completedOrder, cleanupWarning);
+}
+
+function validateOrderStock(items) {
+    let products;
+    try {
+        const raw = localStorage.getItem('sportzone_products');
+        products = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(products)) throw new Error('Danh sách sản phẩm không hợp lệ.');
+    } catch (error) {
+        console.error('[Checkout] Không thể kiểm tra tồn kho:', error);
+        showToast('Không thể kiểm tra tồn kho. Vui lòng thử lại.', 'error');
+        return false;
+    }
+
+    const quantities = new Map();
+    items.forEach(item => {
+        const id = String(item.id);
+        quantities.set(id, (quantities.get(id) || 0) + item.quantity);
+    });
+
+    for (const [id, quantity] of quantities) {
+        const product = products.find(candidate => String(candidate.id) === id);
+        const orderItem = items.find(item => String(item.id) === id);
+        const stockValue = product?.stock ?? orderItem?.stock;
+        if (stockValue === undefined || stockValue === null || stockValue === '') continue;
+        const stock = Number(stockValue);
+        if (!Number.isInteger(stock) || stock < quantity) {
+            const name = product?.name || orderItem?.name || 'Sản phẩm';
+            showToast(`${name} chỉ còn ${Number.isInteger(stock) ? stock : 0} sản phẩm. Vui lòng kiểm tra lại giỏ hàng.`, 'error');
+            return false;
+        }
+    }
+    return true;
+}
+
+function deductProductStock(items) {
+    try {
+        const raw = localStorage.getItem('sportzone_products');
+        if (!raw) throw new Error('Không tìm thấy danh sách sản phẩm.');
+        const products = JSON.parse(raw);
+        if (!Array.isArray(products)) throw new Error('Danh sách sản phẩm không hợp lệ.');
+
+        const quantities = new Map();
+        items.forEach(item => {
+            const id = String(item.id);
+            quantities.set(id, (quantities.get(id) || 0) + item.quantity);
+        });
+        const updated = products.map(product => {
+            const quantity = quantities.get(String(product.id));
+            return quantity && product.stock !== undefined && product.stock !== null
+                ? { ...product, stock: Number(product.stock) - quantity }
+                : product;
+        });
+        localStorage.setItem('sportzone_products', JSON.stringify(updated));
+        return true;
+    } catch (error) {
+        console.error('[Checkout] Không thể cập nhật tồn kho:', error);
+        return false;
+    }
 }
 
 /* ============================================================

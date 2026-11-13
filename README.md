@@ -94,6 +94,10 @@ Auth.isLoggedIn()            // Kiểm tra đăng nhập
 Auth.getUser()               // Lấy thông tin user
 ```
 
+### Dữ liệu sản phẩm SportZone
+
+64 sản phẩm mẫu mới (8 cho mỗi danh mục trên trang chủ) được khai báo trong `js/tv2-products.js` tại `SEED_PRODUCT_GROUPS`. Mỗi danh mục dùng ảnh SVG placeholder có sẵn; để gán ảnh thật cho riêng một sản phẩm, thêm đường dẫn ảnh làm trường thứ 7 của dòng sản phẩm trong danh mục đó. Ảnh không tải được sẽ quay về placeholder. Dữ liệu mẫu đồng bộ lại đường dẫn ảnh khi tải trang, còn sản phẩm cũ được giữ nguyên.
+
 ---
 
 ## 🌿 Quy trình Git của nhóm
