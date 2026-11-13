@@ -41,12 +41,12 @@ const SEED_PRODUCT_GROUPS = [
   {
     category: 'Bóng đá', image: 'images/products/bong-da.svg', icon: 'fa-futbol',
     products: [
-      ['Bóng đá tập luyện Striker 5', 399000, 'Bóng size 5 bền chắc, phù hợp luyện tập trên sân cỏ nhân tạo.', ['Trắng','Cam','Xanh'], ['Size 5'], 25],
-      ['Giày bóng đá TF Speed', 1090000, 'Giày đế TF bám sân tốt, thân giày ôm chân khi tăng tốc.', ['Đen','Trắng','Đỏ'], ['39','40','41','42','43','44'], 13],
-      ['Áo bóng đá training Pro', 329000, 'Áo tập vải nhẹ thoáng khí, nhanh khô khi vận động cường độ cao.', ['Đỏ','Xanh navy','Trắng'], ['S','M','L','XL','XXL'], 27],
-      ['Quần short bóng đá Flex', 199000, 'Quần short co giãn linh hoạt, cạp chun chắc chắn và thoải mái.', ['Đen','Xanh navy'], ['S','M','L','XL','XXL'], 22],
-      ['Túi đựng giày đá bóng', 179000, 'Túi đựng giày riêng biệt bằng chất liệu dễ vệ sinh, có quai xách.', ['Đen','Đỏ'], ['Free size'], 17],
-      ['Bảo vệ ống đồng Shield', 149000, 'Ốp ống đồng nhẹ vừa vặn, hỗ trợ bảo vệ khi tập luyện và thi đấu.', ['Đen','Trắng'], ['S','M','L'], 20],
+      ['Bóng đá tập luyện Striker 5', 399000, 'Bóng size 5 bền chắc, phù hợp luyện tập trên sân cỏ nhân tạo.', ['Trắng','Cam','Xanh'], ['Size 5'], 25, 'images/products/football-striker-ball.png'],
+      ['Giày bóng đá TF Speed', 1090000, 'Giày đế TF bám sân tốt, thân giày ôm chân khi tăng tốc.', ['Đen','Trắng','Đỏ'], ['39','40','41','42','43','44'], 13, 'images/products/football-tf-speed-boots.png'],
+      ['Áo bóng đá training Pro', 329000, 'Áo tập vải nhẹ thoáng khí, nhanh khô khi vận động cường độ cao.', ['Đỏ','Xanh navy','Trắng'], ['S','M','L','XL','XXL'], 27, 'images/products/football-training-shirt.png'],
+      ['Quần short bóng đá Flex', 199000, 'Quần short co giãn linh hoạt, cạp chun chắc chắn và thoải mái.', ['Đen','Xanh navy'], ['S','M','L','XL','XXL'], 22, 'images/products/football-shorts-flex.png'],
+      ['Túi đựng giày đá bóng', 179000, 'Túi đựng giày riêng biệt bằng chất liệu dễ vệ sinh, có quai xách.', ['Đen','Đỏ'], ['Free size'], 17, 'images/products/football-shoe-bag.png'],
+      ['Bảo vệ ống đồng Shield', 149000, 'Ốp ống đồng nhẹ vừa vặn, hỗ trợ bảo vệ khi tập luyện và thi đấu.', ['Đen','Trắng'], ['S','M','L'], 20, 'images/products/football-shin-guards.png'],
       ['Găng tay thủ môn Grip', 459000, 'Găng thủ môn có lòng bàn tay tăng độ bám và cổ tay quấn chắc chắn.', ['Đen','Xanh lá'], ['7','8','9','10'], 9],
       ['Băng đội trưởng sân cỏ', 89000, 'Băng đội trưởng co giãn, dễ đeo và giữ cố định trong trận đấu.', ['Đỏ','Xanh','Vàng'], ['Free size'], 32]
     ]
