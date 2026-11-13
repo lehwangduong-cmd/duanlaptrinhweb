@@ -28,12 +28,12 @@ const SEED_PRODUCT_GROUPS = [
   {
     category: 'Chạy bộ', image: 'images/products/ao-chay-bo.svg', icon: 'fa-person-running',
     products: [
-      ['Áo chạy bộ AirFlow', 289000, 'Áo chạy bộ nhẹ, thoáng khí và nhanh khô cho các buổi tập hằng ngày.', ['Đen','Xanh navy','Cam'], ['S','M','L','XL'], 24],
-      ['Quần short chạy bộ Sprint', 319000, 'Quần short co giãn có lớp lót thoáng khí và túi khóa kéo tiện dụng.', ['Đen','Xám'], ['S','M','L','XL'], 18],
-      ['Áo khoác chạy bộ WindLite', 579000, 'Áo khoác chắn gió mỏng nhẹ, dễ gấp gọn khi chạy ngoài trời.', ['Đen','Xanh lá'], ['S','M','L','XL'], 12],
-      ['Tất chạy bộ Cushion', 99000, 'Tất đệm êm hỗ trợ giảm ma sát và giữ bàn chân khô ráo.', ['Trắng','Đen'], ['S/M','L/XL'], 40],
-      ['Đai chạy bộ phản quang', 159000, 'Đai đeo gọn nhẹ có ngăn điện thoại và dải phản quang buổi tối.', ['Đen','Xanh'], ['Free size'], 16],
-      ['Bình nước chạy bộ 700ml', 129000, 'Bình thể thao nắp bật chống rò, dung tích phù hợp khi luyện chạy.', ['Xanh','Đen','Cam'], ['700 ml'], 30],
+      ['Áo chạy bộ AirFlow', 289000, 'Áo chạy bộ nhẹ, thoáng khí và nhanh khô cho các buổi tập hằng ngày.', ['Đen','Xanh navy','Cam'], ['S','M','L','XL'], 24, 'images/products/running-airflow-shirt.png'],
+      ['Quần short chạy bộ Sprint', 319000, 'Quần short co giãn có lớp lót thoáng khí và túi khóa kéo tiện dụng.', ['Đen','Xám'], ['S','M','L','XL'], 18, 'images/products/running-sprint-shorts.png'],
+      ['Áo khoác chạy bộ WindLite', 579000, 'Áo khoác chắn gió mỏng nhẹ, dễ gấp gọn khi chạy ngoài trời.', ['Đen','Xanh lá'], ['S','M','L','XL'], 12, 'images/products/running-windlite-jacket.png'],
+      ['Tất chạy bộ Cushion', 99000, 'Tất đệm êm hỗ trợ giảm ma sát và giữ bàn chân khô ráo.', ['Trắng','Đen'], ['S/M','L/XL'], 40, 'images/products/running-cushion-socks.png'],
+      ['Đai chạy bộ phản quang', 159000, 'Đai đeo gọn nhẹ có ngăn điện thoại và dải phản quang buổi tối.', ['Đen','Xanh'], ['Free size'], 16, 'images/products/running-reflective-belt.png'],
+      ['Bình nước chạy bộ 700ml', 129000, 'Bình thể thao nắp bật chống rò, dung tích phù hợp khi luyện chạy.', ['Xanh','Đen','Cam'], ['700 ml'], 30, 'images/products/running-700ml-bottle.png'],
       ['Mũ chạy bộ thoáng khí', 199000, 'Mũ lưỡi trai thể thao có lỗ thoáng khí và khóa điều chỉnh phía sau.', ['Trắng','Đen','Xanh navy'], ['Free size'], 21],
       ['Găng tay chạy bộ mùa lạnh', 229000, 'Găng tay co giãn nhẹ, đầu ngón tương thích màn hình cảm ứng.', ['Đen','Xám'], ['S','M','L'], 14]
     ]
