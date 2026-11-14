@@ -196,6 +196,11 @@ button { cursor: pointer; font-family: inherit; }
   padding: 0 3px;
 }
 
+:where(a, button, input):focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
 /* --- Navbar User Dropdown (Auth) --- */
 .navbar-user-dropdown-wrapper {
   position: relative;
@@ -1158,6 +1163,7 @@ img.blog-img { display: block; }
 @media (max-width: 900px) {
   .topbar-left .extra { display: none; }
   .navbar .container { height: 60px; gap: 8px; }
+  .slider-btn { display: none; }
   .navbar-logo { gap: 6px; }
   .logo-icon { width: 36px; height: 36px; font-size: 19px; }
   .logo-name { font-size: 17px; }
@@ -1328,4 +1334,11 @@ img.blog-img { display: block; }
   .product-grid { grid-template-columns: 1fr; }
   .categories-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .payment-icons { max-width: 100%; flex-wrap: wrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slider,
+  .nav-menu {
+    transition: none;
+  }
 }

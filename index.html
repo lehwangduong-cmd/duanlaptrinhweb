@@ -71,7 +71,7 @@
     </a>
 
     <!-- Search Bar -->
-    <div class="navbar-search">
+    <div class="navbar-search" id="navbar-search">
       <form action="products.html" method="GET" role="search" aria-label="Tìm kiếm sản phẩm">
         <input type="search" name="q" placeholder="Tìm sản phẩm, môn thể thao..." aria-label="Tìm kiếm" />
         <button class="search-btn" type="submit" aria-label="Tìm kiếm">
@@ -82,7 +82,7 @@
 
     <!-- Actions -->
     <nav class="navbar-actions" aria-label="Tài khoản và giỏ hàng">
-      <button class="nav-action-btn" id="search-toggle" aria-label="Tìm kiếm">
+      <button class="nav-action-btn" id="search-toggle" type="button" aria-label="Tìm kiếm" aria-expanded="false" aria-controls="navbar-search">
         <i class="fas fa-search"></i>
       </button>
       <a href="account.html" class="nav-action-btn" aria-label="Tài khoản">
@@ -102,24 +102,24 @@
     </nav>
 
     <!-- Hamburger -->
-    <button class="hamburger" id="hamburger" aria-label="Mở menu" aria-expanded="false">
+    <button class="hamburger" id="hamburger" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="nav-menu">
       <span></span><span></span><span></span>
     </button>
   </div>
 </header>
 
 <!-- Overlay for mobile menu -->
-<div class="nav-menu-overlay" id="nav-overlay"></div>
+<div class="nav-menu-overlay" id="nav-overlay" aria-hidden="true"></div>
 
 <!-- ========== NAV MENU ========== -->
-<nav class="nav-menu" id="nav-menu" aria-label="Menu chính">
+<nav class="nav-menu" id="nav-menu" aria-label="Menu chính" aria-hidden="false">
   <div class="container">
     <ul>
       <li class="active">
         <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
       </li>
       <li class="has-dropdown">
-        <a href="products.html?cat=chay-bo"><i class="fas fa-running"></i> Chạy bộ <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <a href="products.html?cat=chay-bo" aria-haspopup="true" aria-expanded="false"><i class="fas fa-running"></i> Chạy bộ <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
         <ul class="dropdown">
           <li><a href="products.html?cat=chay-bo"><i class="fas fa-shoe-prints"></i> Giày chạy bộ</a></li>
           <li><a href="products.html?cat=chay-bo"><i class="fas fa-tshirt"></i> Áo chạy bộ</a></li>
@@ -128,7 +128,7 @@
         </ul>
       </li>
       <li class="has-dropdown">
-        <a href="products.html?cat=bong-da"><i class="fas fa-futbol"></i> Bóng đá <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <a href="products.html?cat=bong-da" aria-haspopup="true" aria-expanded="false"><i class="fas fa-futbol"></i> Bóng đá <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
         <ul class="dropdown">
           <li><a href="products.html?cat=bong-da"><i class="fas fa-futbol"></i> Bóng thi đấu</a></li>
           <li><a href="products.html?cat=bong-da"><i class="fas fa-shoe-prints"></i> Giày bóng đá</a></li>
@@ -137,7 +137,7 @@
         </ul>
       </li>
       <li class="has-dropdown">
-        <a href="products.html?cat=boi-loi"><i class="fas fa-swimmer"></i> Bơi lội <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <a href="products.html?cat=boi-loi" aria-haspopup="true" aria-expanded="false"><i class="fas fa-swimmer"></i> Bơi lội <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
         <ul class="dropdown">
           <li><a href="products.html?cat=boi-loi"><i class="fas fa-swimmer"></i> Đồ bơi</a></li>
           <li><a href="products.html?cat=boi-loi"><i class="fas fa-glasses"></i> Kính bơi</a></li>
@@ -145,7 +145,7 @@
         </ul>
       </li>
       <li class="has-dropdown">
-        <a href="products.html?cat=gym"><i class="fas fa-dumbbell"></i> Gym & Fitness <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
+        <a href="products.html?cat=gym" aria-haspopup="true" aria-expanded="false"><i class="fas fa-dumbbell"></i> Gym & Fitness <i class="fas fa-chevron-down" style="font-size:10px;margin-left:auto"></i></a>
         <ul class="dropdown">
           <li><a href="products.html?cat=gym"><i class="fas fa-dumbbell"></i> Tạ & Máy tập</a></li>
           <li><a href="products.html?cat=gym"><i class="fas fa-tape"></i> Yoga & Pilates</a></li>
@@ -166,8 +166,8 @@
 </nav>
 
 <!-- ========== HERO BANNER ========== -->
-<section class="hero" aria-label="Banner quảng cáo">
-  <div class="hero-slider">
+<section class="hero" aria-label="Banner quảng cáo" role="region" aria-roledescription="carousel">
+  <div class="hero-slider" id="hero-slider">
 
     <!-- Slide 1 -->
     <div class="hero-slide" style="background: linear-gradient(135deg,#003c64 0%,#0082c3 100%);">
@@ -219,12 +219,12 @@
 
   </div><!-- /hero-slider -->
 
-  <button class="slider-btn prev" aria-label="Slide trước"><i class="fas fa-chevron-left"></i></button>
-  <button class="slider-btn next" aria-label="Slide tiếp theo"><i class="fas fa-chevron-right"></i></button>
-  <div class="slider-dots" role="tablist">
-    <button class="slider-dot active" role="tab" aria-label="Slide 1"></button>
-    <button class="slider-dot" role="tab" aria-label="Slide 2"></button>
-    <button class="slider-dot" role="tab" aria-label="Slide 3"></button>
+  <button class="slider-btn prev" type="button" aria-label="Slide trước"><i class="fas fa-chevron-left"></i></button>
+  <button class="slider-btn next" type="button" aria-label="Slide tiếp theo"><i class="fas fa-chevron-right"></i></button>
+  <div class="slider-dots" role="group" aria-label="Chọn banner">
+    <button class="slider-dot active" type="button" aria-label="Slide 1" aria-controls="hero-slider" aria-pressed="true"></button>
+    <button class="slider-dot" type="button" aria-label="Slide 2" aria-controls="hero-slider" aria-pressed="false"></button>
+    <button class="slider-dot" type="button" aria-label="Slide 3" aria-controls="hero-slider" aria-pressed="false"></button>
   </div>
 </section>
 
