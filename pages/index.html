@@ -533,10 +533,18 @@
 <!-- ========== THƯƠNG HIỆU ========== -->
 <div class="brands">
   <div class="container">
-    <div class="section-header" style="margin-bottom:20px;">
+    <div class="section-header brands-header">
       <h2 class="section-title">Thương hiệu đối tác</h2>
+      <div class="brands-controls" role="group" aria-label="Điều khiển danh sách thương hiệu">
+        <button class="brands-control" type="button" data-brands-direction="-1" aria-label="Thương hiệu trước" aria-controls="brands-track">
+          <i class="fas fa-chevron-left" aria-hidden="true"></i>
+        </button>
+        <button class="brands-control" type="button" data-brands-direction="1" aria-label="Thương hiệu tiếp theo" aria-controls="brands-track">
+          <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
     </div>
-    <div class="brands-track">
+    <div class="brands-track" id="brands-track" tabindex="0" aria-label="Các thương hiệu đối tác">
       <a class="brand-logo" href="../products.html?brand=Kalenji" aria-label="Xem sản phẩm Kalenji">Kalenji</a>
       <a class="brand-logo" href="../products.html?brand=Kipsta" aria-label="Xem sản phẩm Kipsta">Kipsta</a>
       <a class="brand-logo" href="../products.html?brand=Domyos" aria-label="Xem sản phẩm Domyos">Domyos</a>

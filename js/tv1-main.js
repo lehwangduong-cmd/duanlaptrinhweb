@@ -71,6 +71,45 @@
   startAutoplay();
 })();
 
+// ===== PARTNER BRAND CAROUSEL =====
+(function () {
+  const track = document.querySelector('.brands-track');
+  if (!track) return;
+
+  const controls = document.querySelectorAll('.brands-control[data-brands-direction]');
+  const previous = document.querySelector('.brands-control[data-brands-direction="-1"]');
+  const next = document.querySelector('.brands-control[data-brands-direction="1"]');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function updateControls() {
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    const canScroll = maxScroll > 1;
+    controls.forEach(control => {
+      control.hidden = !canScroll;
+    });
+    if (!canScroll) return;
+    if (previous) previous.disabled = track.scrollLeft <= 1;
+    if (next) next.disabled = track.scrollLeft >= maxScroll - 1;
+  }
+
+  function scroll(direction) {
+    const firstLogo = track.querySelector('.brand-logo');
+    const step = firstLogo
+      ? (firstLogo.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || '0')) * 2
+      : track.clientWidth * 0.75;
+    track.scrollBy({
+      left: direction * Math.max(step, track.clientWidth * 0.35),
+      behavior: reducedMotion.matches ? 'instant' : 'smooth'
+    });
+  }
+
+  previous?.addEventListener('click', () => scroll(-1));
+  next?.addEventListener('click', () => scroll(1));
+  track.addEventListener('scroll', updateControls, { passive: true });
+  window.addEventListener('resize', updateControls);
+  updateControls();
+})();
+
 // ===== COUNTDOWN TIMER =====
 (function () {
   if (!document.getElementById('cd-h')) return; // Guard check nếu trang không có đồng hồ
