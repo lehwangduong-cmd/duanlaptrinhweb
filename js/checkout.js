@@ -831,6 +831,32 @@ function validateAddress(value) {
         return false;
     }
 
+    const parts = v.split(',').map(part => part.trim());
+    const formatMessage = 'Nhập theo dạng số nhà, tên đường, quận/huyện hoặc phường/xã, tỉnh/thành phố (VD: 123 Yên Xá, Hà Đông, Hà Nội)';
+
+    if (parts.length < 3 || parts.some(part => !part)) {
+        setFieldError('address', formatMessage);
+        return false;
+    }
+
+    const validCharacters = /^[\p{L}\p{M}\p{N}\s.'’\-/#]+$/u;
+    if (parts.some(part => !validCharacters.test(part))) {
+        setFieldError('address', 'Địa chỉ chỉ được chứa chữ, số và dấu câu thông dụng');
+        return false;
+    }
+
+    if (!/\p{N}/u.test(parts[0]) || !/\p{L}{2}/u.test(parts[0])) {
+        setFieldError('address', 'Phần đầu cần có số nhà và tên đường');
+        return false;
+    }
+
+    const validLocality = part =>
+        /\p{L}{2}/u.test(part) || /^(?:q|p)\.?\s*\d+$/iu.test(part);
+    if (parts.slice(1).some(part => !validLocality(part))) {
+        setFieldError('address', formatMessage);
+        return false;
+    }
+
     setFieldValid('address');
     return true;
 }

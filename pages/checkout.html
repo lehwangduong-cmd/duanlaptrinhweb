@@ -222,14 +222,15 @@
                                     type="text"
                                     id="address"
                                     class="form-input"
-                                    placeholder="Số nhà, tên đường, phường/xã..."
+                                    placeholder="VD: 123 Yên Xá, Hà Đông, Hà Nội"
                                     autocomplete="street-address"
                                     maxlength="300"
                                     aria-required="true"
                                     aria-invalid="false"
-                                    aria-describedby="addressError"
+                                    aria-describedby="addressHint addressError"
                                 >
                             </div>
+                            <span class="form-hint" id="addressHint">Nhập số nhà và tên đường, quận/huyện hoặc phường/xã, tỉnh/thành phố; ngăn cách bằng dấu phẩy.</span>
                             <span class="form-error" id="addressError" aria-live="polite"></span>
                         </div>
 
