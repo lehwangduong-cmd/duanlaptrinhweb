@@ -10,23 +10,23 @@
 
 // Danh sách 12 sản phẩm gốc của SportZone (dùng làm mặc định / fallback)
 const DEFAULT_PRODUCTS = [
-  {id:1,name:'Giày chạy bộ JogFlow 500 nam',category:'Chạy bộ',price:899000,oldPrice:1290000,rating:4.7,reviews:128,badge:'-30%',image:'images/products-real/giay-chay-bo.jpg',icon:'fa-person-running',sizes:['39','40','41','42','43'],stock:18,description:'Giày chạy bộ nhẹ, êm ái với đế EVA hỗ trợ tốt cho các buổi tập hàng ngày trên đường trường.'},
-  {id:2,name:'Bóng đá UCL Size 5',category:'Bóng đá',price:450000,oldPrice:0,rating:4.8,reviews:94,badge:'Mới',image:'images/products-real/bong-da.jpg',icon:'fa-futbol',sizes:['Size 5'],stock:25,description:'Bóng thi đấu size 5 với lớp da PU chắc chắn, độ bền cao và độ nảy ổn định.'},
-  {id:3,name:'Áo chạy bộ Dry Feel nam',category:'Chạy bộ',price:249000,oldPrice:399000,rating:4.5,reviews:76,badge:'-38%',image:'images/products-real/ao-chay-bo.jpg',icon:'fa-shirt',sizes:['S','M','L','XL'],stock:30,description:'Áo thể thao co giãn nhẹ, thoáng khí và thấm hút mồ hôi nhanh trong mọi hoạt động.'},
-  {id:4,name:'Bộ vợt cầu lông BR 500',category:'Cầu lông',price:329000,oldPrice:0,rating:4.4,reviews:61,image:'images/products-real/vot-cau-long.jpg',icon:'fa-table-tennis-paddle-ball',sizes:['Cặp vợt'],stock:15,description:'Bộ vợt phù hợp cho người mới bắt đầu, khung nhẹ và dễ điều khiển cú đánh.'},
-  {id:5,name:'Kính bơi chống sương mù',category:'Bơi lội',price:189000,oldPrice:290000,rating:4.6,reviews:52,badge:'-35%',image:'images/products-real/kinh-boi.jpg',icon:'fa-glasses',sizes:['Free size'],stock:20,description:'Kính bơi co giãn mềm, tròng chống sương mù và khóa điều chỉnh dễ sử dụng.'},
-  {id:6,name:'Bình tập yoga 8mm',category:'Gym',price:399000,oldPrice:599000,rating:4.9,reviews:113,badge:'Bán chạy',image:'images/products-real/tham-yoga.jpg',icon:'fa-person-praying',sizes:['183 x 61 cm'],stock:14,description:'Thảm yoga 8mm giúp tăng độ êm và ổn định, phù hợp cả yoga lẫn luyện sức mạnh.'},
-  {id:7,name:'Tạ tay vinyl 2kg',category:'Gym',price:279000,oldPrice:320000,rating:4.3,reviews:38,badge:'-13%',image:'images/products-real/ta-tay.jpg',icon:'fa-dumbbell',sizes:['2 kg','4 kg'],stock:22,description:'Tạ tay bọc vinyl dễ vệ sinh, cầm chắc tay và phù hợp tập sức mạnh tại nhà.'},
-  {id:8,name:'Giày đá bóng Viralto III',category:'Bóng đá',price:1190000,oldPrice:1690000,rating:4.8,reviews:87,badge:'-30%',image:'images/products-real/giay-da-bong.jpg',icon:'fa-futbol',sizes:['39','40','41','42','43'],stock:10,description:'Giày sân cỏ nhân tạo có độ bám tốt, thiết kế ôm chân và hỗ trợ tăng tốc.'},
-  {id:9,name:'Mũ bơi silicone',category:'Bơi lội',price:99000,oldPrice:0,rating:4.2,reviews:44,image:'images/products-real/mu-boi.jpg',icon:'fa-water',sizes:['Free size'],stock:40,description:'Mũ bơi silicone mềm, bám đầu tốt và phù hợp cho cả tập luyện lẫn thi đấu.'},
-  {id:10,name:'Đồng hồ thể thao GPS',category:'Chạy bộ',price:1590000,oldPrice:1990000,rating:4.7,reviews:105,badge:'-20%',image:'images/products-real/dong-ho-gps.jpg',icon:'fa-clock',sizes:['38 mm'],stock:8,description:'Đồng hồ theo dõi quãng đường, nhịp tim, pace và GPS cho mọi buổi luyện chạy.'},
-  {id:11,name:'Áo đấu đội tuyển Việt Nam',category:'Bóng đá',price:399000,oldPrice:499000,rating:4.6,reviews:71,badge:'Mới',image:'images/products-real/ao-dau.jpg',icon:'fa-shirt',sizes:['S','M','L','XL','XXL'],stock:16,description:'Áo thi đấu thể thao fabric thoáng mát, sắc đỏ truyền thống và đường may chắc chắn.'},
-  {id:12,name:'Balo gym 30L',category:'Gym',price:349000,oldPrice:449000,rating:4.5,reviews:49,image:'images/products-real/balo-gym.jpg',icon:'fa-bag-shopping',sizes:['30L'],stock:19,description:'Balo thể thao nhiều ngăn, quai đeo êm và ngăn riêng chống thấm cho đồ dùng tập luyện.'}
+  {  id:1,name:'Giày chạy bộ JogFlow 500 nam',category:'Chạy bộ',brand:'Kalenji',price:899000,oldPrice:1290000,rating:4.7,reviews:128,badge:'-30%',image:'images/products-real/giay-chay-bo.jpg',icon:'fa-person-running',sizes:['39','40','41','42','43'],stock:18,description:'Giày chạy bộ nhẹ, êm ái với đế EVA hỗ trợ tốt cho các buổi tập hàng ngày trên đường trường.'},
+  {id:2,name:'Bóng đá UCL Size 5',category:'Bóng đá',brand:'Kipsta',price:450000,oldPrice:0,rating:4.8,reviews:94,badge:'Mới',image:'images/products-real/bong-da.jpg',icon:'fa-futbol',sizes:['Size 5'],stock:25,description:'Bóng thi đấu size 5 với lớp da PU chắc chắn, độ bền cao và độ nảy ổn định.'},
+  {id:3,name:'Áo chạy bộ Dry Feel nam',category:'Chạy bộ',brand:'Kalenji',price:249000,oldPrice:399000,rating:4.5,reviews:76,badge:'-38%',image:'images/products-real/ao-chay-bo.jpg',icon:'fa-shirt',sizes:['S','M','L','XL'],stock:30,description:'Áo thể thao co giãn nhẹ, thoáng khí và thấm hút mồ hôi nhanh trong mọi hoạt động.'},
+  {id:4,name:'Bộ vợt cầu lông BR 500',category:'Cầu lông',brand:'Artengo',price:329000,oldPrice:0,rating:4.4,reviews:61,image:'images/products-real/vot-cau-long.jpg',icon:'fa-table-tennis-paddle-ball',sizes:['Cặp vợt'],stock:15,description:'Bộ vợt phù hợp cho người mới bắt đầu, khung nhẹ và dễ điều khiển cú đánh.'},
+  {id:5,name:'Kính bơi chống sương mù',category:'Bơi lội',brand:'Nabaiji',price:189000,oldPrice:290000,rating:4.6,reviews:52,badge:'-35%',image:'images/products-real/kinh-boi.jpg',icon:'fa-glasses',sizes:['Free size'],stock:20,description:'Kính bơi co giãn mềm, tròng chống sương mù và khóa điều chỉnh dễ sử dụng.'},
+  {id:6,name:'Bình tập yoga 8mm',category:'Gym',brand:'Domyos',price:399000,oldPrice:599000,rating:4.9,reviews:113,badge:'Bán chạy',image:'images/products-real/tham-yoga.jpg',icon:'fa-person-praying',sizes:['183 x 61 cm'],stock:14,description:'Thảm yoga 8mm giúp tăng độ êm và ổn định, phù hợp cả yoga lẫn luyện sức mạnh.'},
+  {id:7,name:'Tạ tay vinyl 2kg',category:'Gym',brand:'Domyos',price:279000,oldPrice:320000,rating:4.3,reviews:38,badge:'-13%',image:'images/products-real/ta-tay.jpg',icon:'fa-dumbbell',sizes:['2 kg','4 kg'],stock:22,description:'Tạ tay bọc vinyl dễ vệ sinh, cầm chắc tay và phù hợp tập sức mạnh tại nhà.'},
+  {id:8,name:'Giày đá bóng Viralto III',category:'Bóng đá',brand:'Kipsta',price:1190000,oldPrice:1690000,rating:4.8,reviews:87,badge:'-30%',image:'images/products-real/giay-da-bong.jpg',icon:'fa-futbol',sizes:['39','40','41','42','43'],stock:10,description:'Giày sân cỏ nhân tạo có độ bám tốt, thiết kế ôm chân và hỗ trợ tăng tốc.'},
+  {id:9,name:'Mũ bơi silicone',category:'Bơi lội',brand:'Nabaiji',price:99000,oldPrice:0,rating:4.2,reviews:44,image:'images/products-real/mu-boi.jpg',icon:'fa-water',sizes:['Free size'],stock:40,description:'Mũ bơi silicone mềm, bám đầu tốt và phù hợp cho cả tập luyện lẫn thi đấu.'},
+  {id:10,name:'Đồng hồ thể thao GPS',category:'Chạy bộ',brand:'Kalenji',price:1590000,oldPrice:1990000,rating:4.7,reviews:105,badge:'-20%',image:'images/products-real/dong-ho-gps.jpg',icon:'fa-clock',sizes:['38 mm'],stock:8,description:'Đồng hồ theo dõi quãng đường, nhịp tim, pace và GPS cho mọi buổi luyện chạy.'},
+  {id:11,name:'Áo đấu đội tuyển Việt Nam',category:'Bóng đá',brand:'Kipsta',price:399000,oldPrice:499000,rating:4.6,reviews:71,badge:'Mới',image:'images/products-real/ao-dau.jpg',icon:'fa-shirt',sizes:['S','M','L','XL','XXL'],stock:16,description:'Áo thi đấu thể thao fabric thoáng mát, sắc đỏ truyền thống và đường may chắc chắn.'},
+  {id:12,name:'Balo gym 30L',category:'Gym',brand:'Domyos',price:349000,oldPrice:449000,rating:4.5,reviews:49,image:'images/products-real/balo-gym.jpg',icon:'fa-bag-shopping',sizes:['30L'],stock:19,description:'Balo thể thao nhiều ngăn, quai đeo êm và ngăn riêng chống thấm cho đồ dùng tập luyện.'}
 ];
 
 const SEED_PRODUCT_GROUPS = [
   {
-    category: 'Chạy bộ', image: 'images/products/ao-chay-bo.svg', icon: 'fa-person-running',
+    category: 'Chạy bộ', brand: 'Kalenji', image: 'images/products/ao-chay-bo.svg', icon: 'fa-person-running',
     products: [
       ['Áo chạy bộ AirFlow', 289000, 'Áo chạy bộ nhẹ, thoáng khí và nhanh khô cho các buổi tập hằng ngày.', ['Đen','Xanh navy','Cam'], ['S','M','L','XL'], 24, 'images/products/running-airflow-shirt.png'],
       ['Quần short chạy bộ Sprint', 319000, 'Quần short co giãn có lớp lót thoáng khí và túi khóa kéo tiện dụng.', ['Đen','Xám'], ['S','M','L','XL'], 18, 'images/products/running-sprint-shorts.png'],
@@ -39,7 +39,7 @@ const SEED_PRODUCT_GROUPS = [
     ]
   },
   {
-    category: 'Bóng đá', image: 'images/products/bong-da.svg', icon: 'fa-futbol',
+    category: 'Bóng đá', brand: 'Kipsta', image: 'images/products/bong-da.svg', icon: 'fa-futbol',
     products: [
       ['Bóng đá tập luyện Striker 5', 399000, 'Bóng size 5 bền chắc, phù hợp luyện tập trên sân cỏ nhân tạo.', ['Trắng','Cam','Xanh'], ['Size 5'], 25, 'images/products/football-striker-ball.png'],
       ['Giày bóng đá TF Speed', 1090000, 'Giày đế TF bám sân tốt, thân giày ôm chân khi tăng tốc.', ['Đen','Trắng','Đỏ'], ['39','40','41','42','43','44'], 13, 'images/products/football-tf-speed-boots.png'],
@@ -52,7 +52,7 @@ const SEED_PRODUCT_GROUPS = [
     ]
   },
   {
-    category: 'Gym', image: 'images/products/ta-tay.svg', icon: 'fa-dumbbell',
+    category: 'Gym', brand: 'Domyos', image: 'images/products/ta-tay.svg', icon: 'fa-dumbbell',
     products: [
       ['Tạ ấm Kettlebell 6kg', 449000, 'Tạ ấm tay cầm chắc chắn, hỗ trợ các bài tập sức mạnh toàn thân.', ['Đen','Xanh'], ['6 kg'], 11],
       ['Dây kháng lực đa năng', 219000, 'Bộ dây kháng lực nhiều mức lực cản cho khởi động và tập tại nhà.', ['Hồng','Xanh','Đen'], ['Bộ 3 dây'], 26],
@@ -65,7 +65,7 @@ const SEED_PRODUCT_GROUPS = [
     ]
   },
   {
-    category: 'Bơi lội', image: 'images/products/kinh-boi.svg', icon: 'fa-person-swimming',
+    category: 'Bơi lội', brand: 'Nabaiji', image: 'images/products/kinh-boi.svg', icon: 'fa-person-swimming',
     products: [
       ['Đồ bơi liền thân AquaFit', 459000, 'Đồ bơi co giãn nhanh khô, ôm vừa vặn cho buổi tập trong hồ.', ['Xanh navy','Đen','Tím'], ['S','M','L','XL'], 15],
       ['Quần bơi nam SwimFast', 279000, 'Quần bơi vải co giãn nhanh khô, dây rút điều chỉnh chắc chắn.', ['Đen','Xanh navy'], ['S','M','L','XL'], 18],
@@ -78,7 +78,7 @@ const SEED_PRODUCT_GROUPS = [
     ]
   },
   {
-    category: 'Yoga', image: 'images/products/tham-yoga.svg', icon: 'fa-person-praying',
+    category: 'Yoga', brand: 'Domyos', image: 'images/products/tham-yoga.svg', icon: 'fa-person-praying',
     products: [
       ['Thảm yoga TPE Balance 6mm', 359000, 'Thảm TPE êm và bám sàn, phù hợp yoga cơ bản và giãn cơ.', ['Tím','Xanh lá','Hồng'], ['183 x 61 cm'], 17],
       ['Gạch tập yoga EVA', 99000, 'Gạch yoga nhẹ hỗ trợ giữ thăng bằng và điều chỉnh tư thế.', ['Tím','Xanh','Xám'], ['23 x 15 x 7.5 cm'], 28],
@@ -91,7 +91,7 @@ const SEED_PRODUCT_GROUPS = [
     ]
   },
   {
-    category: 'Xe đạp', image: 'images/products/dong-ho-gps.svg', icon: 'fa-bicycle',
+    category: 'Xe đạp', brand: "B'Twin", image: 'images/products/dong-ho-gps.svg', icon: 'fa-bicycle',
     products: [
       ['Mũ bảo hiểm xe đạp Aero', 499000, 'Mũ bảo hiểm nhẹ có khe thoáng khí và núm điều chỉnh vòng đầu.', ['Đen','Trắng','Đỏ'], ['M','L'], 12],
       ['Đèn trước xe đạp USB', 229000, 'Đèn trước sạc USB với nhiều chế độ chiếu sáng khi đi tối.', ['Đen'], ['Free size'], 21],
@@ -104,7 +104,7 @@ const SEED_PRODUCT_GROUPS = [
     ]
   },
   {
-    category: 'Bóng rổ', image: 'images/products/bong-da.svg', icon: 'fa-basketball',
+    category: 'Bóng rổ', brand: 'Tarmak', image: 'images/products/bong-da.svg', icon: 'fa-basketball',
     products: [
       ['Bóng rổ Indoor Pro size 7', 499000, 'Bóng rổ size 7 có bề mặt bám tay, phù hợp sân trong nhà.', ['Cam','Nâu'], ['Size 7'], 18],
       ['Bóng rổ Outdoor Grip size 6', 429000, 'Bóng size 6 có lớp vỏ bền bám sân ngoài trời.', ['Cam','Đen'], ['Size 6'], 20],
@@ -117,7 +117,7 @@ const SEED_PRODUCT_GROUPS = [
     ]
   },
   {
-    category: 'Cầu lông', image: 'images/products/vot-cau-long.svg', icon: 'fa-table-tennis-paddle-ball',
+    category: 'Cầu lông', brand: 'Artengo', image: 'images/products/vot-cau-long.svg', icon: 'fa-table-tennis-paddle-ball',
     products: [
       ['Vợt cầu lông Carbon Lite', 799000, 'Vợt carbon nhẹ, cân bằng linh hoạt cho người chơi phong trào.', ['Đen','Xanh navy'], ['4U/G5'], 11],
       ['Cầu lông lông vũ (hộp 12)', 249000, 'Cầu lông có quỹ đạo ổn định, phù hợp tập luyện và thi đấu.', ['Trắng'], ['Hộp 12 quả'], 29],
@@ -131,32 +131,53 @@ const SEED_PRODUCT_GROUPS = [
   }
 ];
 
-const SEED_PRODUCTS = SEED_PRODUCT_GROUPS.flatMap((group, groupIndex) =>
-  group.products.map(([name, price, description, colors, sizes, stock, image], productIndex) => ({
-    id: 1001 + groupIndex * 8 + productIndex,
-    name,
-    category: group.category,
-    price,
-    oldPrice: 0,
-    brand: 'SportZone',
-    rating: 4.5,
-    reviews: 0,
-    image: image || group.image,
-    placeholderImage: group.image,
-    icon: group.icon,
-    sizes,
-    colors,
-    stock,
-    description
-  }))
-);
+const PARTNER_BRAND_PRODUCTS = [
+  {id:2001,name:'Balo leo núi Trek 30L',category:'Ngoài trời',brand:'Quechua',price:899000,oldPrice:1099000,rating:4.7,reviews:36,image:'images/products-real/balo-leo-nui.jpg',icon:'fa-person-hiking',sizes:['30L'],stock:12,description:'Balo leo núi nhiều ngăn, có đai trợ lực và lớp phủ hỗ trợ chống mưa nhẹ.'},
+  {id:2002,name:'Áo khoác trekking chống gió',category:'Ngoài trời',brand:'Quechua',price:749000,oldPrice:0,rating:4.6,reviews:22,image:'images/products/balo-gym.svg',icon:'fa-mountain-sun',sizes:['S','M','L','XL'],stock:15,description:'Áo khoác gọn nhẹ cho những chuyến đi bộ ngoài trời trong thời tiết mát.'},
+  {id:2003,name:'Đèn đội đầu trekking USB',category:'Ngoài trời',brand:'Quechua',price:329000,oldPrice:0,rating:4.5,reviews:19,image:'images/products/dong-ho-gps.svg',icon:'fa-lightbulb',sizes:['Free size'],stock:18,description:'Đèn đội đầu gọn nhẹ với dây đeo điều chỉnh, tiện dụng khi đi bộ đường dài.'},
+  {id:2004,name:'La bàn du lịch cầm tay',category:'Ngoài trời',brand:'Geologic',price:229000,oldPrice:0,rating:4.5,reviews:14,image:'images/products/dong-ho-gps.svg',icon:'fa-compass',sizes:['Free size'],stock:20,description:'La bàn nhỏ gọn hỗ trợ định hướng cơ bản trong các hoạt động khám phá ngoài trời.'},
+  {id:2005,name:'Ống nhòm du lịch 10x25',category:'Ngoài trời',brand:'Geologic',price:699000,oldPrice:0,rating:4.6,reviews:11,image:'images/products/balo-gym.svg',icon:'fa-binoculars',sizes:['10 x 25'],stock:8,description:'Ống nhòm nhỏ gọn dễ mang theo khi quan sát thiên nhiên và du lịch.'},
+  {id:2006,name:'Gậy trekking gấp gọn',category:'Ngoài trời',brand:'Geologic',price:459000,oldPrice:0,rating:4.4,reviews:17,image:'images/products/ta-tay.svg',icon:'fa-person-hiking',sizes:['Điều chỉnh'],stock:14,description:'Gậy trekking điều chỉnh độ dài, hỗ trợ giữ nhịp bước trên cung đường đi bộ.'},
+  {id:2007,name:'Kính bơi Snorkeling Easy',category:'Bơi lội',brand:'Tribord',price:329000,oldPrice:0,rating:4.6,reviews:21,image:'images/products/kinh-boi.svg',icon:'fa-mask',sizes:['Free size'],stock:16,description:'Kính snorkeling có dây đeo điều chỉnh, phù hợp cho hoạt động bơi và khám phá mặt nước.'},
+  {id:2008,name:'Áo bơi chống nắng Rashguard',category:'Bơi lội',brand:'Tribord',price:499000,oldPrice:0,rating:4.5,reviews:18,image:'images/products/ao-chay-bo.svg',icon:'fa-shirt',sizes:['S','M','L','XL'],stock:13,description:'Áo bơi dài tay co giãn nhẹ, giúp che phủ da khi tham gia hoạt động ngoài trời.'},
+  {id:2009,name:'Túi chống nước đi biển 10L',category:'Bơi lội',brand:'Tribord',price:259000,oldPrice:0,rating:4.4,reviews:16,image:'images/products/balo-gym.svg',icon:'fa-water',sizes:['10L'],stock:24,description:'Túi cuộn miệng dung tích gọn nhẹ giúp bảo vệ vật dụng cá nhân khỏi nước bắn.'}
+];
+
+const SEED_PRODUCTS = [
+  ...SEED_PRODUCT_GROUPS.flatMap((group, groupIndex) =>
+    group.products.map(([name, price, description, colors, sizes, stock, image], productIndex) => ({
+      id: 1001 + groupIndex * 8 + productIndex,
+      name,
+      category: group.category,
+      price,
+      oldPrice: 0,
+      brand: group.brand,
+      rating: 4.5,
+      reviews: 0,
+      image: image || group.image,
+      placeholderImage: group.image,
+      icon: group.icon,
+      sizes,
+      colors,
+      stock,
+      description
+    }))
+  ),
+  ...PARTNER_BRAND_PRODUCTS
+];
 
 function mergeSeedProducts(products) {
   const seedById = new Map(SEED_PRODUCTS.map(product => [String(product.id), product]));
   const merged = products.map(product => {
     const seed = seedById.get(String(product.id));
-    return seed && (product.image !== seed.image || product.placeholderImage !== seed.placeholderImage)
-      ? { ...product, image: seed.image, placeholderImage: seed.placeholderImage }
+    const needsBrand = seed && (!product.brand || product.brand === 'SportZone');
+    return seed && (product.image !== seed.image || product.placeholderImage !== seed.placeholderImage || needsBrand)
+      ? {
+          ...product,
+          image: seed.image,
+          placeholderImage: seed.placeholderImage,
+          brand: needsBrand ? seed.brand : product.brand
+        }
       : product;
   });
   const ids = new Set(merged.map(product => String(product.id)));
@@ -254,6 +275,7 @@ const categoryFromUrl = params.get('category') || (params.get('cat') ? (category
 let state = {
   query: params.get('q') || '',
   category: categoryFromUrl,
+  brand: params.get('brand') || '',
   sale: params.get('sale') === '1',
   rating: 0,
   min: 0,
@@ -273,6 +295,7 @@ function productCard(product) {
     <button class="wishlist-btn ${wished?'active':''}" data-wishlist="${product.id}" aria-label="Yêu thích"><i class="${wished?'fas':'far'} fa-heart"></i></button>
     <a href="product-detail.html?id=${product.id}" class="product-image-link"><div class="product-image"><img src="${image}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='${imageFallback}'"></div></a>
     <div class="catalog-card-body"><span class="catalog-card-category">${product.category}</span>
+      <span class="catalog-card-brand">${product.brand || 'SportZone'}</span>
       <h3><a href="product-detail.html?id=${product.id}">${product.name}</a></h3>
       <div class="rating-row"><span>${'★'.repeat(Math.round(product.rating))}</span><span>${product.rating} (${product.reviews})</span></div>
       <div class="price-row"><strong class="current-price">${formatMoney(product.price)}</strong>${product.oldPrice?`<span class="old-price">${formatMoney(product.oldPrice)}</span>`:''}</div>
@@ -374,12 +397,13 @@ function applyPrice() {
 function filteredProducts() {
   const qNorm = removeAccents(state.query);
   let list = PRODUCTS.filter(p => {
-    const matchQuery = !qNorm || removeAccents(`${p.name} ${p.category}`).includes(qNorm);
+    const matchQuery = !qNorm || removeAccents(`${p.name} ${p.category} ${p.brand || ''}`).includes(qNorm);
     const matchCategory = !state.category || p.category === state.category;
+    const matchBrand = !state.brand || removeAccents(p.brand) === removeAccents(state.brand);
     const matchSale = !state.sale || Boolean(p.oldPrice && p.oldPrice > p.price);
     const matchRating = p.rating >= state.rating;
     const matchPrice = p.price >= state.min && p.price <= state.max;
-    return matchQuery && matchCategory && matchSale && matchRating && matchPrice;
+    return matchQuery && matchCategory && matchBrand && matchSale && matchRating && matchPrice;
   });
 
   const checked = [...document.querySelectorAll('[name="category"]:checked')].map(e => e.value);
@@ -427,6 +451,7 @@ function renderTags() {
   const tags = [];
   const checked = [...document.querySelectorAll('[name="category"]:checked')].map(e => e.value);
   checked.forEach(c => tags.push({ label: c, type: 'category', value: c }));
+  if (state.brand) tags.push({ label: `Thương hiệu: ${state.brand}`, type: 'brand' });
   if (state.query) tags.push({ label: `“${state.query}”`, type: 'query' });
   if (state.sale) tags.push({ label: 'Khuyến mãi', type: 'sale' });
   if (state.rating > 0) tags.push({ label: `★ từ ${state.rating} sao`, type: 'rating' });
@@ -450,6 +475,7 @@ function renderTags() {
       if (sInput) sInput.value = '';
     }
     if (type === 'sale') state.sale = false;
+    if (type === 'brand') state.brand = '';
     if (type === 'category') {
       const input = [...document.querySelectorAll('[name="category"]')].find(e => e.value === btn.dataset.value);
       if (input) input.checked = false;
@@ -591,7 +617,7 @@ function initDetail() {
     </div>
     <div class="stock-note"><i class="fas fa-check-circle"></i> Còn ${stock} sản phẩm - giao hàng trong 2-4 ngày</div>
     <div class="detail-specs">
-      <div><span>Thương hiệu</span><strong>SportZone</strong></div>
+      <div><span>Thương hiệu</span><strong>${product.brand || 'SportZone'}</strong></div>
       <div><span>Bảo hành</span><strong>12 tháng</strong></div>
       <div><span>Đổi trả</span><strong>Trong 30 ngày</strong></div>
     </div>

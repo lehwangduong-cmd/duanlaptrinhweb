@@ -96,7 +96,7 @@ Auth.getUser()               // Lấy thông tin user
 
 ### Dữ liệu sản phẩm SportZone
 
-64 sản phẩm mẫu mới (8 cho mỗi danh mục trên trang chủ) được khai báo trong `js/tv2-products.js` tại `SEED_PRODUCT_GROUPS`. Mỗi danh mục dùng ảnh SVG placeholder có sẵn; để gán ảnh thật cho riêng một sản phẩm, thêm đường dẫn ảnh làm trường thứ 7 của dòng sản phẩm trong danh mục đó. Ảnh không tải được sẽ quay về placeholder. Dữ liệu mẫu đồng bộ lại đường dẫn ảnh khi tải trang, còn sản phẩm cũ được giữ nguyên.
+64 sản phẩm mẫu mới (8 cho mỗi danh mục trên trang chủ) được khai báo trong `js/tv2-products.js` tại `SEED_PRODUCT_GROUPS`; sản phẩm mẫu gắn với thương hiệu đối tác tương ứng. Có thêm 9 sản phẩm mẫu ở các thương hiệu Quechua, Geologic và Tribord trong `PARTNER_BRAND_PRODUCTS`. Logo thương hiệu trên trang chủ mở danh sách đã lọc theo thương hiệu, và thông tin thương hiệu được hiển thị trên thẻ sản phẩm cùng trang chi tiết. Mỗi danh mục dùng ảnh SVG placeholder có sẵn; để gán ảnh thật cho riêng một sản phẩm, thêm đường dẫn ảnh làm trường thứ 7 của dòng sản phẩm trong danh mục đó. Ảnh không tải được sẽ quay về placeholder. Dữ liệu mẫu đồng bộ lại đường dẫn ảnh và thương hiệu khi tải trang; thương hiệu do quản trị viên đặt riêng được giữ nguyên.
 
 ---
 

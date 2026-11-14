@@ -894,6 +894,9 @@ button { cursor: pointer; font-family: inherit; }
 .brands-track::-webkit-scrollbar { display: none; }
 .brand-logo {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--bg-light);
   border-radius: var(--radius);
   padding: 14px 28px;
@@ -903,6 +906,8 @@ button { cursor: pointer; font-family: inherit; }
   letter-spacing: 1px;
   transition: all var(--transition);
   white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
 }
 .brand-logo:hover { background: var(--primary-light); color: var(--primary); }
 
