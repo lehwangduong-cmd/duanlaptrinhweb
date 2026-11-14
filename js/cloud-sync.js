@@ -15,15 +15,23 @@
   // Khóa localStorage chuẩn của dự án SportZone
   const KEYS = {
     PRODUCTS: 'sportzone_products',
+    PENDING_PRODUCTS: 'sportzone_products_pending_sync',
     ORDERS: 'sportzone_orders',
     SHOP_ORDERS: 'sz_orders'
   };
+  const EMPTY_PRODUCTS_MARKER = '__catalog_state__';
 
   let _db = null;
   let _isSyncReady = false;
   let _isInternalWrite = false;
   let _unsubProducts = null;
   let _unsubOrders = null;
+  let remoteProducts = new Map();
+  let remoteHasEmptyMarker = false;
+  let hasProductSnapshot = false;
+  let pendingProducts = null;
+  let isSyncingProducts = false;
+  let hasFailedProductSync = false;
 
   // Lấy cấu hình Firebase
   function getConfig() {
@@ -75,32 +83,53 @@
 
     _unsubProducts = _db.collection('sz_products').onSnapshot(
       snapshot => {
-        if (snapshot.empty) return;
-
         const products = [];
+        const nextRemoteProducts = new Map();
+        let hasEmptyMarker = false;
         snapshot.forEach(doc => {
           const data = doc.data();
+          if (doc.id === EMPTY_PRODUCTS_MARKER) {
+            hasEmptyMarker = true;
+            return;
+          }
           if (data && data.id !== undefined) {
             products.push(data);
+            nextRemoteProducts.set(doc.id, data);
           }
         });
 
         // Sắp xếp theo ID
         products.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
+        remoteProducts = nextRemoteProducts;
+        remoteHasEmptyMarker = hasEmptyMarker;
+        hasProductSnapshot = true;
 
-        if (products.length > 0) {
-          // Ghi vào localStorage mà không kích hoạt hook lặp
-          safeSetStorage(KEYS.PRODUCTS, JSON.stringify(products));
-
-          // Cập nhật mảng biến toàn cục PRODUCTS nếu có
-          if (typeof window.PRODUCTS !== 'undefined' && Array.isArray(window.PRODUCTS)) {
-            window.PRODUCTS = products;
+        if (localStorage.getItem(KEYS.PENDING_PRODUCTS)) {
+          if (!isSyncingProducts && !hasFailedProductSync) {
+            pushProductsToCloud(readStoredProducts());
           }
-
-          // Kích hoạt sự kiện toàn trang để TV5 Admin & TV2 Products tự render lại
-          window.dispatchEvent(new CustomEvent('sz:products-updated', { detail: products }));
-          window.dispatchEvent(new StorageEvent('storage', { key: KEYS.PRODUCTS }));
+          return;
         }
+
+        if (snapshot.empty && !hasEmptyMarker) {
+          const localProducts = readStoredProducts();
+          if (localProducts.length > 0) {
+            pushProductsToCloud(localProducts);
+            return;
+          }
+        }
+
+        // Ghi vào localStorage mà không kích hoạt hook lặp
+        safeSetStorage(KEYS.PRODUCTS, JSON.stringify(products));
+
+        // Cập nhật mảng biến toàn cục PRODUCTS nếu có
+        if (typeof window.PRODUCTS !== 'undefined' && Array.isArray(window.PRODUCTS)) {
+          window.PRODUCTS = products;
+        }
+
+        // Kích hoạt sự kiện toàn trang để TV5 Admin & TV2 Products tự render lại
+        window.dispatchEvent(new CustomEvent('sz:products-updated', { detail: products }));
+        window.dispatchEvent(new StorageEvent('storage', { key: KEYS.PRODUCTS }));
       },
       err => console.warn('[Cloud Sync] Lỗi lắng nghe sz_products:', err)
     );
@@ -154,16 +183,105 @@
   // Đồng bộ toàn bộ mảng sản phẩm lên Cloud (khi TV5 thêm/sửa/xóa sản phẩm)
   function pushProductsToCloud(productsArray) {
     if (!_db || !Array.isArray(productsArray)) return;
-    try {
-      productsArray.forEach(p => {
-        if (p && p.id !== undefined) {
-          const cleanDoc = JSON.parse(JSON.stringify(p));
-          _db.collection('sz_products').doc(String(p.id)).set(cleanDoc, { merge: true })
-            .catch(e => console.warn('[Cloud Sync] Lỗi đẩy sản phẩm lên Cloud:', e));
-        }
+    pendingProducts = productsArray
+      .filter(product => product && product.id !== undefined)
+      .map(product => JSON.parse(JSON.stringify(product)));
+    if (isSyncingProducts) return;
+
+    isSyncingProducts = true;
+    syncPendingProducts();
+  }
+
+  async function syncPendingProducts() {
+    let latestSyncSucceeded = true;
+    while (pendingProducts !== null) {
+      const products = pendingProducts;
+      pendingProducts = null;
+      try {
+        await syncProductsToCloud(products);
+        latestSyncSucceeded = true;
+        hasFailedProductSync = false;
+      } catch (error) {
+        console.warn('[Cloud Sync] Lỗi đồng bộ danh sách sản phẩm lên Cloud:', error);
+        window.dispatchEvent(new CustomEvent('sz:cloud-products-sync-error', {
+          detail: {
+            code: error && error.code ? error.code : '',
+            message: error && error.message ? error.message : String(error)
+          }
+        }));
+        latestSyncSucceeded = false;
+        hasFailedProductSync = true;
+      }
+    }
+    if (latestSyncSucceeded) localStorage.removeItem(KEYS.PENDING_PRODUCTS);
+    isSyncingProducts = false;
+  }
+
+  async function syncProductsToCloud(products) {
+    const collection = _db.collection('sz_products');
+    if (!hasProductSnapshot) {
+      const snapshot = await collection.get();
+      const loadedProducts = new Map();
+      let hasEmptyMarker = false;
+      snapshot.forEach(doc => {
+        if (doc.id === EMPTY_PRODUCTS_MARKER) hasEmptyMarker = true;
+        else loadedProducts.set(doc.id, doc.data());
       });
-    } catch (e) {
-      console.warn('[Cloud Sync] Lỗi parse sản phẩm đẩy Cloud:', e);
+      remoteProducts = loadedProducts;
+      remoteHasEmptyMarker = hasEmptyMarker;
+      hasProductSnapshot = true;
+    }
+
+    const desiredProducts = new Map(products.map(product => [String(product.id), product]));
+    const batch = _db.batch();
+    let writeCount = 0;
+
+    desiredProducts.forEach((product, id) => {
+      if (stableStringify(remoteProducts.get(id)) !== stableStringify(product)) {
+        batch.set(collection.doc(id), product);
+        writeCount++;
+      }
+    });
+
+    remoteProducts.forEach((_, id) => {
+      if (!desiredProducts.has(id)) {
+        batch.delete(collection.doc(id));
+        writeCount++;
+      }
+    });
+
+    if (remoteHasEmptyMarker && desiredProducts.size > 0) {
+      batch.delete(collection.doc(EMPTY_PRODUCTS_MARKER));
+      writeCount++;
+    } else if (!remoteHasEmptyMarker && desiredProducts.size === 0) {
+      batch.set(collection.doc(EMPTY_PRODUCTS_MARKER), { catalogState: 'empty' });
+      writeCount++;
+    }
+
+    if (writeCount > 0) await batch.commit();
+    remoteProducts = desiredProducts;
+    remoteHasEmptyMarker = desiredProducts.size === 0;
+  }
+
+  function stableStringify(value) {
+    if (Array.isArray(value)) {
+      return `[${value.map(stableStringify).join(',')}]`;
+    }
+    if (value && typeof value === 'object') {
+      return `{${Object.keys(value).sort().map(key =>
+        `${JSON.stringify(key)}:${stableStringify(value[key])}`
+      ).join(',')}}`;
+    }
+    return JSON.stringify(value);
+  }
+
+  function readStoredProducts() {
+    try {
+      const products = JSON.parse(localStorage.getItem(KEYS.PRODUCTS) || '[]');
+      return Array.isArray(products) ? products : [];
+    } catch (error) {
+      console.warn('[Cloud Sync] Không thể đọc danh sách sản phẩm trên thiết bị:', error);
+      return [];
     }
   }
 
@@ -213,6 +331,13 @@
         try {
           const parsed = JSON.parse(value);
           if (Array.isArray(parsed)) {
+            if (this === window.localStorage) {
+              Storage.prototype.setItem.call(
+                this,
+                KEYS.PENDING_PRODUCTS,
+                '1'
+              );
+            }
             pushProductsToCloud(parsed);
           }
         } catch (e) {}
