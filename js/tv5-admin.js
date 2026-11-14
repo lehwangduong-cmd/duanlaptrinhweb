@@ -4,6 +4,7 @@
   const PRODUCTS_KEY = 'sportzone_products';
   const ORDERS_KEY = 'sportzone_orders';
   const SHOP_ORDERS_KEY = 'sz_orders';
+  const MAX_PRODUCT_IMAGE_BYTES = 500 * 1024;
   const ORDER_STATUSES = [
     'Chờ xác nhận',
     'Đang xử lý',
@@ -77,6 +78,17 @@
 
   function bindProductForm() {
     document.getElementById('productForm').addEventListener('submit', saveProduct);
+    document.getElementById('productImage').addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        showToast('Vui lòng chọn tệp hình ảnh.');
+        event.target.value = '';
+      } else if (file.size > MAX_PRODUCT_IMAGE_BYTES) {
+        showToast('Ảnh quá lớn. Vui lòng chọn ảnh tối đa 500 KB.');
+        event.target.value = '';
+      }
+    });
   }
 
   function loadData() {
@@ -244,16 +256,29 @@
     form.reset();
     document.getElementById('productId').value = product ? String(product.id) : '';
     document.getElementById('productName').value = product?.name || '';
+    document.getElementById('productBrand').value = product?.brand || '';
     document.getElementById('productCategory').value = product?.category || '';
     document.getElementById('productPrice').value = product ? getProductPrice(product) : '';
     document.getElementById('productStock').value = product ? getStock(product) : '';
     document.getElementById('productSku').value = product?.sku || '';
+    document.getElementById('productSizes').value = Array.isArray(product?.sizes) ? product.sizes.join(', ') : '';
+    document.getElementById('productImage').value = '';
     document.getElementById('productDialogTitle').textContent = product ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm';
     document.getElementById('productDialog').showModal();
   }
 
-  function saveProduct(event) {
+  async function saveProduct(event) {
     event.preventDefault();
+    const submitButton = event.submitter;
+    if (submitButton) submitButton.disabled = true;
+    try {
+      await saveProductChanges(event);
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  }
+
+  async function saveProductChanges(event) {
     const id = document.getElementById('productId').value;
     const sku = document.getElementById('productSku').value.trim();
     const duplicateSku = sku && state.products.some(product =>
@@ -265,13 +290,45 @@
       return;
     }
 
+    const existingProduct = id
+      ? state.products.find(item => String(item.id) === id)
+      : null;
+    const sizes = [...new Set(
+      document.getElementById('productSizes').value
+        .split(',')
+        .map(size => size.trim())
+        .filter(Boolean)
+    )];
+    const imageFile = document.getElementById('productImage').files[0];
+    if (imageFile && (!imageFile.type.startsWith('image/') || imageFile.size > MAX_PRODUCT_IMAGE_BYTES)) {
+      showToast('Vui lòng chọn ảnh hợp lệ có dung lượng tối đa 500 KB.');
+      return;
+    }
+    let image = existingProduct?.image || '';
+    if (imageFile) {
+      try {
+        image = await readImageFile(imageFile);
+      } catch (error) {
+        console.error('[Admin] Không thể đọc ảnh sản phẩm:', error);
+        showToast('Không thể đọc ảnh đã chọn. Vui lòng thử lại.');
+        return;
+      }
+    }
     const product = {
+      ...existingProduct,
       id: id || createId(),
       name: document.getElementById('productName').value.trim(),
+      brand: document.getElementById('productBrand').value.trim() || 'SportZone',
       category: document.getElementById('productCategory').value,
       price: Number(document.getElementById('productPrice').value),
       stock: Number(document.getElementById('productStock').value),
       sku,
+      rating: existingProduct?.rating ?? 0,
+      reviews: existingProduct?.reviews ?? 0,
+      sizes: sizes.length ? sizes : ['Free size'],
+      image: image || existingProduct?.image || '',
+      description: existingProduct?.description || 'Sản phẩm thể thao chất lượng từ SportZone.',
+      createdAt: existingProduct?.createdAt || new Date().toISOString(),
     };
     if (!product.name || !product.category || !Number.isFinite(product.price) || product.price <= 0 ||
       !Number.isInteger(product.stock) || product.stock < 0) {
@@ -281,11 +338,25 @@
 
     const next = id
       ? state.products.map(item => String(item.id) === id ? { ...item, ...product } : item)
-      : [...state.products, product];
+      : [product, ...state.products];
     if (persistArray(PRODUCTS_KEY, next, id ? 'Đã cập nhật sản phẩm.' : 'Đã thêm sản phẩm.')) {
       document.getElementById('productDialog').close();
       event.target.reset();
     }
+  }
+
+  function readImageFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        if (typeof reader.result === 'string') resolve(reader.result);
+        else reject(new Error('Tệp ảnh không thể chuyển thành dữ liệu.'));
+      }, { once: true });
+      reader.addEventListener('error', () => {
+        reject(reader.error || new Error('Không thể đọc tệp ảnh.'));
+      }, { once: true });
+      reader.readAsDataURL(file);
+    });
   }
 
   function renderOrders() {
