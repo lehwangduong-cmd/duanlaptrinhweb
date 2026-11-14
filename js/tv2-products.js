@@ -119,14 +119,14 @@ const SEED_PRODUCT_GROUPS = [
   {
     category: 'Cầu lông', brand: 'Artengo', image: 'images/products/vot-cau-long.svg', icon: 'fa-table-tennis-paddle-ball',
     products: [
-      ['Vợt cầu lông Carbon Lite', 799000, 'Vợt carbon nhẹ, cân bằng linh hoạt cho người chơi phong trào.', ['Đen','Xanh navy'], ['4U/G5'], 11],
-      ['Cầu lông lông vũ (hộp 12)', 249000, 'Cầu lông có quỹ đạo ổn định, phù hợp tập luyện và thi đấu.', ['Trắng'], ['Hộp 12 quả'], 29],
-      ['Giày cầu lông CourtFlex', 890000, 'Giày đế bám sàn trong nhà, hỗ trợ di chuyển ngang linh hoạt.', ['Trắng','Xanh','Đen'], ['38','39','40','41','42','43'], 12],
-      ['Túi cầu lông 2 ngăn', 429000, 'Túi đựng vợt hai ngăn có quai đeo và ngăn phụ kiện tiện lợi.', ['Đen','Đỏ'], ['6 vợt'], 13],
-      ['Quấn cán vợt (bộ 3 cuộn)', 89000, 'Quấn cán thấm hút tốt, tăng độ bám và thay mới nhanh chóng.', ['Trắng','Đen','Vàng'], ['Bộ 3 cuộn'], 38],
-      ['Băng cổ tay cầu lông', 79000, 'Băng cổ tay co giãn mềm, thấm mồ hôi khi chơi cầu lông.', ['Trắng','Đen','Đỏ'], ['Free size'], 40],
-      ['Lưới cầu lông tập luyện', 599000, 'Lưới chắc chắn, lắp đặt gọn cho sân tập và chơi giải trí.', ['Đen'], ['6.1 m'], 7],
-      ['Bộ cước căng vợt 10m', 119000, 'Dây cước bền và đàn hồi tốt, phù hợp thay cước vợt cầu lông.', ['Trắng','Vàng'], ['10 m'], 19]
+      ['Vợt cầu lông Carbon Lite', 799000, 'Vợt carbon nhẹ, cân bằng linh hoạt cho người chơi phong trào.', ['Đen','Xanh navy'], ['4U/G5'], 11, 'images/products/badminton-racket.png'],
+      ['Cầu lông lông vũ (hộp 12)', 249000, 'Cầu lông có quỹ đạo ổn định, phù hợp tập luyện và thi đấu.', ['Trắng'], ['Hộp 12 quả'], 29, 'images/products/badminton-shuttlecock.png'],
+      ['Giày cầu lông CourtFlex', 890000, 'Giày đế bám sàn trong nhà, hỗ trợ di chuyển ngang linh hoạt.', ['Trắng','Xanh','Đen'], ['38','39','40','41','42','43'], 12, 'images/products/badminton-shoes.png'],
+      ['Túi cầu lông 2 ngăn', 429000, 'Túi đựng vợt hai ngăn có quai đeo và ngăn phụ kiện tiện lợi.', ['Đen','Đỏ'], ['6 vợt'], 13, 'images/products/badminton-bag.png'],
+      ['Quấn cán vợt (bộ 3 cuộn)', 89000, 'Quấn cán thấm hút tốt, tăng độ bám và thay mới nhanh chóng.', ['Trắng','Đen','Vàng'], ['Bộ 3 cuộn'], 38, 'images/products/badminton-grip.png'],
+      ['Băng cổ tay cầu lông', 79000, 'Băng cổ tay co giãn mềm, thấm mồ hôi khi chơi cầu lông.', ['Trắng','Đen','Đỏ'], ['Free size'], 40, 'images/products/badminton-wristband.png'],
+      ['Lưới cầu lông tập luyện', 599000, 'Lưới chắc chắn, lắp đặt gọn cho sân tập và chơi giải trí.', ['Đen'], ['6.1 m'], 7, 'images/products/badminton-net.png'],
+      ['Bộ cước căng vợt 10m', 119000, 'Dây cước bền và đàn hồi tốt, phù hợp thay cước vợt cầu lông.', ['Trắng','Vàng'], ['10 m'], 19, 'images/products/badminton-string.png']
     ]
   }
 ];
@@ -140,7 +140,14 @@ const PARTNER_BRAND_PRODUCTS = [
   {id:2006,name:'Gậy trekking gấp gọn',category:'Ngoài trời',brand:'Geologic',price:459000,oldPrice:0,rating:4.4,reviews:17,image:'images/products/ta-tay.svg',icon:'fa-person-hiking',sizes:['Điều chỉnh'],stock:14,description:'Gậy trekking điều chỉnh độ dài, hỗ trợ giữ nhịp bước trên cung đường đi bộ.'},
   {id:2007,name:'Kính bơi Snorkeling Easy',category:'Bơi lội',brand:'Tribord',price:329000,oldPrice:0,rating:4.6,reviews:21,image:'images/products/kinh-boi.svg',icon:'fa-mask',sizes:['Free size'],stock:16,description:'Kính snorkeling có dây đeo điều chỉnh, phù hợp cho hoạt động bơi và khám phá mặt nước.'},
   {id:2008,name:'Áo bơi chống nắng Rashguard',category:'Bơi lội',brand:'Tribord',price:499000,oldPrice:0,rating:4.5,reviews:18,image:'images/products/ao-chay-bo.svg',icon:'fa-shirt',sizes:['S','M','L','XL'],stock:13,description:'Áo bơi dài tay co giãn nhẹ, giúp che phủ da khi tham gia hoạt động ngoài trời.'},
-  {id:2009,name:'Túi chống nước đi biển 10L',category:'Bơi lội',brand:'Tribord',price:259000,oldPrice:0,rating:4.4,reviews:16,image:'images/products/balo-gym.svg',icon:'fa-water',sizes:['10L'],stock:24,description:'Túi cuộn miệng dung tích gọn nhẹ giúp bảo vệ vật dụng cá nhân khỏi nước bắn.'}
+  {id:2009,name:'Túi chống nước đi biển 10L',category:'Bơi lội',brand:'Tribord',price:259000,oldPrice:0,rating:4.4,reviews:16,image:'images/products/balo-gym.svg',icon:'fa-water',sizes:['10L'],stock:24,description:'Túi cuộn miệng dung tích gọn nhẹ giúp bảo vệ vật dụng cá nhân khỏi nước bắn.'},
+  {id:2010,name:'Giày chạy bộ Run Active Pro',category:'Chạy bộ',brand:'Kalenji',price:3180000,oldPrice:4539000,rating:4.8,reviews:0,badge:'-30%',image:'assets/products/featured-running-shoe.png',icon:'fa-shoe-prints',sizes:['39','40','41','42','43','44'],colors:['Tím','Xanh'],stock:15,description:'Giày chạy bộ nhẹ và êm, thiết kế đế hỗ trợ độ bám và chuyển động linh hoạt trên đường chạy.'},
+  {id:2011,name:'Áo thi đấu CLB Man City 2026',category:'Bóng đá',brand:'Kipsta',price:2800000,oldPrice:3000000,rating:4.7,reviews:0,badge:'Mới',image:'assets/products/featured-man-city-jersey.png',icon:'fa-shirt',sizes:['S','M','L','XL','XXL'],colors:['Xanh da trời','Trắng'],stock:20,description:'Áo thi đấu bóng đá chất liệu thoáng khí, phom thể thao thoải mái khi tập luyện và cổ vũ.'},
+  {id:2012,name:'Thảm Yoga TPE 6mm cao cấp',category:'Yoga',brand:'Domyos',price:1590000,oldPrice:1900000,rating:4.8,reviews:0,badge:'-40%',image:'assets/products/featured-yoga-mat.png',icon:'fa-person-praying',sizes:['183 x 61 cm'],colors:['Tím'],stock:18,description:'Thảm TPE dày 6mm có bề mặt bám tốt, hỗ trợ giữ thăng bằng và êm khi tập yoga.'},
+  {id:2013,name:'Kính bơi chống tia UV Easy',category:'Bơi lội',brand:'Nabaiji',price:179000,oldPrice:229000,rating:4.6,reviews:0,image:'assets/products/featured-swim-goggles.png',icon:'fa-glasses',sizes:['Free size'],colors:['Đen','Xanh'],stock:24,description:'Kính bơi tròng chống tia UV, dây đeo điều chỉnh linh hoạt và ôm vừa vặn khi bơi.'},
+  {id:2014,name:'Xe đạp đô thị Riverside 100',category:'Xe đạp',brand:"B'Twin",price:3990000,oldPrice:0,rating:4.7,reviews:0,badge:'Mới',image:'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600&h=500&fit=crop',icon:'fa-bicycle',sizes:['S','M','L'],colors:['Trắng','Đen'],stock:8,description:'Xe đạp đô thị Riverside 100 phù hợp cho việc đi lại hằng ngày và những chuyến đi nhẹ nhàng.'},
+  {id:2015,name:'Bộ tạ tay cao su 5–20kg',category:'Gym',brand:'Domyos',price:1250000,oldPrice:0,rating:4.6,reviews:0,badge:'Mới',image:'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=500&fit=crop',icon:'fa-dumbbell',sizes:['5 kg','10 kg','15 kg','20 kg'],colors:['Đen'],stock:12,description:'Bộ tạ tay bọc cao su chắc chắn, có nhiều mức khối lượng cho các bài tập sức mạnh.'},
+  {id:2016,name:'Bóng rổ Size 7 outdoor',category:'Bóng rổ',brand:'Tarmak',price:459000,oldPrice:0,rating:4.6,reviews:0,badge:'Mới',image:'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&h=500&fit=crop',icon:'fa-basketball',sizes:['Size 7'],colors:['Cam','Nâu'],stock:18,description:'Bóng rổ size 7 có bề mặt bám tay, phù hợp luyện tập và thi đấu ngoài trời.'}
 ];
 
 const SEED_PRODUCTS = [
@@ -322,7 +329,7 @@ function initCatalog() {
   if (!document.getElementById('products-grid')) return;
   const categoryFilter = document.getElementById('category-filter');
   const availableCategories = [...new Set(PRODUCTS.map(p => p.category))]
-    .filter(category => category !== 'Giày thể thao');
+    .filter(category => !['Giày thể thao', 'Ngoài trời', 'Khác'].includes(category));
   
   availableCategories.forEach(category => {
     categoryFilter.insertAdjacentHTML('beforeend', `<label class="filter-option"><input type="checkbox" name="category" value="${category}" ${state.category === category ? 'checked' : ''}> ${category}</label>`);
@@ -571,9 +578,7 @@ function initDetail() {
   const stock = typeof product.stock === 'number' ? product.stock : 12;
   const image = product.image || product.placeholderImage || getProductPlaceholder(product.category);
   const imageFallback = product.placeholderImage || getProductPlaceholder(product.category);
-  const colors = Array.isArray(product.colors) && product.colors.length
-    ? product.colors
-    : ['Xanh', 'Đen', 'Đỏ'];
+  const colors = Array.isArray(product.colors) ? product.colors : [];
 
   detail.innerHTML = `<div class="detail-gallery">
     <div class="detail-image" id="detail-image" title="Bấm để phóng to ảnh">
@@ -594,12 +599,12 @@ function initDetail() {
       ${product.oldPrice ? `<span class="old">${formatMoney(product.oldPrice)}</span>` : ''}
     </div>
     <p class="detail-desc">${product.description}</p>
-    <div class="option-group">
+    ${colors.length ? `<div class="option-group">
       <span class="option-label">Màu sắc</span>
       <div class="color-options">
         ${colors.map((color, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" aria-label="${color}">${color}</button>`).join('')}
       </div>
-    </div>
+    </div>` : ''}
     <div class="option-group">
       <span class="option-label">Kích thước</span>
       <div class="size-options">
@@ -657,7 +662,7 @@ function initDetail() {
   document.getElementById('detail-add-cart')?.addEventListener('click', () => {
     if (typeof Cart === 'undefined' || stock < 1) return;
     const selectedSize = document.querySelector('.size-options .option-btn.active')?.dataset.size || product.sizes[0];
-    const selectedColor = document.querySelector('.color-options .option-btn.active')?.textContent.trim() || 'Xanh';
+    const selectedColor = document.querySelector('.color-options .option-btn.active')?.textContent.trim() || '';
     const qty = parseInt(qtyInput?.value || '1', 10);
     Cart.addItem({ ...product, selectedSize, selectedColor, quantity: qty });
   });

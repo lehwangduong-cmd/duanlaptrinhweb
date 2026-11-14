@@ -260,7 +260,9 @@ document.querySelectorAll('.btn-wishlist').forEach(btn => {
     const bgGradient = imgEl?.style.background || 'linear-gradient(135deg,#e3f2fd,#bbdefb)';
 
     const product = {
-      id: 'PROD-' + name.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 20),
+      id: card?.dataset.productId
+        ? Number(card.dataset.productId)
+        : 'PROD-' + name.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 20),
       name,
       brand,
       price,
