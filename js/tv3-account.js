@@ -27,20 +27,93 @@ var Auth = (function () {
   // CẤU HÌNH TÀI KHOẢN QUẢN TRỊ VIÊN (ADMIN) RIÊNG CỦA BẠN
   // ============================================================
   const ADMIN_EMAILS = [
-    'minhgialapnhua2k7@gmail.com',
     'nhomanhdangcapso1vn@gmail.com',
     'admin@sportzone.vn'
   ];
 
   const ADMIN_CONFIG = {
-    fullName: 'Minh',
-    email: 'minhgialapnhua2k7@gmail.com',
-    phone: '0912345678',
+    fullName: 'Quản Trị Viên SportZone',
+    email: 'admin@sportzone.vn',
+    phone: '0901234567',
     password: 'admin123',
     secretKey: 'SPORTZONE@ADMIN'
   };
 
-  
+  const BLACKLIST_EMAILS = [
+    'cocanhkhong@gmail.com',
+    'minhgialapnhua2k7@gmail.com',
+    'user@sportzone.vn',
+    'nam.le@gmail.com'
+  ];
+  const BLACKLIST_IDS = [
+    'USR-000',
+    'USR-163541',
+    'USR-189805',
+    'USR-423996',
+    'USR-002',
+    'USR-003'
+  ];
+
+  function cleanupBlacklist() {
+    try {
+      let deletedList = [];
+      try {
+        deletedList = JSON.parse(localStorage.getItem('sz_deleted_users') || '[]');
+      } catch (e) {}
+
+      let updated = false;
+      BLACKLIST_EMAILS.forEach(em => {
+        if (!deletedList.includes(em.toLowerCase())) {
+          deletedList.push(em.toLowerCase());
+          updated = true;
+        }
+      });
+      BLACKLIST_IDS.forEach(id => {
+        if (!deletedList.includes(id)) {
+          deletedList.push(id);
+          updated = true;
+        }
+      });
+      if (updated || !localStorage.getItem('sz_deleted_users')) {
+        localStorage.setItem('sz_deleted_users', JSON.stringify(deletedList));
+      }
+
+      // Xóa khỏi sz_users trong localStorage
+      let rawUsers = [];
+      try {
+        rawUsers = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
+      } catch (e) {}
+
+      if (Array.isArray(rawUsers) && rawUsers.length > 0) {
+        const cleaned = rawUsers.filter(u => {
+          if (!u) return false;
+          const em = (u.email || '').toLowerCase().trim();
+          const id = u.id || '';
+          return !BLACKLIST_EMAILS.includes(em) && !BLACKLIST_IDS.includes(id);
+        });
+        if (cleaned.length !== rawUsers.length) {
+          localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(cleaned));
+        }
+      }
+
+      // Nếu tài khoản hiện tại nằm trong danh sách này thì xóa phiên
+      const cur = JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_USER) || 'null');
+      if (cur) {
+        const curEmail = (cur.email || '').toLowerCase().trim();
+        const curId = cur.id || '';
+        if (BLACKLIST_EMAILS.includes(curEmail) || BLACKLIST_IDS.includes(curId)) {
+          localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+          try { localStorage.removeItem('sz_user'); } catch (e) {}
+        }
+      }
+
+      // Xóa triệt để khỏi Cloud Firestore nếu có kết nối
+      BLACKLIST_IDS.forEach(id => {
+        try { deleteUserFromCloud(id); } catch (e) {}
+      });
+    } catch (e) {}
+  }
+
   // ============================================================
   // CẤU HÌNH & TRẠNG THÁI CLOUD REALTIME SYNC (FIREBASE FIRESTORE)
   // ============================================================
@@ -55,32 +128,6 @@ var Auth = (function () {
 
   // Mẫu dữ liệu khởi tạo (Seed Data)
   const DEFAULT_USERS = [
-    {
-      id: 'USR-000',
-      fullName: 'Minh Lê',
-      email: 'minhgialapnhua2k7@gmail.com',
-      phone: '0912345678',
-      password: 'admin123',
-      role: 'admin',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-      gender: 'male',
-      birthday: '1995-05-15',
-      membership: 'Quản trị viên cấp cao',
-      joinedDate: '2024-01-10',
-      addresses: [
-        {
-          id: 'ADDR-0',
-          recipientName: 'Minh Lê',
-          phone: '0912345678',
-          city: 'Hồ Chí Minh',
-          district: 'Quận 1',
-          ward: 'Phường Bến Nghé',
-          addressDetail: '123 Nguyễn Huệ',
-          isDefault: true
-        }
-      ]
-    },
     {
       id: 'USR-001',
       fullName: 'Minh Dương Anh Diện Phong',
@@ -103,68 +150,6 @@ var Auth = (function () {
           district: 'Quận 1',
           ward: 'Phường Bến Nghé',
           addressDetail: '123 Nguyễn Huệ',
-          isDefault: false
-        }
-      ]
-    },
-    {
-      id: 'USR-002',
-      fullName: 'Trần Thị Thu Thảo',
-      email: 'user@sportzone.vn',
-      phone: '0987654321',
-      password: 'user123',
-      role: 'user',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
-      gender: 'female',
-      birthday: '1998-08-20',
-      membership: 'Thành viên Vàng (Gold Member)',
-      joinedDate: '2024-03-15',
-      addresses: [
-        {
-          id: 'ADDR-2',
-          recipientName: 'Trần Thị Thu Thảo',
-          phone: '0987654321',
-          city: 'Hồ Chí Minh',
-          district: 'Quận 1',
-          ward: 'Phường Bến Thành',
-          addressDetail: '456 Lê Lợi',
-          isDefault: true
-        },
-        {
-          id: 'ADDR-3',
-          recipientName: 'Thu Thảo (Văn phòng)',
-          phone: '0987654321',
-          city: 'Hồ Chí Minh',
-          district: 'Bình Thạnh',
-          ward: 'Phường 22',
-          addressDetail: 'Tầng 18, Tòa nhà Landmark 81, 720A Điện Biên Phủ',
-          isDefault: false
-        }
-      ]
-    },
-    {
-      id: 'USR-003',
-      fullName: 'Lê Hoàng Nam',
-      email: 'nam.le@gmail.com',
-      phone: '0933112233',
-      password: 'user123',
-      role: 'user',
-      status: 'active',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-      gender: 'male',
-      birthday: '2000-11-02',
-      membership: 'Thành viên Bạc',
-      joinedDate: '2024-06-01',
-      addresses: [
-        {
-          id: 'ADDR-4',
-          recipientName: 'Lê Hoàng Nam',
-          phone: '0933112233',
-          city: 'Hà Nội',
-          district: 'Cầu Giấy',
-          ward: 'Phường Dịch Vọng',
-          addressDetail: 'Số 15 ngõ 86 Duy Tân',
           isDefault: true
         }
       ]
@@ -175,14 +160,14 @@ var Auth = (function () {
   const DEFAULT_ORDERS = [
     {
       id: 'SZ-9824',
-      userId: 'USR-002',
+      userId: 'USR-001',
       createdAt: '2025-05-18 14:30',
       status: 'shipping', // 'pending' | 'shipping' | 'delivered' | 'cancelled'
       statusText: 'Đang vận chuyển',
       paymentMethod: 'Thanh toán khi nhận hàng (COD)',
-      shippingAddress: '456 Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh',
-      recipientName: 'Trần Thị Thu Thảo',
-      recipientPhone: '0987654321',
+      shippingAddress: '123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+      recipientName: 'Minh Dương Anh Diện Phong',
+      recipientPhone: '0901234567',
       items: [
         {
           id: 1,
@@ -207,14 +192,14 @@ var Auth = (function () {
     },
     {
       id: 'SZ-9150',
-      userId: 'USR-002',
+      userId: 'USR-001',
       createdAt: '2025-04-10 09:15',
       status: 'delivered',
       statusText: 'Giao hàng thành công',
       paymentMethod: 'Ví MoMo',
-      shippingAddress: '456 Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh',
-      recipientName: 'Trần Thị Thu Thảo',
-      recipientPhone: '0987654321',
+      shippingAddress: '123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+      recipientName: 'Minh Dương Anh Diện Phong',
+      recipientPhone: '0901234567',
       items: [
         {
           id: 3,
@@ -239,14 +224,14 @@ var Auth = (function () {
     },
     {
       id: 'SZ-8830',
-      userId: 'USR-002',
+      userId: 'USR-001',
       createdAt: '2025-03-22 16:45',
       status: 'delivered',
       statusText: 'Giao hàng thành công',
       paymentMethod: 'Chuyển khoản QR VNPay',
-      shippingAddress: '456 Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh',
-      recipientName: 'Trần Thị Thu Thảo',
-      recipientPhone: '0987654321',
+      shippingAddress: '123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+      recipientName: 'Minh Dương Anh Diện Phong',
+      recipientPhone: '0901234567',
       items: [
         {
           id: 5,
@@ -263,14 +248,14 @@ var Auth = (function () {
     },
     {
       id: 'SZ-7542',
-      userId: 'USR-002',
+      userId: 'USR-001',
       createdAt: '2025-02-05 11:00',
       status: 'cancelled',
       statusText: 'Đã hủy đơn',
       paymentMethod: 'COD',
-      shippingAddress: '456 Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh',
-      recipientName: 'Trần Thị Thu Thảo',
-      recipientPhone: '0987654321',
+      shippingAddress: '123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+      recipientName: 'Minh Dương Anh Diện Phong',
+      recipientPhone: '0901234567',
       items: [
         {
           id: 6,
@@ -287,14 +272,14 @@ var Auth = (function () {
     },
     {
       id: 'SZ-6102',
-      userId: 'USR-003',
+      userId: 'USR-001',
       createdAt: '2025-05-12 18:20',
       status: 'pending',
       statusText: 'Chờ xác nhận',
       paymentMethod: 'COD',
-      shippingAddress: 'Số 15 ngõ 86 Duy Tân, Cầu Giấy, Hà Nội',
-      recipientName: 'Lê Hoàng Nam',
-      recipientPhone: '0912345678',
+      shippingAddress: '123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+      recipientName: 'Minh Dương Anh Diện Phong',
+      recipientPhone: '0901234567',
       items: [
         {
           id: 7,
@@ -399,7 +384,7 @@ var Auth = (function () {
             }
           });
           cloudUsers.forEach(u => {
-            if (u && u.id) {
+            if (u && u.id && !deletedList.includes(u.id) && !deletedList.includes((u.email || '').toLowerCase())) {
               mergedMap.set(u.id, u);
             }
           });
@@ -477,6 +462,9 @@ var Auth = (function () {
   }
 
   function init() {
+    // Tự động dọn dẹp các tài khoản rác/tài khoản đã bị yêu cầu xóa
+    cleanupBlacklist();
+
     if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
     }
@@ -663,13 +651,14 @@ var Auth = (function () {
    */
   function loginWithGoogle(email, customName, customAvatar) {
     init();
-    const targetEmail = (email || 'minhgialapnhua2k7@gmail.com').trim().toLowerCase();
+    const targetEmail = (email || 'admin@sportzone.vn').trim().toLowerCase();
     const users = getUsers();
     let user = users.find(u => u.email.toLowerCase() === targetEmail);
 
     const KNOWN_MAP = {
-      'minhgialapnhua2k7@gmail.com': { fullName: 'Minh Lê', role: 'admin' },
-      'nhomanhdangcapso1vn@gmail.com': { fullName: 'Minh Dương Anh Diện Phong', role: 'admin' }
+      'admin@sportzone.vn': { fullName: 'Quản Trị Viên SportZone', role: 'admin' },
+      'nhomanhdangcapso1vn@gmail.com': { fullName: 'Minh Dương Anh Diện Phong', role: 'admin' },
+      'khachhang.sportzone@gmail.com': { fullName: 'Khách Hàng SportZone', role: 'user' }
     };
 
     const isPreset = KNOWN_MAP[targetEmail];
@@ -685,7 +674,7 @@ var Auth = (function () {
         password: 'google_oauth_pass',
         role: isAdminEmail ? 'admin' : 'user',
         status: 'active',
-        avatar: customAvatar || (targetEmail.includes('minhgialapnhua') ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'),
+        avatar: customAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
         gender: 'male',
         birthday: '1995-05-15',
         membership: isAdminEmail ? 'Quản trị viên cấp cao' : 'Thành viên Google',

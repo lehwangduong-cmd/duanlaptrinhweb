@@ -161,8 +161,6 @@ Thông tin tài khoản và mã QR nhận tiền phải được cấu hình ri�
 
 #### Thông tin tài khoản thử nghiệm TV3:
 - **Admin:** nhomanhdangcapso1vn@gmail.com / admin123
-- **Admin Google:** minhgialapnhua2k7@gmail.com / admin123
-- **User:** user@sportzone.vn / user123
 | Giỏ hàng, Thanh toán, Đơn hàng | TV4 | 🔄 Đang làm |
 | Trang Admin, Thống kê | TV5 | 🔄 Đang làm |
 

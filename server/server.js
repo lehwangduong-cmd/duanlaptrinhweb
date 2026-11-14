@@ -94,7 +94,6 @@ app.post('/api/auth/google', async (req, res) => {
 
     // 3. Phân quyền người dùng (Role-Based Access Control)
     const ADMIN_EMAILS = [
-      'minhgialapnhua2k7@gmail.com',
       'nhomanhdangcapso1vn@gmail.com',
       'admin@sportzone.vn'
     ];
