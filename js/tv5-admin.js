@@ -281,7 +281,7 @@
     if (sizesInput) sizesInput.value = Array.isArray(product?.sizes) ? product.sizes.join(', ') : '';
     const fileInput = document.getElementById('productImage');
     if (fileInput) fileInput.value = '';
-    const descInput = document.getElementById('productDesc');
+    const descInput = document.getElementById('productDescription') || document.getElementById('productDesc');
     if (descInput) descInput.value = product?.description || '';
     document.getElementById('productDialogTitle').textContent = product ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm';
     document.getElementById('productDialog').showModal();
@@ -316,7 +316,7 @@
     const oldPrice = Number(document.getElementById('productOldPrice')?.value) || 0;
     const stock = Number(document.getElementById('productStock').value);
     const brand = document.getElementById('productBrand')?.value?.trim() || 'SportZone';
-    const description = document.getElementById('productDesc')?.value?.trim() || `${name} chính hãng chất lượng cao tại SportZone.`;
+    const description = (document.getElementById('productDescription') || document.getElementById('productDesc'))?.value?.trim() || `${name} chính hãng chất lượng cao tại SportZone.`;
 
     const existingProduct = id
       ? state.products.find(item => String(item.id) === id)
@@ -346,7 +346,6 @@
         return;
       }
     }
-
     if (!name || !category || !Number.isFinite(price) || price <= 0 ||
       !Number.isInteger(stock) || stock < 0) {
       showToast('Vui lòng kiểm tra thông tin sản phẩm.');
