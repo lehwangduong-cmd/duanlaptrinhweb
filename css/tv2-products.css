@@ -37,3 +37,7 @@
   height: auto;
   aspect-ratio: 1 / 1;
 }
+
+.rating-row span:first-child {
+  color: #f5a623;
+}
