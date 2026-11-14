@@ -137,15 +137,67 @@
 
   <dialog class="admin-dialog" id="productDialog">
     <form id="productForm">
-      <div class="dialog-heading"><div><p class="eyebrow">KHO SẢN PHẨM</p><h2 id="productDialogTitle">Thêm sản phẩm</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Đóng">×</button></div>
-      <input id="productId" type="hidden">
-      <label>Tên sản phẩm<input id="productName" name="name" required maxlength="100"></label>
-      <div class="form-grid">
-        <label>Danh mục<select id="productCategory" name="category" required><option value="">Chọn danh mục</option><option>Áo thể thao</option><option>Quần thể thao</option><option>Giày thể thao</option><option>Phụ kiện</option><option>Dụng cụ thể thao</option><option>Khác</option></select></label>
-        <label>Giá bán (₫)<input id="productPrice" name="price" type="number" min="1" step="1" required></label>
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">KHO SẢN PHẨM</p>
+          <h2 id="productDialogTitle">Thêm sản phẩm</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog aria-label="Đóng">×</button>
       </div>
-      <div class="form-grid"><label>Số lượng tồn<input id="productStock" name="stock" type="number" min="0" step="1" required></label><label>Mã sản phẩm<input id="productSku" name="sku" maxlength="40"></label></div>
-      <div class="dialog-actions"><button class="button button--secondary" type="button" data-close-dialog>Hủy</button><button class="button button--primary" type="submit">Lưu sản phẩm</button></div>
+      <input id="productId" type="hidden">
+      <label>Tên sản phẩm
+        <input id="productName" name="name" required maxlength="100" placeholder="VD: Giày chạy bộ Pro Speed 2026">
+      </label>
+      <div class="form-grid">
+        <label>Danh mục
+          <select id="productCategory" name="category" required>
+            <option value="">Chọn danh mục</option>
+            <option value="Chạy bộ">Chạy bộ</option>
+            <option value="Bóng đá">Bóng đá</option>
+            <option value="Gym">Gym</option>
+            <option value="Bơi lội">Bơi lội</option>
+            <option value="Yoga">Yoga</option>
+            <option value="Cầu lông">Cầu lông</option>
+            <option value="Xe đạp">Xe đạp</option>
+            <option value="Bóng rổ">Bóng rổ</option>
+            <option value="Áo thể thao">Áo thể thao</option>
+            <option value="Quần thể thao">Quần thể thao</option>
+            <option value="Giày thể thao">Giày thể thao</option>
+            <option value="Phụ kiện">Phụ kiện</option>
+            <option value="Dụng cụ thể thao">Dụng cụ thể thao</option>
+            <option value="Khác">Khác</option>
+          </select>
+        </label>
+        <label>Thương hiệu
+          <input id="productBrand" name="brand" placeholder="Kalenji, Kipsta, SportZone...">
+        </label>
+      </div>
+      <div class="form-grid">
+        <label>Giá bán (₫)
+          <input id="productPrice" name="price" type="number" min="1" step="1" required placeholder="VD: 450000">
+        </label>
+        <label>Giá gốc niêm yết (₫)
+          <input id="productOldPrice" name="oldPrice" type="number" min="0" step="1" placeholder="Bỏ trống nếu không giảm giá">
+        </label>
+      </div>
+      <div class="form-grid">
+        <label>Số lượng tồn
+          <input id="productStock" name="stock" type="number" min="0" step="1" required placeholder="VD: 25">
+        </label>
+        <label>Mã sản phẩm (SKU)
+          <input id="productSku" name="sku" maxlength="40" placeholder="VD: RUN-2026-X1">
+        </label>
+      </div>
+      <label>Đường dẫn hình ảnh
+        <input id="productImage" name="image" placeholder="images/products-real/giay-chay-bo.jpg hoặc để trống dùng ảnh mặc định">
+      </label>
+      <label>Mô tả sản phẩm
+        <textarea id="productDesc" name="description" rows="2" style="width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:8px 12px; font-family:inherit; font-size:14px; box-sizing:border-box;" placeholder="Mô tả chất liệu, đặc tính nổi bật..."></textarea>
+      </label>
+      <div class="dialog-actions">
+        <button class="button button--secondary" type="button" data-close-dialog>Hủy</button>
+        <button class="button button--primary" type="submit">Lưu sản phẩm</button>
+      </div>
     </form>
   </dialog>
 

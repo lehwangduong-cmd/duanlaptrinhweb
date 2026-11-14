@@ -69,6 +69,8 @@
   // ============================================================
   // 1. ĐỒNG BỘ SẢN PHẨM & KHO HÀNG (sz_products)
   // ============================================================
+  const _syncedProductsMap = new Map();
+
   function setupProductsListener() {
     if (!_db) return;
     if (_unsubProducts) _unsubProducts();
@@ -77,28 +79,71 @@
       snapshot => {
         if (snapshot.empty) return;
 
-        const products = [];
+        const cloudProducts = [];
         snapshot.forEach(doc => {
           const data = doc.data();
           if (data && data.id !== undefined) {
-            products.push(data);
+            cloudProducts.push(data);
+            try {
+              _syncedProductsMap.set(String(data.id), JSON.stringify(data));
+            } catch (e) {}
           }
         });
 
-        // Sắp xếp theo ID
-        products.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
+        // Đọc danh sách ID đã xóa từ trước
+        let deletedIds = [];
+        try {
+          const rawDel = localStorage.getItem('sz_deleted_product_ids');
+          if (rawDel) deletedIds = JSON.parse(rawDel);
+        } catch (e) {}
+        const deletedSet = new Set(deletedIds.map(String));
 
-        if (products.length > 0) {
-          // Ghi vào localStorage mà không kích hoạt hook lặp
-          safeSetStorage(KEYS.PRODUCTS, JSON.stringify(products));
+        // Lọc bỏ sản phẩm đã xóa
+        const filteredCloud = cloudProducts.filter(p => !deletedSet.has(String(p.id)));
 
-          // Cập nhật mảng biến toàn cục PRODUCTS nếu có
+        // Đọc sản phẩm hiện có trong localStorage để MERGE thông minh (không làm mất hàng vừa thêm khi F5)
+        let localProducts = [];
+        try {
+          const rawLocal = localStorage.getItem(KEYS.PRODUCTS);
+          if (rawLocal) localProducts = JSON.parse(rawLocal);
+        } catch (e) {}
+
+        const cloudIdMap = new Map(filteredCloud.map(p => [String(p.id), p]));
+        const merged = [];
+        const seenIds = new Set();
+
+        // Ưu tiên các sản phẩm local (giữ nguyên thứ tự và sản phẩm mới tạo offline/chưa kịp sync)
+        if (Array.isArray(localProducts)) {
+          localProducts.forEach(localP => {
+            const strId = String(localP.id);
+            if (deletedSet.has(strId)) return;
+
+            if (cloudIdMap.has(strId)) {
+              merged.push({ ...localP, ...cloudIdMap.get(strId) });
+            } else {
+              merged.push(localP);
+            }
+            seenIds.add(strId);
+          });
+        }
+
+        // Thêm các sản phẩm từ cloud chưa có trong local
+        filteredCloud.forEach(cloudP => {
+          const strId = String(cloudP.id);
+          if (!seenIds.has(strId)) {
+            merged.push(cloudP);
+            seenIds.add(strId);
+          }
+        });
+
+        if (merged.length > 0) {
+          safeSetStorage(KEYS.PRODUCTS, JSON.stringify(merged));
+
           if (typeof window.PRODUCTS !== 'undefined' && Array.isArray(window.PRODUCTS)) {
-            window.PRODUCTS = products;
+            window.PRODUCTS = merged;
           }
 
-          // Kích hoạt sự kiện toàn trang để TV5 Admin & TV2 Products tự render lại
-          window.dispatchEvent(new CustomEvent('sz:products-updated', { detail: products }));
+          window.dispatchEvent(new CustomEvent('sz:products-updated', { detail: merged }));
           window.dispatchEvent(new StorageEvent('storage', { key: KEYS.PRODUCTS }));
         }
       },
@@ -151,19 +196,51 @@
   // 3. TIỆN ÍCH ĐẨY DỮ LIỆU TỪ LOCAL LÊN CLOUD
   // ============================================================
 
-  // Đồng bộ toàn bộ mảng sản phẩm lên Cloud (khi TV5 thêm/sửa/xóa sản phẩm)
+  // Đồng bộ 1 sản phẩm cụ thể lên Cloud (nhanh, nhẹ, không gây tràn quota)
+  function syncSingleProduct(p) {
+    if (!_db || !p || p.id === undefined) return;
+    try {
+      const cleanDoc = JSON.parse(JSON.stringify(p));
+      _db.collection('sz_products').doc(String(p.id)).set(cleanDoc, { merge: true })
+        .then(() => {
+          _syncedProductsMap.set(String(p.id), JSON.stringify(cleanDoc));
+          console.log('⚡ [Cloud Sync] Đã lưu sản phẩm lên Cloud:', p.name || p.id);
+        })
+        .catch(e => console.warn('[Cloud Sync] Lưu sản phẩm cục bộ (Cloud offline/quota):', e?.message || e));
+    } catch (e) {
+      console.warn('[Cloud Sync] Lỗi parse sản phẩm:', e);
+    }
+  }
+
+  // Xóa sản phẩm trên Cloud Firestore khi Admin xóa
+  function deleteProduct(productId) {
+    if (!_db || productId === undefined) return;
+    try {
+      _db.collection('sz_products').doc(String(productId)).delete()
+        .then(() => {
+          _syncedProductsMap.delete(String(productId));
+          console.log('⚡ [Cloud Sync] Đã xóa sản phẩm trên Cloud:', productId);
+        })
+        .catch(e => console.warn('[Cloud Sync] Lỗi xóa trên Cloud:', e?.message || e));
+    } catch (e) {
+      console.warn('[Cloud Sync] Lỗi gọi delete Cloud:', e);
+    }
+  }
+
+  // Đồng bộ sản phẩm cần cập nhật (chỉ gửi sản phẩm mới hoặc thay đổi)
   function pushProductsToCloud(productsArray) {
     if (!_db || !Array.isArray(productsArray)) return;
     try {
       productsArray.forEach(p => {
         if (p && p.id !== undefined) {
-          const cleanDoc = JSON.parse(JSON.stringify(p));
-          _db.collection('sz_products').doc(String(p.id)).set(cleanDoc, { merge: true })
-            .catch(e => console.warn('[Cloud Sync] Lỗi đẩy sản phẩm lên Cloud:', e));
+          const sig = JSON.stringify(p);
+          if (_syncedProductsMap.get(String(p.id)) !== sig) {
+            syncSingleProduct(p);
+          }
         }
       });
     } catch (e) {
-      console.warn('[Cloud Sync] Lỗi parse sản phẩm đẩy Cloud:', e);
+      console.warn('[Cloud Sync] Lỗi pushProductsToCloud:', e);
     }
   }
 
@@ -243,6 +320,8 @@
         if (raw) pushProductsToCloud(JSON.parse(raw));
       } catch (e) {}
     },
+    syncSingleProduct,
+    deleteProduct,
     syncOrders: () => {
       try {
         const raw = localStorage.getItem(KEYS.ORDERS);

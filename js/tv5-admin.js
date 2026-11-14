@@ -178,7 +178,7 @@
     const query = normalize(document.getElementById('productSearch').value);
     const filter = document.getElementById('stockFilter').value;
     const products = state.products.filter(product => {
-      const matchesQuery = normalize(`${product.name || ''} ${product.category || ''} ${product.sku || ''}`).includes(query);
+      const matchesQuery = normalize(`${product.name || ''} ${product.category || ''} ${product.sku || ''} ${product.brand || ''}`).includes(query);
       const stock = getStock(product);
       const matchesStock = filter === 'all' ||
         (filter === 'low' && stock > 0 && stock <= STOCK_WARNING_LEVEL) ||
@@ -229,7 +229,21 @@
       return;
     }
     if (button.dataset.action === 'delete' && window.confirm(`Xóa sản phẩm "${product.name || 'Sản phẩm'}"?`)) {
-      persistArray(PRODUCTS_KEY, state.products.filter(item => String(item.id) !== button.dataset.id), 'Đã xóa sản phẩm.');
+      const deleteId = String(button.dataset.id);
+      try {
+        const deletedRaw = localStorage.getItem('sz_deleted_product_ids');
+        const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
+        if (!deletedIds.includes(deleteId)) {
+          deletedIds.push(deleteId);
+          localStorage.setItem('sz_deleted_product_ids', JSON.stringify(deletedIds));
+        }
+      } catch (e) {}
+
+      if (typeof window.SportZoneCloud !== 'undefined' && typeof window.SportZoneCloud.deleteProduct === 'function') {
+        window.SportZoneCloud.deleteProduct(deleteId);
+      }
+
+      persistArray(PRODUCTS_KEY, state.products.filter(item => String(item.id) !== deleteId), 'Đã xóa sản phẩm.');
     }
   }
 
@@ -239,9 +253,17 @@
     document.getElementById('productId').value = product ? String(product.id) : '';
     document.getElementById('productName').value = product?.name || '';
     document.getElementById('productCategory').value = product?.category || '';
+    const brandInput = document.getElementById('productBrand');
+    if (brandInput) brandInput.value = product?.brand || '';
     document.getElementById('productPrice').value = product ? getProductPrice(product) : '';
+    const oldPriceInput = document.getElementById('productOldPrice');
+    if (oldPriceInput) oldPriceInput.value = (product && product.oldPrice) ? product.oldPrice : '';
     document.getElementById('productStock').value = product ? getStock(product) : '';
     document.getElementById('productSku').value = product?.sku || '';
+    const imageInput = document.getElementById('productImage');
+    if (imageInput) imageInput.value = product?.image || '';
+    const descInput = document.getElementById('productDesc');
+    if (descInput) descInput.value = product?.description || '';
     document.getElementById('productDialogTitle').textContent = product ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm';
     document.getElementById('productDialog').showModal();
   }
@@ -259,24 +281,51 @@
       return;
     }
 
-    const product = {
-      id: id || createId(),
-      name: document.getElementById('productName').value.trim(),
-      category: document.getElementById('productCategory').value,
-      price: Number(document.getElementById('productPrice').value),
-      stock: Number(document.getElementById('productStock').value),
-      sku,
-    };
-    if (!product.name || !product.category || !Number.isFinite(product.price) || product.price <= 0 ||
-      !Number.isInteger(product.stock) || product.stock < 0) {
+    const name = document.getElementById('productName').value.trim();
+    const category = document.getElementById('productCategory').value;
+    const price = Number(document.getElementById('productPrice').value);
+    const oldPrice = Number(document.getElementById('productOldPrice')?.value) || 0;
+    const stock = Number(document.getElementById('productStock').value);
+    const brand = document.getElementById('productBrand')?.value?.trim() || 'SportZone';
+    const image = document.getElementById('productImage')?.value?.trim() || '';
+    const description = document.getElementById('productDesc')?.value?.trim() || `${name} chính hãng chất lượng cao tại SportZone.`;
+
+    if (!name || !category || !Number.isFinite(price) || price <= 0 ||
+      !Number.isInteger(stock) || stock < 0) {
       showToast('Vui lòng kiểm tra thông tin sản phẩm.');
       return;
     }
 
+    const existing = id ? state.products.find(item => String(item.id) === id) : null;
+    const numericId = id ? (isNaN(Number(id)) ? id : Number(id)) : Date.now();
+
+    const product = {
+      ...(existing || {}),
+      id: numericId,
+      name,
+      category,
+      brand,
+      price,
+      oldPrice: oldPrice > 0 ? oldPrice : (existing?.oldPrice || 0),
+      stock,
+      sku,
+      image: image || existing?.image || '',
+      description,
+      rating: (existing && existing.rating !== undefined) ? existing.rating : 5.0,
+      reviews: (existing && existing.reviews !== undefined) ? existing.reviews : 0,
+      badge: existing?.badge || (oldPrice > price ? `-${Math.round((1 - price / oldPrice) * 100)}%` : 'Mới'),
+      sizes: existing?.sizes || ['Free size'],
+      colors: existing?.colors || ['Mặc định']
+    };
+
     const next = id
-      ? state.products.map(item => String(item.id) === id ? { ...item, ...product } : item)
-      : [...state.products, product];
-    if (persistArray(PRODUCTS_KEY, next, id ? 'Đã cập nhật sản phẩm.' : 'Đã thêm sản phẩm.')) {
+      ? state.products.map(item => String(item.id) === String(id) ? product : item)
+      : [product, ...state.products];
+
+    if (persistArray(PRODUCTS_KEY, next, id ? 'Đã cập nhật sản phẩm.' : 'Đã thêm sản phẩm thành công.')) {
+      if (typeof window.SportZoneCloud !== 'undefined' && typeof window.SportZoneCloud.syncSingleProduct === 'function') {
+        window.SportZoneCloud.syncSingleProduct(product);
+      }
       document.getElementById('productDialog').close();
       event.target.reset();
     }

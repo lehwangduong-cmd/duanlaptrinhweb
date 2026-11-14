@@ -270,7 +270,7 @@ var Wishlist = (function() {
   function toggle(productOrId) {
     const productId = typeof productOrId === 'object' && productOrId !== null ? productOrId.id : productOrId;
     const items = getItems();
-    const idx = items.findIndex(i => (typeof i === 'object' ? i.id === productId : i === productId));
+    const idx = items.findIndex(i => (typeof i === 'object' ? String(i.id) === String(productId) : String(i) === String(productId)));
     let added = false;
     if (idx === -1) {
       if (productOrId && typeof productOrId === 'object') {
@@ -306,7 +306,7 @@ var Wishlist = (function() {
   function addItem(product) {
     const items = getItems();
     const productId = typeof product === 'object' && product !== null ? product.id : product;
-    const exists = items.some(i => (typeof i === 'object' ? i.id === productId : i === productId));
+    const exists = items.some(i => (typeof i === 'object' ? String(i.id) === String(productId) : String(i) === String(productId)));
     if (!exists) {
       items.push(product);
       saveItems(items);
@@ -318,7 +318,7 @@ var Wishlist = (function() {
   }
 
   function has(productId) {
-    return getItems().some(i => (typeof i === 'object' ? i.id === productId : i === productId));
+    return getItems().some(i => (typeof i === 'object' ? String(i.id) === String(productId) : String(i) === String(productId)));
   }
 
   function getTotalQty() {
