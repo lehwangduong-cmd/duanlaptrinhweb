@@ -14,6 +14,12 @@
   const STOCK_WARNING_LEVEL = 5;
   const state = { products: [], orders: [], shopOrders: [], toastTimer: null };
   const revenueState = { period: 'day', buckets: [] };
+  window.addEventListener('sz:cloud-products-sync-error', event => {
+    const reason = event.detail?.code === 'resource-exhausted'
+      ? 'Firebase đã vượt hạn mức'
+      : 'kiểm tra kết nối hoặc quyền Firebase';
+    showToast(`Đã lưu trên thiết bị nhưng chưa đồng bộ lên cloud; ${reason}.`);
+  });
   const titles = {
     dashboard: 'Tổng quan',
     products: 'Sản phẩm & kho',
