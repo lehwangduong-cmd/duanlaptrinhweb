@@ -119,14 +119,14 @@ const SEED_PRODUCT_GROUPS = [
   {
     category: 'Cầu lông', brand: 'Artengo', image: 'images/products/vot-cau-long.svg', icon: 'fa-table-tennis-paddle-ball',
     products: [
-      ['Vợt cầu lông Carbon Lite', 799000, 'Vợt carbon nhẹ, cân bằng linh hoạt cho người chơi phong trào.', ['Đen','Xanh navy'], ['4U/G5'], 11],
-      ['Cầu lông lông vũ (hộp 12)', 249000, 'Cầu lông có quỹ đạo ổn định, phù hợp tập luyện và thi đấu.', ['Trắng'], ['Hộp 12 quả'], 29],
-      ['Giày cầu lông CourtFlex', 890000, 'Giày đế bám sàn trong nhà, hỗ trợ di chuyển ngang linh hoạt.', ['Trắng','Xanh','Đen'], ['38','39','40','41','42','43'], 12],
-      ['Túi cầu lông 2 ngăn', 429000, 'Túi đựng vợt hai ngăn có quai đeo và ngăn phụ kiện tiện lợi.', ['Đen','Đỏ'], ['6 vợt'], 13],
-      ['Quấn cán vợt (bộ 3 cuộn)', 89000, 'Quấn cán thấm hút tốt, tăng độ bám và thay mới nhanh chóng.', ['Trắng','Đen','Vàng'], ['Bộ 3 cuộn'], 38],
-      ['Băng cổ tay cầu lông', 79000, 'Băng cổ tay co giãn mềm, thấm mồ hôi khi chơi cầu lông.', ['Trắng','Đen','Đỏ'], ['Free size'], 40],
-      ['Lưới cầu lông tập luyện', 599000, 'Lưới chắc chắn, lắp đặt gọn cho sân tập và chơi giải trí.', ['Đen'], ['6.1 m'], 7],
-      ['Bộ cước căng vợt 10m', 119000, 'Dây cước bền và đàn hồi tốt, phù hợp thay cước vợt cầu lông.', ['Trắng','Vàng'], ['10 m'], 19]
+      ['Vợt cầu lông Carbon Lite', 799000, 'Vợt carbon nhẹ, cân bằng linh hoạt cho người chơi phong trào.', ['Đen','Xanh navy'], ['4U/G5'], 11, 'images/products/badminton-racket.png'],
+      ['Cầu lông lông vũ (hộp 12)', 249000, 'Cầu lông có quỹ đạo ổn định, phù hợp tập luyện và thi đấu.', ['Trắng'], ['Hộp 12 quả'], 29, 'images/products/badminton-shuttlecock.png'],
+      ['Giày cầu lông CourtFlex', 890000, 'Giày đế bám sàn trong nhà, hỗ trợ di chuyển ngang linh hoạt.', ['Trắng','Xanh','Đen'], ['38','39','40','41','42','43'], 12, 'images/products/badminton-shoes.png'],
+      ['Túi cầu lông 2 ngăn', 429000, 'Túi đựng vợt hai ngăn có quai đeo và ngăn phụ kiện tiện lợi.', ['Đen','Đỏ'], ['6 vợt'], 13, 'images/products/badminton-bag.png'],
+      ['Quấn cán vợt (bộ 3 cuộn)', 89000, 'Quấn cán thấm hút tốt, tăng độ bám và thay mới nhanh chóng.', ['Trắng','Đen','Vàng'], ['Bộ 3 cuộn'], 38, 'images/products/badminton-grip.png'],
+      ['Băng cổ tay cầu lông', 79000, 'Băng cổ tay co giãn mềm, thấm mồ hôi khi chơi cầu lông.', ['Trắng','Đen','Đỏ'], ['Free size'], 40, 'images/products/badminton-wristband.png'],
+      ['Lưới cầu lông tập luyện', 599000, 'Lưới chắc chắn, lắp đặt gọn cho sân tập và chơi giải trí.', ['Đen'], ['6.1 m'], 7, 'images/products/badminton-net.png'],
+      ['Bộ cước căng vợt 10m', 119000, 'Dây cước bền và đàn hồi tốt, phù hợp thay cước vợt cầu lông.', ['Trắng','Vàng'], ['10 m'], 19, 'images/products/badminton-string.png']
     ]
   }
 ];
@@ -140,7 +140,14 @@ const PARTNER_BRAND_PRODUCTS = [
   {id:2006,name:'Gậy trekking gấp gọn',category:'Ngoài trời',brand:'Geologic',price:459000,oldPrice:0,rating:4.4,reviews:17,image:'images/products/ta-tay.svg',icon:'fa-person-hiking',sizes:['Điều chỉnh'],stock:14,description:'Gậy trekking điều chỉnh độ dài, hỗ trợ giữ nhịp bước trên cung đường đi bộ.'},
   {id:2007,name:'Kính bơi Snorkeling Easy',category:'Bơi lội',brand:'Tribord',price:329000,oldPrice:0,rating:4.6,reviews:21,image:'images/products/kinh-boi.svg',icon:'fa-mask',sizes:['Free size'],stock:16,description:'Kính snorkeling có dây đeo điều chỉnh, phù hợp cho hoạt động bơi và khám phá mặt nước.'},
   {id:2008,name:'Áo bơi chống nắng Rashguard',category:'Bơi lội',brand:'Tribord',price:499000,oldPrice:0,rating:4.5,reviews:18,image:'images/products/ao-chay-bo.svg',icon:'fa-shirt',sizes:['S','M','L','XL'],stock:13,description:'Áo bơi dài tay co giãn nhẹ, giúp che phủ da khi tham gia hoạt động ngoài trời.'},
-  {id:2009,name:'Túi chống nước đi biển 10L',category:'Bơi lội',brand:'Tribord',price:259000,oldPrice:0,rating:4.4,reviews:16,image:'images/products/balo-gym.svg',icon:'fa-water',sizes:['10L'],stock:24,description:'Túi cuộn miệng dung tích gọn nhẹ giúp bảo vệ vật dụng cá nhân khỏi nước bắn.'}
+  {id:2009,name:'Túi chống nước đi biển 10L',category:'Bơi lội',brand:'Tribord',price:259000,oldPrice:0,rating:4.4,reviews:16,image:'images/products/balo-gym.svg',icon:'fa-water',sizes:['10L'],stock:24,description:'Túi cuộn miệng dung tích gọn nhẹ giúp bảo vệ vật dụng cá nhân khỏi nước bắn.'},
+  {id:2010,name:'Giày chạy bộ Run Active Pro',category:'Chạy bộ',brand:'Kalenji',price:3180000,oldPrice:4539000,rating:4.8,reviews:0,badge:'-30%',image:'assets/products/featured-running-shoe.png',icon:'fa-shoe-prints',sizes:['39','40','41','42','43','44'],colors:['Tím','Xanh'],stock:15,description:'Giày chạy bộ nhẹ và êm, thiết kế đế hỗ trợ độ bám và chuyển động linh hoạt trên đường chạy.'},
+  {id:2011,name:'Áo thi đấu CLB Man City 2026',category:'Bóng đá',brand:'Kipsta',price:2800000,oldPrice:3000000,rating:4.7,reviews:0,badge:'Mới',image:'assets/products/featured-man-city-jersey.png',icon:'fa-shirt',sizes:['S','M','L','XL','XXL'],colors:['Xanh da trời','Trắng'],stock:20,description:'Áo thi đấu bóng đá chất liệu thoáng khí, phom thể thao thoải mái khi tập luyện và cổ vũ.'},
+  {id:2012,name:'Thảm Yoga TPE 6mm cao cấp',category:'Yoga',brand:'Domyos',price:1590000,oldPrice:1900000,rating:4.8,reviews:0,badge:'-40%',image:'assets/products/featured-yoga-mat.png',icon:'fa-person-praying',sizes:['183 x 61 cm'],colors:['Tím'],stock:18,description:'Thảm TPE dày 6mm có bề mặt bám tốt, hỗ trợ giữ thăng bằng và êm khi tập yoga.'},
+  {id:2013,name:'Kính bơi chống tia UV Easy',category:'Bơi lội',brand:'Nabaiji',price:179000,oldPrice:229000,rating:4.6,reviews:0,image:'assets/products/featured-swim-goggles.png',icon:'fa-glasses',sizes:['Free size'],colors:['Đen','Xanh'],stock:24,description:'Kính bơi tròng chống tia UV, dây đeo điều chỉnh linh hoạt và ôm vừa vặn khi bơi.'},
+  {id:2014,name:'Xe đạp đô thị Riverside 100',category:'Xe đạp',brand:"B'Twin",price:3990000,oldPrice:0,rating:4.7,reviews:0,badge:'Mới',image:'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600&h=500&fit=crop',icon:'fa-bicycle',sizes:['S','M','L'],colors:['Trắng','Đen'],stock:8,description:'Xe đạp đô thị Riverside 100 phù hợp cho việc đi lại hằng ngày và những chuyến đi nhẹ nhàng.'},
+  {id:2015,name:'Bộ tạ tay cao su 5–20kg',category:'Gym',brand:'Domyos',price:1250000,oldPrice:0,rating:4.6,reviews:0,badge:'Mới',image:'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=500&fit=crop',icon:'fa-dumbbell',sizes:['5 kg','10 kg','15 kg','20 kg'],colors:['Đen'],stock:12,description:'Bộ tạ tay bọc cao su chắc chắn, có nhiều mức khối lượng cho các bài tập sức mạnh.'},
+  {id:2016,name:'Bóng rổ Size 7 outdoor',category:'Bóng rổ',brand:'Tarmak',price:459000,oldPrice:0,rating:4.6,reviews:0,badge:'Mới',image:'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&h=500&fit=crop',icon:'fa-basketball',sizes:['Size 7'],colors:['Cam','Nâu'],stock:18,description:'Bóng rổ size 7 có bề mặt bám tay, phù hợp luyện tập và thi đấu ngoài trời.'}
 ];
 
 const SEED_PRODUCTS = [
@@ -166,7 +173,7 @@ const SEED_PRODUCTS = [
   ...PARTNER_BRAND_PRODUCTS
 ];
 
-function mergeSeedProducts(products) {
+function mergeSeedProducts(products, includeMissing = false) {
   let deletedIds = [];
   try {
     const rawDel = localStorage.getItem('sz_deleted_product_ids');
@@ -185,20 +192,22 @@ function mergeSeedProducts(products) {
             ...product,
             image: product.image || seed.image,
             placeholderImage: seed.placeholderImage,
-            brand: needsBrand ? seed.brand : (product.brand || 'SportZone')
+            brand: needsBrand ? seed.brand : product.brand
           }
         : product;
     });
-  const ids = new Set(merged.map(product => String(product.id)));
-  const names = new Set(merged.map(product => String(product.name || '').toLocaleLowerCase().trim()));
-  SEED_PRODUCTS.forEach(product => {
-    const name = product.name.toLocaleLowerCase().trim();
-    if (!ids.has(String(product.id)) && !names.has(name) && !deletedSet.has(String(product.id))) {
-      merged.push(product);
-      ids.add(String(product.id));
-      names.add(name);
-    }
-  });
+  if (includeMissing || merged.length === 0) {
+    const ids = new Set(merged.map(product => String(product.id)));
+    const names = new Set(merged.map(product => String(product.name || '').toLocaleLowerCase().trim()));
+    SEED_PRODUCTS.forEach(product => {
+      const name = product.name.toLocaleLowerCase().trim();
+      if (!ids.has(String(product.id)) && !names.has(name) && !deletedSet.has(String(product.id))) {
+        merged.push(product);
+        ids.add(String(product.id));
+        names.add(name);
+      }
+    });
+  }
   return merged;
 }
 
@@ -206,9 +215,9 @@ function mergeSeedProducts(products) {
 function getStoredProducts() {
   try {
     const raw = localStorage.getItem('sportzone_products');
-    if (raw) {
+    if (raw !== null) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         const merged = mergeSeedProducts(parsed);
         if (JSON.stringify(merged) !== JSON.stringify(parsed)) {
           localStorage.setItem('sportzone_products', JSON.stringify(merged));
@@ -216,36 +225,52 @@ function getStoredProducts() {
         return merged;
       }
     }
-    const products = mergeSeedProducts(DEFAULT_PRODUCTS);
+    const products = mergeSeedProducts(DEFAULT_PRODUCTS, true);
     localStorage.setItem('sportzone_products', JSON.stringify(products));
     return products;
   } catch (error) {
     console.error('[Products] Không thể nạp/lưu danh sách sản phẩm:', error);
-    return mergeSeedProducts(DEFAULT_PRODUCTS);
+    return mergeSeedProducts(DEFAULT_PRODUCTS, true);
   }
 }
 
-let PRODUCTS = getStoredProducts();
+let PRODUCTS = prioritizeNewProducts(getStoredProducts());
 
 // Tự động cập nhật sản phẩm khi Cloud Firestore đồng bộ
 window.addEventListener('storage', (e) => {
   if (e.key === 'sportzone_products' || e.key === null) {
-    PRODUCTS = getStoredProducts();
-    if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) renderCatalog();
+    PRODUCTS = prioritizeNewProducts(getStoredProducts());
+    if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) {
+      renderCategoryFilters();
+      state.page = 1;
+      renderCatalog();
+    }
     if (typeof renderProductDetail === 'function' && document.getElementById('product-detail')) renderProductDetail();
   }
 });
 
 window.addEventListener('sz:products-updated', (e) => {
-  if (Array.isArray(e.detail) && e.detail.length > 0) {
-    PRODUCTS = mergeSeedProducts(e.detail);
-    if (JSON.stringify(PRODUCTS) !== JSON.stringify(e.detail)) {
-      localStorage.setItem('sportzone_products', JSON.stringify(PRODUCTS));
+  if (Array.isArray(e.detail)) {
+    PRODUCTS = prioritizeNewProducts(e.detail);
+    if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) {
+      renderCategoryFilters();
+      state.page = 1;
+      renderCatalog();
     }
-    if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) renderCatalog();
     if (typeof renderProductDetail === 'function' && document.getElementById('product-detail')) renderProductDetail();
   }
 });
+
+function prioritizeNewProducts(products) {
+  return products.slice().sort((a, b) => {
+    const aCreated = Date.parse(a.createdAt || '');
+    const bCreated = Date.parse(b.createdAt || '');
+    if (Number.isFinite(aCreated) && Number.isFinite(bCreated)) return bCreated - aCreated;
+    if (Number.isFinite(aCreated)) return -1;
+    if (Number.isFinite(bCreated)) return 1;
+    return 0;
+  });
+}
 
 const formatMoney = value => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 const removeAccents = str => (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().trim();
@@ -299,20 +324,34 @@ function productCard(product) {
   const image = product.image || product.placeholderImage || getProductPlaceholder(product.category);
   const imageFallback = product.placeholderImage || getProductPlaceholder(product.category);
   const stock = Number.isInteger(Number(product.stock)) ? Number(product.stock) : 0;
+  const name = escapeProductHtml(product.name || 'Sản phẩm');
+  const category = escapeProductHtml(product.category || 'Khác');
+  const brand = escapeProductHtml(product.brand || 'SportZone');
+  const id = escapeProductHtml(product.id);
   const rating = Number.isFinite(Number(product.rating)) ? Number(product.rating) : 5;
   const reviews = Number.isInteger(Number(product.reviews)) ? Number(product.reviews) : 0;
   return `<article class="catalog-card">
-    ${product.badge ? `<span class="product-badge ${badgeClass}">${product.badge}</span>`:''}
-    <button class="wishlist-btn ${wished?'active':''}" data-wishlist="${product.id}" aria-label="Yêu thích"><i class="${wished?'fas':'far'} fa-heart"></i></button>
-    <a href="product-detail.html?id=${product.id}" class="product-image-link"><div class="product-image"><img src="${image}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='${imageFallback}'"></div></a>
-    <div class="catalog-card-body"><span class="catalog-card-category">${product.category}</span>
-      <span class="catalog-card-brand">${product.brand || 'SportZone'}</span>
-      <h3><a href="product-detail.html?id=${product.id}">${product.name}</a></h3>
+    ${product.badge ? `<span class="product-badge ${badgeClass}">${escapeProductHtml(product.badge)}</span>`:''}
+    <button class="wishlist-btn ${wished?'active':''}" data-wishlist="${id}" aria-label="Yêu thích"><i class="${wished?'fas':'far'} fa-heart"></i></button>
+    <a href="product-detail.html?id=${encodeURIComponent(String(product.id))}" class="product-image-link"><div class="product-image"><img src="${escapeProductHtml(image)}" alt="${name}" loading="lazy" onerror="this.onerror=null;this.src='${escapeProductHtml(imageFallback)}'"></div></a>
+    <div class="catalog-card-body"><span class="catalog-card-category">${category}</span>
+      <span class="catalog-card-brand">${brand}</span>
+      <h3><a href="product-detail.html?id=${encodeURIComponent(String(product.id))}">${name}</a></h3>
       <div class="rating-row"><span>${'★'.repeat(Math.min(5, Math.max(1, Math.round(rating))))}</span><span>${rating.toFixed(1)} (${reviews})</span></div>
       <div class="price-row"><strong class="current-price">${formatMoney(product.price)}</strong>${product.oldPrice?`<span class="old-price">${formatMoney(product.oldPrice)}</span>`:''}</div>
-      <button class="add-cart-btn" data-cart="${product.id}" ${stock < 1 ? 'disabled' : ''}>${stock < 1 ? 'Hết hàng' : '<i class="fas fa-cart-plus"></i> Thêm vào giỏ'}</button>
+      <button class="add-cart-btn" data-cart="${id}" ${stock < 1 ? 'disabled' : ''}>${stock < 1 ? 'Hết hàng' : '<i class="fas fa-cart-plus"></i> Thêm vào giỏ'}</button>
     </div>
   </article>`;
+}
+
+function escapeProductHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[character]);
 }
 
 function getProductPlaceholder(category) {
@@ -337,13 +376,13 @@ function getProductPlaceholder(category) {
 function initCatalog() {
   if (!document.getElementById('products-grid')) return;
   const categoryFilter = document.getElementById('category-filter');
-  if (categoryFilter) {
-    categoryFilter.innerHTML = '';
-    const availableCategories = [...new Set(PRODUCTS.map(p => p.category))].filter(Boolean);
-    availableCategories.forEach(category => {
-      categoryFilter.insertAdjacentHTML('beforeend', `<label class="filter-option"><input type="checkbox" name="category" value="${category}" ${state.category === category ? 'checked' : ''}> ${category}</label>`);
-    });
-  }
+  renderCategoryFilters();
+  categoryFilter.addEventListener('change', event => {
+    if (!event.target.matches('[name="category"]')) return;
+    state.category = '';
+    state.page = 1;
+    renderCatalog();
+  });
 
   const searchInput = document.getElementById('navbar-search-input');
   if (searchInput) searchInput.value = state.query;
@@ -352,12 +391,6 @@ function initCatalog() {
   if (sortSelect && state.sort) sortSelect.value = state.sort;
 
   renderCatalog();
-
-  document.querySelectorAll('[name="category"]').forEach(el => el.addEventListener('change', () => {
-    state.category = '';
-    state.page = 1;
-    renderCatalog();
-  }));
 
   document.querySelectorAll('[name="rating"]').forEach(el => el.addEventListener('change', () => {
     state.rating = Number(el.value);
@@ -404,6 +437,27 @@ function initCatalog() {
   bindMobileFilter();
 }
 
+function renderCategoryFilters() {
+  const container = document.getElementById('category-filter');
+  if (!container) return;
+  const checkedCategories = new Set(
+    [...container.querySelectorAll('[name="category"]:checked')].map(input => input.value)
+  );
+  const availableCategories = [...new Set(PRODUCTS.map(product => product.category).filter(Boolean))]
+    .filter(category => !['Giày thể thao', 'Ngoài trời', 'Khác'].includes(category));
+  container.replaceChildren(...availableCategories.map(category => {
+    const label = document.createElement('label');
+    label.className = 'filter-option';
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.name = 'category';
+    input.value = category;
+    input.checked = checkedCategories.has(category) || state.category === category;
+    label.append(input, document.createTextNode(` ${category}`));
+    return label;
+  }));
+}
+
 function applyPrice() {
   state.min = Number(document.getElementById('price-min')?.value) || 0;
   state.max = Number(document.getElementById('price-max')?.value) || Infinity;
@@ -429,7 +483,16 @@ function filteredProducts() {
     list = list.filter(p => checked.includes(p.category));
   }
 
-  if (state.sort === 'newest') list.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+  if (state.sort === 'newest') {
+    list.sort((a, b) => {
+      const aCreated = Date.parse(a.createdAt || '');
+      const bCreated = Date.parse(b.createdAt || '');
+      if (Number.isFinite(aCreated) && Number.isFinite(bCreated)) return bCreated - aCreated;
+      if (Number.isFinite(aCreated)) return -1;
+      if (Number.isFinite(bCreated)) return 1;
+      return String(b.id).localeCompare(String(a.id), undefined, { numeric: true });
+    });
+  }
   if (state.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
   if (state.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
   if (state.sort === 'rating') list.sort((a, b) => (Number(b.rating) || 5) - (Number(a.rating) || 5));
@@ -571,7 +634,7 @@ function bindMobileFilter() {
   overlay.addEventListener('click', close);
 }
 
-function initDetail() {
+function renderProductDetail() {
   const detail = document.getElementById('product-detail');
   if (!detail) return;
   const requestedId = params.get('id');
@@ -586,7 +649,7 @@ function initDetail() {
   if (breadcrumb) breadcrumb.textContent = product.name;
 
   const wished = typeof Wishlist !== 'undefined' && Wishlist.has(product.id);
-  const stock = typeof product.stock === 'number' ? product.stock : 12;
+  const stock = Number.isInteger(Number(product.stock)) ? Number(product.stock) : 0;
   const rating = Number.isFinite(Number(product.rating)) ? Number(product.rating) : 5;
   const reviews = Number.isInteger(Number(product.reviews)) ? Number(product.reviews) : 0;
   const sizes = Array.isArray(product.sizes) && product.sizes.length ? product.sizes : ['Free size'];
@@ -597,12 +660,12 @@ function initDetail() {
 
   detail.innerHTML = `<div class="detail-gallery">
     <div class="detail-image" id="detail-image" title="Bấm để phóng to ảnh">
-      <img src="${image}" alt="${product.name}" onerror="this.onerror=null;this.src='${imageFallback}'">
+      <img src="${escapeProductHtml(image)}" alt="${escapeProductHtml(product.name)}" onerror="this.onerror=null;this.src='${escapeProductHtml(imageFallback)}'">
     </div>
   </div>
   <div class="detail-info">
-    <div class="catalog-card-category">${product.category}</div>
-    <h1>${product.name}</h1>
+    <div class="catalog-card-category">${escapeProductHtml(product.category)}</div>
+    <h1>${escapeProductHtml(product.name)}</h1>
     <div class="detail-meta">
       <div class="rating-row">
         <span>${'★'.repeat(Math.min(5, Math.max(1, Math.round(rating))))}</span>
@@ -613,17 +676,17 @@ function initDetail() {
       ${formatMoney(product.price)}
       ${product.oldPrice ? `<span class="old">${formatMoney(product.oldPrice)}</span>` : ''}
     </div>
-    <p class="detail-desc">${description}</p>
-    <div class="option-group">
+    <p class="detail-desc">${escapeProductHtml(description)}</p>
+    ${colors.length ? `<div class="option-group">
       <span class="option-label">Màu sắc</span>
       <div class="color-options">
-        ${colors.map((color, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" aria-label="${color}">${color}</button>`).join('')}
+        ${colors.map((color, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" aria-label="${escapeProductHtml(color)}">${escapeProductHtml(color)}</button>`).join('')}
       </div>
-    </div>
+    </div>` : ''}
     <div class="option-group">
       <span class="option-label">Kích thước</span>
       <div class="size-options">
-        ${sizes.map((s, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" data-size="${s}">${s}</button>`).join('')}
+        ${sizes.map((size, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" data-size="${escapeProductHtml(size)}">${escapeProductHtml(size)}</button>`).join('')}
       </div>
     </div>
     <div class="detail-actions">
@@ -635,9 +698,9 @@ function initDetail() {
       <button class="detail-buy" id="detail-add-cart"><i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng</button>
       <button class="detail-wishlist ${wished ? 'active' : ''}" id="detail-wishlist" aria-label="Yêu thích"><i class="${wished ? 'fas' : 'far'} fa-heart"></i></button>
     </div>
-    <div class="stock-note"><i class="fas fa-check-circle"></i> Còn ${stock} sản phẩm - giao hàng trong 2-4 ngày</div>
+    <div class="stock-note"><i class="fas fa-check-circle"></i> ${stock > 0 ? `Còn ${stock} sản phẩm - giao hàng trong 2-4 ngày` : 'Tạm hết hàng'}</div>
     <div class="detail-specs">
-      <div><span>Thương hiệu</span><strong>${product.brand || 'SportZone'}</strong></div>
+      <div><span>Thương hiệu</span><strong>${escapeProductHtml(product.brand || 'SportZone')}</strong></div>
       <div><span>Bảo hành</span><strong>12 tháng</strong></div>
       <div><span>Đổi trả</span><strong>Trong 30 ngày</strong></div>
     </div>
@@ -677,7 +740,7 @@ function initDetail() {
   document.getElementById('detail-add-cart')?.addEventListener('click', () => {
     if (typeof Cart === 'undefined' || stock < 1) return;
     const selectedSize = document.querySelector('.size-options .option-btn.active')?.dataset.size || sizes[0] || 'Free size';
-    const selectedColor = document.querySelector('.color-options .option-btn.active')?.textContent.trim() || colors[0] || 'Mặc định';
+    const selectedColor = document.querySelector('.color-options .option-btn.active')?.textContent.trim() || colors[0] || '';
     const qty = parseInt(qtyInput?.value || '1', 10);
     Cart.addItem({ ...product, selectedSize, selectedColor, quantity: qty });
   });
@@ -693,8 +756,8 @@ function initDetail() {
   // Sản phẩm liên quan
   const relatedContainer = document.getElementById('related-products');
   if (relatedContainer) {
-    const relatedList = PRODUCTS.filter(p => p.category === product.category && p.id !== product.id)
-      .concat(PRODUCTS.filter(p => p.category !== product.category && p.id !== product.id))
+    const relatedList = PRODUCTS.filter(p => p.category === product.category && String(p.id) !== String(product.id))
+      .concat(PRODUCTS.filter(p => p.category !== product.category && String(p.id) !== String(product.id)))
       .slice(0, 3);
     relatedContainer.innerHTML = relatedList.map(productCard).join('');
   }
@@ -704,5 +767,5 @@ function initDetail() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initCatalog();
-  initDetail();
+  renderProductDetail();
 });

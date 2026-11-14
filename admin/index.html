@@ -168,8 +168,8 @@
             <option value="Khác">Khác</option>
           </select>
         </label>
-        <label>Thương hiệu
-          <input id="productBrand" name="brand" placeholder="Kalenji, Kipsta, SportZone...">
+        <label>Hãng sản phẩm
+          <input id="productBrand" name="brand" maxlength="60" placeholder="Kalenji, Kipsta, SportZone...">
         </label>
       </div>
       <div class="form-grid">
@@ -188,8 +188,13 @@
           <input id="productSku" name="sku" maxlength="40" placeholder="VD: RUN-2026-X1">
         </label>
       </div>
-      <label>Đường dẫn hình ảnh
-        <input id="productImage" name="image" placeholder="images/products-real/giay-chay-bo.jpg hoặc để trống dùng ảnh mặc định">
+      <label>Kích thước
+        <input id="productSizes" name="sizes" placeholder="Ví dụ: S, M, L, XL">
+        <small style="color:#64748b; font-size:12px;">Nhập nhiều kích thước, phân cách bằng dấu phẩy.</small>
+      </label>
+      <label>Ảnh sản phẩm
+        <input id="productImage" name="image" type="file" accept="image/*">
+        <small style="color:#64748b; font-size:12px;">Chọn ảnh từ máy (JPG, PNG, WebP tối đa 500 KB) hoặc để trống để dùng ảnh mặc định theo danh mục.</small>
       </label>
       <label>Mô tả sản phẩm
         <textarea id="productDesc" name="description" rows="2" style="width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:8px 12px; font-family:inherit; font-size:14px; box-sizing:border-box;" placeholder="Mô tả chất liệu, đặc tính nổi bật..."></textarea>

@@ -15,15 +15,23 @@
   // Khóa localStorage chuẩn của dự án SportZone
   const KEYS = {
     PRODUCTS: 'sportzone_products',
+    PENDING_PRODUCTS: 'sportzone_products_pending_sync',
     ORDERS: 'sportzone_orders',
     SHOP_ORDERS: 'sz_orders'
   };
+  const EMPTY_PRODUCTS_MARKER = '__catalog_state__';
 
   let _db = null;
   let _isSyncReady = false;
   let _isInternalWrite = false;
   let _unsubProducts = null;
   let _unsubOrders = null;
+  let remoteProducts = new Map();
+  let remoteHasEmptyMarker = false;
+  let hasProductSnapshot = false;
+  let pendingProducts = null;
+  let isSyncingProducts = false;
+  let hasFailedProductSync = false;
 
   // Lấy cấu hình Firebase
   function getConfig() {
@@ -77,18 +85,44 @@
 
     _unsubProducts = _db.collection('sz_products').onSnapshot(
       snapshot => {
-        if (snapshot.empty) return;
-
         const cloudProducts = [];
+        const nextRemoteProducts = new Map();
+        let hasEmptyMarker = false;
+
         snapshot.forEach(doc => {
           const data = doc.data();
+          if (doc.id === EMPTY_PRODUCTS_MARKER) {
+            hasEmptyMarker = true;
+            return;
+          }
           if (data && data.id !== undefined) {
             cloudProducts.push(data);
+            nextRemoteProducts.set(doc.id, data);
             try {
               _syncedProductsMap.set(String(data.id), JSON.stringify(data));
             } catch (e) {}
           }
         });
+
+        cloudProducts.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
+        remoteProducts = nextRemoteProducts;
+        remoteHasEmptyMarker = hasEmptyMarker;
+        hasProductSnapshot = true;
+
+        if (localStorage.getItem(KEYS.PENDING_PRODUCTS)) {
+          if (!isSyncingProducts && !hasFailedProductSync) {
+            pushProductsToCloud(readStoredProducts());
+          }
+          return;
+        }
+
+        if (snapshot.empty && !hasEmptyMarker) {
+          const localProducts = readStoredProducts();
+          if (localProducts.length > 0) {
+            pushProductsToCloud(localProducts);
+            return;
+          }
+        }
 
         // Đọc danh sách ID đã xóa từ trước
         let deletedIds = [];
@@ -136,7 +170,7 @@
           }
         });
 
-        if (merged.length > 0) {
+        if (merged.length > 0 || hasEmptyMarker) {
           safeSetStorage(KEYS.PRODUCTS, JSON.stringify(merged));
 
           if (typeof window.PRODUCTS !== 'undefined' && Array.isArray(window.PRODUCTS)) {
@@ -227,20 +261,108 @@
     }
   }
 
-  // Đồng bộ sản phẩm cần cập nhật (chỉ gửi sản phẩm mới hoặc thay đổi)
+  // Đồng bộ sản phẩm cần cập nhật (sử dụng batch commit và xử lý hàng đợi)
   function pushProductsToCloud(productsArray) {
     if (!_db || !Array.isArray(productsArray)) return;
-    try {
-      productsArray.forEach(p => {
-        if (p && p.id !== undefined) {
-          const sig = JSON.stringify(p);
-          if (_syncedProductsMap.get(String(p.id)) !== sig) {
-            syncSingleProduct(p);
+    pendingProducts = productsArray
+      .filter(product => product && product.id !== undefined)
+      .map(product => JSON.parse(JSON.stringify(product)));
+    if (isSyncingProducts) return;
+
+    isSyncingProducts = true;
+    syncPendingProducts();
+  }
+
+  async function syncPendingProducts() {
+    let latestSyncSucceeded = true;
+    while (pendingProducts !== null) {
+      const products = pendingProducts;
+      pendingProducts = null;
+      try {
+        await syncProductsToCloud(products);
+        latestSyncSucceeded = true;
+        hasFailedProductSync = false;
+      } catch (error) {
+        console.warn('[Cloud Sync] Lỗi đồng bộ danh sách sản phẩm lên Cloud:', error);
+        window.dispatchEvent(new CustomEvent('sz:cloud-products-sync-error', {
+          detail: {
+            code: error && error.code ? error.code : '',
+            message: error && error.message ? error.message : String(error)
           }
-        }
+        }));
+        latestSyncSucceeded = false;
+        hasFailedProductSync = true;
+      }
+    }
+    if (latestSyncSucceeded) localStorage.removeItem(KEYS.PENDING_PRODUCTS);
+    isSyncingProducts = false;
+  }
+
+  async function syncProductsToCloud(products) {
+    const collection = _db.collection('sz_products');
+    if (!hasProductSnapshot) {
+      const snapshot = await collection.get();
+      const loadedProducts = new Map();
+      let hasEmptyMarker = false;
+      snapshot.forEach(doc => {
+        if (doc.id === EMPTY_PRODUCTS_MARKER) hasEmptyMarker = true;
+        else loadedProducts.set(doc.id, doc.data());
       });
-    } catch (e) {
-      console.warn('[Cloud Sync] Lỗi pushProductsToCloud:', e);
+      remoteProducts = loadedProducts;
+      remoteHasEmptyMarker = hasEmptyMarker;
+      hasProductSnapshot = true;
+    }
+
+    const desiredProducts = new Map(products.map(product => [String(product.id), product]));
+    const batch = _db.batch();
+    let writeCount = 0;
+
+    desiredProducts.forEach((product, id) => {
+      if (stableStringify(remoteProducts.get(id)) !== stableStringify(product)) {
+        batch.set(collection.doc(id), product);
+        writeCount++;
+      }
+    });
+
+    remoteProducts.forEach((_, id) => {
+      if (!desiredProducts.has(id)) {
+        batch.delete(collection.doc(id));
+        writeCount++;
+      }
+    });
+
+    if (remoteHasEmptyMarker && desiredProducts.size > 0) {
+      batch.delete(collection.doc(EMPTY_PRODUCTS_MARKER));
+      writeCount++;
+    } else if (!remoteHasEmptyMarker && desiredProducts.size === 0) {
+      batch.set(collection.doc(EMPTY_PRODUCTS_MARKER), { catalogState: 'empty' });
+      writeCount++;
+    }
+
+    if (writeCount > 0) await batch.commit();
+    remoteProducts = desiredProducts;
+    remoteHasEmptyMarker = desiredProducts.size === 0;
+  }
+
+  function stableStringify(value) {
+    if (Array.isArray(value)) {
+      return `[${value.map(stableStringify).join(',')}]`;
+    }
+    if (value && typeof value === 'object') {
+      return `{${Object.keys(value).sort().map(key =>
+        `${JSON.stringify(key)}:${stableStringify(value[key])}`
+      ).join(',')}}`;
+    }
+    return JSON.stringify(value);
+  }
+
+  function readStoredProducts() {
+    try {
+      const products = JSON.parse(localStorage.getItem(KEYS.PRODUCTS) || '[]');
+      return Array.isArray(products) ? products : [];
+    } catch (error) {
+      console.warn('[Cloud Sync] Không thể đọc danh sách sản phẩm trên thiết bị:', error);
+      return [];
     }
   }
 
@@ -290,6 +412,13 @@
         try {
           const parsed = JSON.parse(value);
           if (Array.isArray(parsed)) {
+            if (this === window.localStorage) {
+              Storage.prototype.setItem.call(
+                this,
+                KEYS.PENDING_PRODUCTS,
+                '1'
+              );
+            }
             pushProductsToCloud(parsed);
           }
         } catch (e) {}
