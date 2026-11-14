@@ -81,6 +81,12 @@ function renderOrder(order) {
     setText('bankAmount', formatCurrency(order.total));
     setText('transferContent', `SPORTZONE ${order.orderId}`);
 
+    const promotion = order.promotion || order.coupon;
+    setText(
+        'discountLabel',
+        promotion ? `Giảm giá (${promotion.code || promotion.label})` : 'Giảm giá'
+    );
+
     const discountLine = document.getElementById('discountLine');
     discountLine.hidden = !(order.discount > 0);
 

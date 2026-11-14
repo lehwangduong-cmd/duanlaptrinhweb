@@ -161,9 +161,16 @@
                     <!-- Danh sách gợi ý mã -->
                     <div class="coupon-hints">
                         <span>Gợi ý:</span>
-                        <button class="coupon-hint-tag" onclick="fillCoupon('SPORT10')">SPORT10</button>
-                        <button class="coupon-hint-tag" onclick="fillCoupon('SAVE20')">SAVE20</button>
-                        <button class="coupon-hint-tag" onclick="fillCoupon('VIP50')">VIP50</button>
+                        <button class="coupon-hint-tag" onclick="fillCoupon('VIP15')">VIP15</button>
+                        <button class="coupon-hint-tag" onclick="fillCoupon('WELCOME10')">WELCOME10</button>
+                    </div>
+                    <p class="coupon-terms">
+                        VIP15: đơn từ 500.000₫ · WELCOME10: đơn từ 200.000₫.
+                        Hạn đến 31/12/2026. Mỗi đơn chỉ dùng một ưu đãi.
+                    </p>
+                    <div class="quantity-promo-note">
+                        <i class="fas fa-bolt" aria-hidden="true"></i>
+                        <span>Mua từ 3 sản phẩm giảm 5%; từ 5 sản phẩm giảm 10%. Không cộng dồn với mã giảm giá.</span>
                     </div>
                 </div>
 
@@ -196,7 +203,8 @@
                         <div class="summary-row summary-row--discount" id="discountRow" style="display:none;">
                             <span class="summary-row__label">
                                 <i class="fas fa-tag"></i>
-                                Giảm giá (<span id="discountPercent">0</span>%)
+                                Giảm giá (<span id="discountProgramName">Mua nhiều</span>,
+                                <span id="discountPercent">0</span>%)
                             </span>
                             <span class="summary-row__value summary-row__value--red" id="discountDisplay">-0 ₫</span>
                         </div>

@@ -45,7 +45,8 @@
  *   shipping:      Number,
  *   discount:      Number,
  *   total:         Number,
- *   coupon:        Object | null
+ *   coupon:      Object | null,
+ *   promotion:   Object | null
  * }
  */
 
@@ -496,12 +497,15 @@ function renderTotals() {
     // Giảm giá (ẩn nếu = 0)
     const discountRow = document.getElementById('checkoutDiscountRow');
     if (discountRow) {
-        if (discount > 0 && orderData.coupon) {
+        if (discount > 0) {
             discountRow.style.display = 'flex';
             setTextContent('checkoutDiscount', `−${formatCurrency(discount)}`);
-            // Hiện tag mã coupon
+            // Hiện mã coupon hoặc tên ưu đãi mua nhiều.
             const couponTag = document.getElementById('checkoutCouponTag');
-            if (couponTag) couponTag.textContent = orderData.coupon.code;
+            const promotion = orderData.promotion || orderData.coupon;
+            if (couponTag) {
+                couponTag.textContent = promotion?.code || promotion?.label || 'Khuyến mãi';
+            }
         } else {
             discountRow.style.display = 'none';
         }
@@ -528,6 +532,32 @@ function calculateShippingFee() {
     // standard: kiểm tra ngưỡng miễn phí
     const subtotal = orderData.subtotal;
     return subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEES.standard;
+}
+
+function validateOrderPromotion() {
+    const promotion = orderData?.promotion || orderData?.coupon;
+    if (!promotion || promotion.type === 'quantity') return true;
+
+    const now = Date.now();
+    const validFrom = promotion.validFrom ? Date.parse(promotion.validFrom) : null;
+    if (validFrom !== null && (!Number.isFinite(validFrom) || now < validFrom)) {
+        showToast('Mã giảm giá chưa đến thời gian áp dụng. Vui lòng quay lại giỏ hàng.', 'error');
+        return false;
+    }
+    const expiresAt = promotion.expiresAt ? Date.parse(promotion.expiresAt) : null;
+    if (expiresAt !== null && (!Number.isFinite(expiresAt) || now >= expiresAt)) {
+        showToast('Mã giảm giá đã hết hạn. Vui lòng quay lại giỏ hàng.', 'error');
+        return false;
+    }
+    if (
+        Number.isFinite(promotion.minimumSubtotal) &&
+        orderData.subtotal < promotion.minimumSubtotal
+    ) {
+        showToast('Đơn hàng không còn đủ điều kiện sử dụng mã giảm giá.', 'error');
+        return false;
+    }
+
+    return true;
 }
 
 /* ============================================================
@@ -945,6 +975,8 @@ function placeOrder() {
         return;
     }
 
+    if (!validateOrderPromotion()) return;
+
     if (!validateOrderStock(orderData.items)) return;
 
     // === Bước 2: Disable nút để tránh double-submit ===
@@ -1028,6 +1060,7 @@ function placeOrder() {
 
         // Thông tin coupon
         coupon:         orderData.coupon || null,
+        promotion:      orderData.promotion || orderData.coupon || null,
     };
 
     // === Bước 9: Lưu vào lịch sử đơn hàng ===

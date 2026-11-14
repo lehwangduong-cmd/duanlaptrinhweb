@@ -855,6 +855,30 @@ input, button {
     background: var(--primary-light);
 }
 
+.coupon-terms {
+    margin: var(--space-3) 0 0;
+    color: var(--gray-500);
+    font-size: var(--font-size-xs);
+    line-height: 1.5;
+}
+
+.quantity-promo-note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    background: var(--success-light);
+    color: var(--success);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+}
+
+.quantity-promo-note i {
+    margin-top: 2px;
+}
+
 /* ================================================================
    13. BẢNG TỔNG KẾT ĐƠN HÀNG
    ================================================================ */
