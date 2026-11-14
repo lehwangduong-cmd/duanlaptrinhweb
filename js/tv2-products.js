@@ -167,24 +167,33 @@ const SEED_PRODUCTS = [
 ];
 
 function mergeSeedProducts(products) {
+  let deletedIds = [];
+  try {
+    const rawDel = localStorage.getItem('sz_deleted_product_ids');
+    if (rawDel) deletedIds = JSON.parse(rawDel);
+  } catch (e) {}
+  const deletedSet = new Set(deletedIds.map(String));
+
   const seedById = new Map(SEED_PRODUCTS.map(product => [String(product.id), product]));
-  const merged = products.map(product => {
-    const seed = seedById.get(String(product.id));
-    const needsBrand = seed && (!product.brand || product.brand === 'SportZone');
-    return seed && (product.image !== seed.image || product.placeholderImage !== seed.placeholderImage || needsBrand)
-      ? {
-          ...product,
-          image: seed.image,
-          placeholderImage: seed.placeholderImage,
-          brand: needsBrand ? seed.brand : product.brand
-        }
-      : product;
-  });
+  const merged = products
+    .filter(product => !deletedSet.has(String(product.id)))
+    .map(product => {
+      const seed = seedById.get(String(product.id));
+      const needsBrand = seed && (!product.brand || product.brand === 'SportZone');
+      return seed && (product.image !== seed.image || product.placeholderImage !== seed.placeholderImage || needsBrand)
+        ? {
+            ...product,
+            image: product.image || seed.image,
+            placeholderImage: seed.placeholderImage,
+            brand: needsBrand ? seed.brand : (product.brand || 'SportZone')
+          }
+        : product;
+    });
   const ids = new Set(merged.map(product => String(product.id)));
   const names = new Set(merged.map(product => String(product.name || '').toLocaleLowerCase().trim()));
   SEED_PRODUCTS.forEach(product => {
     const name = product.name.toLocaleLowerCase().trim();
-    if (!ids.has(String(product.id)) && !names.has(name)) {
+    if (!ids.has(String(product.id)) && !names.has(name) && !deletedSet.has(String(product.id))) {
       merged.push(product);
       ids.add(String(product.id));
       names.add(name);
@@ -290,6 +299,8 @@ function productCard(product) {
   const image = product.image || product.placeholderImage || getProductPlaceholder(product.category);
   const imageFallback = product.placeholderImage || getProductPlaceholder(product.category);
   const stock = Number.isInteger(Number(product.stock)) ? Number(product.stock) : 0;
+  const rating = Number.isFinite(Number(product.rating)) ? Number(product.rating) : 5;
+  const reviews = Number.isInteger(Number(product.reviews)) ? Number(product.reviews) : 0;
   return `<article class="catalog-card">
     ${product.badge ? `<span class="product-badge ${badgeClass}">${product.badge}</span>`:''}
     <button class="wishlist-btn ${wished?'active':''}" data-wishlist="${product.id}" aria-label="Yêu thích"><i class="${wished?'fas':'far'} fa-heart"></i></button>
@@ -297,7 +308,7 @@ function productCard(product) {
     <div class="catalog-card-body"><span class="catalog-card-category">${product.category}</span>
       <span class="catalog-card-brand">${product.brand || 'SportZone'}</span>
       <h3><a href="product-detail.html?id=${product.id}">${product.name}</a></h3>
-      <div class="rating-row"><span>${'★'.repeat(Math.round(product.rating))}</span><span>${product.rating} (${product.reviews})</span></div>
+      <div class="rating-row"><span>${'★'.repeat(Math.min(5, Math.max(1, Math.round(rating))))}</span><span>${rating.toFixed(1)} (${reviews})</span></div>
       <div class="price-row"><strong class="current-price">${formatMoney(product.price)}</strong>${product.oldPrice?`<span class="old-price">${formatMoney(product.oldPrice)}</span>`:''}</div>
       <button class="add-cart-btn" data-cart="${product.id}" ${stock < 1 ? 'disabled' : ''}>${stock < 1 ? 'Hết hàng' : '<i class="fas fa-cart-plus"></i> Thêm vào giỏ'}</button>
     </div>
@@ -313,7 +324,12 @@ function getProductPlaceholder(category) {
     'Yoga': 'images/products/tham-yoga.svg',
     'Xe đạp': 'images/products/dong-ho-gps.svg',
     'Bóng rổ': 'images/products/bong-da.svg',
-    'Cầu lông': 'images/products/vot-cau-long.svg'
+    'Cầu lông': 'images/products/vot-cau-long.svg',
+    'Áo thể thao': 'images/products/ao-chay-bo.svg',
+    'Quần thể thao': 'images/products/football-shorts-flex.png',
+    'Giày thể thao': 'images/products-real/giay-chay-bo.jpg',
+    'Phụ kiện': 'images/products/dong-ho-gps.svg',
+    'Dụng cụ thể thao': 'images/products/ta-tay.svg'
   };
   return images[category] || 'images/products/balo-gym.svg';
 }
@@ -321,12 +337,13 @@ function getProductPlaceholder(category) {
 function initCatalog() {
   if (!document.getElementById('products-grid')) return;
   const categoryFilter = document.getElementById('category-filter');
-  const availableCategories = [...new Set(PRODUCTS.map(p => p.category))]
-    .filter(category => category !== 'Giày thể thao');
-  
-  availableCategories.forEach(category => {
-    categoryFilter.insertAdjacentHTML('beforeend', `<label class="filter-option"><input type="checkbox" name="category" value="${category}" ${state.category === category ? 'checked' : ''}> ${category}</label>`);
-  });
+  if (categoryFilter) {
+    categoryFilter.innerHTML = '';
+    const availableCategories = [...new Set(PRODUCTS.map(p => p.category))].filter(Boolean);
+    availableCategories.forEach(category => {
+      categoryFilter.insertAdjacentHTML('beforeend', `<label class="filter-option"><input type="checkbox" name="category" value="${category}" ${state.category === category ? 'checked' : ''}> ${category}</label>`);
+    });
+  }
 
   const searchInput = document.getElementById('navbar-search-input');
   if (searchInput) searchInput.value = state.query;
@@ -401,7 +418,8 @@ function filteredProducts() {
     const matchCategory = !state.category || p.category === state.category;
     const matchBrand = !state.brand || removeAccents(p.brand) === removeAccents(state.brand);
     const matchSale = !state.sale || Boolean(p.oldPrice && p.oldPrice > p.price);
-    const matchRating = p.rating >= state.rating;
+    const ratingVal = (p.rating !== undefined && p.rating !== null) ? Number(p.rating) : 5;
+    const matchRating = ratingVal >= state.rating;
     const matchPrice = p.price >= state.min && p.price <= state.max;
     return matchQuery && matchCategory && matchBrand && matchSale && matchRating && matchPrice;
   });
@@ -411,10 +429,10 @@ function filteredProducts() {
     list = list.filter(p => checked.includes(p.category));
   }
 
-  if (state.sort === 'newest') list.sort((a, b) => b.id - a.id);
+  if (state.sort === 'newest') list.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
   if (state.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
   if (state.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
-  if (state.sort === 'rating') list.sort((a, b) => b.rating - a.rating);
+  if (state.sort === 'rating') list.sort((a, b) => (Number(b.rating) || 5) - (Number(a.rating) || 5));
 
   return list;
 }
@@ -502,12 +520,12 @@ function renderTags() {
 function bindCatalogActions() {
   document.querySelectorAll('[data-cart]').forEach(btn => {
     btn.onclick = () => {
-      const p = PRODUCTS.find(x => x.id === Number(btn.dataset.cart));
+      const p = PRODUCTS.find(x => String(x.id) === String(btn.dataset.cart));
       if (p && p.stock > 0 && typeof Cart !== 'undefined') {
         Cart.addItem({
           ...p,
           selectedSize: p.sizes?.[0] || 'Free size',
-          selectedColor: p.colors?.[0] || 'Xanh'
+          selectedColor: p.colors?.[0] || 'Mặc định'
         });
       }
     };
@@ -515,9 +533,9 @@ function bindCatalogActions() {
 
   document.querySelectorAll('[data-wishlist]').forEach(btn => {
     btn.onclick = () => {
-      const id = Number(btn.dataset.wishlist);
+      const id = btn.dataset.wishlist;
       if (typeof Wishlist !== 'undefined') {
-        const product = PRODUCTS.find(item => item.id === id);
+        const product = PRODUCTS.find(item => String(item.id) === String(id));
         const added = Wishlist.toggle(product || id);
         btn.classList.toggle('active', added);
         btn.innerHTML = `<i class="${added ? 'fas' : 'far'} fa-heart"></i>`;
@@ -556,8 +574,8 @@ function bindMobileFilter() {
 function initDetail() {
   const detail = document.getElementById('product-detail');
   if (!detail) return;
-  const requestedId = Number(params.get('id'));
-  const product = PRODUCTS.find(p => p.id === requestedId);
+  const requestedId = params.get('id');
+  const product = PRODUCTS.find(p => String(p.id) === String(requestedId));
   if (!product) {
     detail.innerHTML = '<div class="empty-products"><i class="fas fa-box-open"></i><h3>Sản phẩm không tồn tại</h3><a class="add-cart-btn" style="display:inline-block;max-width:200px;margin-top:16px;text-decoration:none;" href="products.html">Quay lại danh sách</a></div>';
     return;
@@ -569,11 +587,13 @@ function initDetail() {
 
   const wished = typeof Wishlist !== 'undefined' && Wishlist.has(product.id);
   const stock = typeof product.stock === 'number' ? product.stock : 12;
+  const rating = Number.isFinite(Number(product.rating)) ? Number(product.rating) : 5;
+  const reviews = Number.isInteger(Number(product.reviews)) ? Number(product.reviews) : 0;
+  const sizes = Array.isArray(product.sizes) && product.sizes.length ? product.sizes : ['Free size'];
+  const colors = Array.isArray(product.colors) && product.colors.length ? product.colors : ['Mặc định'];
   const image = product.image || product.placeholderImage || getProductPlaceholder(product.category);
   const imageFallback = product.placeholderImage || getProductPlaceholder(product.category);
-  const colors = Array.isArray(product.colors) && product.colors.length
-    ? product.colors
-    : ['Xanh', 'Đen', 'Đỏ'];
+  const description = product.description || `${product.name} chính hãng chất lượng cao tại SportZone.`;
 
   detail.innerHTML = `<div class="detail-gallery">
     <div class="detail-image" id="detail-image" title="Bấm để phóng to ảnh">
@@ -585,15 +605,15 @@ function initDetail() {
     <h1>${product.name}</h1>
     <div class="detail-meta">
       <div class="rating-row">
-        <span>${'★'.repeat(Math.round(product.rating))}</span>
-        <span>${product.rating} (${product.reviews} đánh giá)</span>
+        <span>${'★'.repeat(Math.min(5, Math.max(1, Math.round(rating))))}</span>
+        <span>${rating.toFixed(1)} (${reviews} đánh giá)</span>
       </div>
     </div>
     <div class="detail-price">
       ${formatMoney(product.price)}
       ${product.oldPrice ? `<span class="old">${formatMoney(product.oldPrice)}</span>` : ''}
     </div>
-    <p class="detail-desc">${product.description}</p>
+    <p class="detail-desc">${description}</p>
     <div class="option-group">
       <span class="option-label">Màu sắc</span>
       <div class="color-options">
@@ -603,7 +623,7 @@ function initDetail() {
     <div class="option-group">
       <span class="option-label">Kích thước</span>
       <div class="size-options">
-        ${product.sizes.map((s, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" data-size="${s}">${s}</button>`).join('')}
+        ${sizes.map((s, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" data-size="${s}">${s}</button>`).join('')}
       </div>
     </div>
     <div class="detail-actions">
@@ -656,8 +676,8 @@ function initDetail() {
   // Thêm vào giỏ hàng kèm size, màu và số lượng
   document.getElementById('detail-add-cart')?.addEventListener('click', () => {
     if (typeof Cart === 'undefined' || stock < 1) return;
-    const selectedSize = document.querySelector('.size-options .option-btn.active')?.dataset.size || product.sizes[0];
-    const selectedColor = document.querySelector('.color-options .option-btn.active')?.textContent.trim() || 'Xanh';
+    const selectedSize = document.querySelector('.size-options .option-btn.active')?.dataset.size || sizes[0] || 'Free size';
+    const selectedColor = document.querySelector('.color-options .option-btn.active')?.textContent.trim() || colors[0] || 'Mặc định';
     const qty = parseInt(qtyInput?.value || '1', 10);
     Cart.addItem({ ...product, selectedSize, selectedColor, quantity: qty });
   });
