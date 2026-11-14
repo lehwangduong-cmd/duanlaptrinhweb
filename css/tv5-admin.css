@@ -26,7 +26,7 @@ body {
   line-height: 1.5;
 }
 
-button, input, select { font: inherit; }
+button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 [hidden] { display: none !important; }
 
@@ -178,7 +178,8 @@ tbody tr:hover { background: #fafcff; }
 .revenue-search__fields { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
 .revenue-search__fields > label, .revenue-year-range label, #productForm label { display: grid; flex: 1 1 150px; gap: 6px; color: #59667b; font-size: 12px; font-weight: 700; }
 .admin-dialog label small { color: var(--admin-muted); font-size: 11px; font-weight: 400; }
-.revenue-search input, .revenue-search select, #productForm input, #productForm select { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid var(--admin-line); border-radius: 7px; background: #fff; color: var(--admin-ink); }
+.revenue-search input, .revenue-search select, #productForm input, #productForm select, #productForm textarea { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid var(--admin-line); border-radius: 7px; background: #fff; color: var(--admin-ink); }
+#productForm textarea { resize: vertical; }
 .revenue-year-range { display: flex; flex: 1 1 300px; gap: 10px; }
 .revenue-year-range label { min-width: 100px; }
 .revenue-search__hint { margin: 12px 0 0; color: var(--admin-muted); font-size: 12px; }
