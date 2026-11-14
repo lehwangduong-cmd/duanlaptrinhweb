@@ -173,7 +173,7 @@ const SEED_PRODUCTS = [
   ...PARTNER_BRAND_PRODUCTS
 ];
 
-function mergeSeedProducts(products) {
+function mergeSeedProducts(products, includeMissing = false) {
   const seedById = new Map(SEED_PRODUCTS.map(product => [String(product.id), product]));
   const merged = products.map(product => {
     const seed = seedById.get(String(product.id));
@@ -187,16 +187,18 @@ function mergeSeedProducts(products) {
         }
       : product;
   });
-  const ids = new Set(merged.map(product => String(product.id)));
-  const names = new Set(merged.map(product => String(product.name || '').toLocaleLowerCase().trim()));
-  SEED_PRODUCTS.forEach(product => {
-    const name = product.name.toLocaleLowerCase().trim();
-    if (!ids.has(String(product.id)) && !names.has(name)) {
-      merged.push(product);
-      ids.add(String(product.id));
-      names.add(name);
-    }
-  });
+  if (includeMissing) {
+    const ids = new Set(merged.map(product => String(product.id)));
+    const names = new Set(merged.map(product => String(product.name || '').toLocaleLowerCase().trim()));
+    SEED_PRODUCTS.forEach(product => {
+      const name = product.name.toLocaleLowerCase().trim();
+      if (!ids.has(String(product.id)) && !names.has(name)) {
+        merged.push(product);
+        ids.add(String(product.id));
+        names.add(name);
+      }
+    });
+  }
   return merged;
 }
 
@@ -204,9 +206,9 @@ function mergeSeedProducts(products) {
 function getStoredProducts() {
   try {
     const raw = localStorage.getItem('sportzone_products');
-    if (raw) {
+    if (raw !== null) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         const merged = mergeSeedProducts(parsed);
         if (JSON.stringify(merged) !== JSON.stringify(parsed)) {
           localStorage.setItem('sportzone_products', JSON.stringify(merged));
@@ -214,12 +216,12 @@ function getStoredProducts() {
         return merged;
       }
     }
-    const products = mergeSeedProducts(DEFAULT_PRODUCTS);
+    const products = mergeSeedProducts(DEFAULT_PRODUCTS, true);
     localStorage.setItem('sportzone_products', JSON.stringify(products));
     return products;
   } catch (error) {
     console.error('[Products] Không thể nạp/lưu danh sách sản phẩm:', error);
-    return mergeSeedProducts(DEFAULT_PRODUCTS);
+    return mergeSeedProducts(DEFAULT_PRODUCTS, true);
   }
 }
 
@@ -235,11 +237,8 @@ window.addEventListener('storage', (e) => {
 });
 
 window.addEventListener('sz:products-updated', (e) => {
-  if (Array.isArray(e.detail) && e.detail.length > 0) {
-    PRODUCTS = mergeSeedProducts(e.detail);
-    if (JSON.stringify(PRODUCTS) !== JSON.stringify(e.detail)) {
-      localStorage.setItem('sportzone_products', JSON.stringify(PRODUCTS));
-    }
+  if (Array.isArray(e.detail)) {
+    PRODUCTS = e.detail;
     if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) renderCatalog();
     if (typeof renderProductDetail === 'function' && document.getElementById('product-detail')) renderProductDetail();
   }
