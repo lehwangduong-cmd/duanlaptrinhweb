@@ -225,24 +225,43 @@ function getStoredProducts() {
   }
 }
 
-let PRODUCTS = getStoredProducts();
+let PRODUCTS = prioritizeNewProducts(getStoredProducts());
 
 // Tự động cập nhật sản phẩm khi Cloud Firestore đồng bộ
 window.addEventListener('storage', (e) => {
   if (e.key === 'sportzone_products' || e.key === null) {
-    PRODUCTS = getStoredProducts();
-    if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) renderCatalog();
+    PRODUCTS = prioritizeNewProducts(getStoredProducts());
+    if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) {
+      renderCategoryFilters();
+      state.page = 1;
+      renderCatalog();
+    }
     if (typeof renderProductDetail === 'function' && document.getElementById('product-detail')) renderProductDetail();
   }
 });
 
 window.addEventListener('sz:products-updated', (e) => {
   if (Array.isArray(e.detail)) {
-    PRODUCTS = e.detail;
-    if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) renderCatalog();
+    PRODUCTS = prioritizeNewProducts(e.detail);
+    if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) {
+      renderCategoryFilters();
+      state.page = 1;
+      renderCatalog();
+    }
     if (typeof renderProductDetail === 'function' && document.getElementById('product-detail')) renderProductDetail();
   }
 });
+
+function prioritizeNewProducts(products) {
+  return products.slice().sort((a, b) => {
+    const aCreated = Date.parse(a.createdAt || '');
+    const bCreated = Date.parse(b.createdAt || '');
+    if (Number.isFinite(aCreated) && Number.isFinite(bCreated)) return bCreated - aCreated;
+    if (Number.isFinite(aCreated)) return -1;
+    if (Number.isFinite(bCreated)) return 1;
+    return 0;
+  });
+}
 
 const formatMoney = value => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 const removeAccents = str => (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().trim();
@@ -296,18 +315,34 @@ function productCard(product) {
   const image = product.image || product.placeholderImage || getProductPlaceholder(product.category);
   const imageFallback = product.placeholderImage || getProductPlaceholder(product.category);
   const stock = Number.isInteger(Number(product.stock)) ? Number(product.stock) : 0;
+  const name = escapeProductHtml(product.name || 'Sản phẩm');
+  const category = escapeProductHtml(product.category || 'Khác');
+  const brand = escapeProductHtml(product.brand || 'SportZone');
+  const id = escapeProductHtml(product.id);
+  const rating = Number(product.rating) || 0;
+  const reviews = Number(product.reviews) || 0;
   return `<article class="catalog-card">
-    ${product.badge ? `<span class="product-badge ${badgeClass}">${product.badge}</span>`:''}
-    <button class="wishlist-btn ${wished?'active':''}" data-wishlist="${product.id}" aria-label="Yêu thích"><i class="${wished?'fas':'far'} fa-heart"></i></button>
-    <a href="product-detail.html?id=${product.id}" class="product-image-link"><div class="product-image"><img src="${image}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='${imageFallback}'"></div></a>
-    <div class="catalog-card-body"><span class="catalog-card-category">${product.category}</span>
-      <span class="catalog-card-brand">${product.brand || 'SportZone'}</span>
-      <h3><a href="product-detail.html?id=${product.id}">${product.name}</a></h3>
-      <div class="rating-row"><span>${'★'.repeat(Math.round(product.rating))}</span><span>${product.rating} (${product.reviews})</span></div>
+    ${product.badge ? `<span class="product-badge ${badgeClass}">${escapeProductHtml(product.badge)}</span>`:''}
+    <button class="wishlist-btn ${wished?'active':''}" data-wishlist="${id}" aria-label="Yêu thích"><i class="${wished?'fas':'far'} fa-heart"></i></button>
+    <a href="product-detail.html?id=${encodeURIComponent(String(product.id))}" class="product-image-link"><div class="product-image"><img src="${escapeProductHtml(image)}" alt="${name}" loading="lazy" onerror="this.onerror=null;this.src='${escapeProductHtml(imageFallback)}'"></div></a>
+    <div class="catalog-card-body"><span class="catalog-card-category">${category}</span>
+      <span class="catalog-card-brand">${brand}</span>
+      <h3><a href="product-detail.html?id=${encodeURIComponent(String(product.id))}">${name}</a></h3>
+      <div class="rating-row"><span>${'★'.repeat(Math.round(rating))}</span><span>${rating} (${reviews})</span></div>
       <div class="price-row"><strong class="current-price">${formatMoney(product.price)}</strong>${product.oldPrice?`<span class="old-price">${formatMoney(product.oldPrice)}</span>`:''}</div>
-      <button class="add-cart-btn" data-cart="${product.id}" ${stock < 1 ? 'disabled' : ''}>${stock < 1 ? 'Hết hàng' : '<i class="fas fa-cart-plus"></i> Thêm vào giỏ'}</button>
+      <button class="add-cart-btn" data-cart="${id}" ${stock < 1 ? 'disabled' : ''}>${stock < 1 ? 'Hết hàng' : '<i class="fas fa-cart-plus"></i> Thêm vào giỏ'}</button>
     </div>
   </article>`;
+}
+
+function escapeProductHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[character]);
 }
 
 function getProductPlaceholder(category) {
@@ -327,11 +362,12 @@ function getProductPlaceholder(category) {
 function initCatalog() {
   if (!document.getElementById('products-grid')) return;
   const categoryFilter = document.getElementById('category-filter');
-  const availableCategories = [...new Set(PRODUCTS.map(p => p.category))]
-    .filter(category => !['Giày thể thao', 'Ngoài trời', 'Khác'].includes(category));
-  
-  availableCategories.forEach(category => {
-    categoryFilter.insertAdjacentHTML('beforeend', `<label class="filter-option"><input type="checkbox" name="category" value="${category}" ${state.category === category ? 'checked' : ''}> ${category}</label>`);
+  renderCategoryFilters();
+  categoryFilter.addEventListener('change', event => {
+    if (!event.target.matches('[name="category"]')) return;
+    state.category = '';
+    state.page = 1;
+    renderCatalog();
   });
 
   const searchInput = document.getElementById('navbar-search-input');
@@ -341,12 +377,6 @@ function initCatalog() {
   if (sortSelect && state.sort) sortSelect.value = state.sort;
 
   renderCatalog();
-
-  document.querySelectorAll('[name="category"]').forEach(el => el.addEventListener('change', () => {
-    state.category = '';
-    state.page = 1;
-    renderCatalog();
-  }));
 
   document.querySelectorAll('[name="rating"]').forEach(el => el.addEventListener('change', () => {
     state.rating = Number(el.value);
@@ -393,6 +423,27 @@ function initCatalog() {
   bindMobileFilter();
 }
 
+function renderCategoryFilters() {
+  const container = document.getElementById('category-filter');
+  if (!container) return;
+  const checkedCategories = new Set(
+    [...container.querySelectorAll('[name="category"]:checked')].map(input => input.value)
+  );
+  const availableCategories = [...new Set(PRODUCTS.map(product => product.category).filter(Boolean))]
+    .filter(category => !['Giày thể thao', 'Ngoài trời', 'Khác'].includes(category));
+  container.replaceChildren(...availableCategories.map(category => {
+    const label = document.createElement('label');
+    label.className = 'filter-option';
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.name = 'category';
+    input.value = category;
+    input.checked = checkedCategories.has(category) || state.category === category;
+    label.append(input, document.createTextNode(` ${category}`));
+    return label;
+  }));
+}
+
 function applyPrice() {
   state.min = Number(document.getElementById('price-min')?.value) || 0;
   state.max = Number(document.getElementById('price-max')?.value) || Infinity;
@@ -417,7 +468,16 @@ function filteredProducts() {
     list = list.filter(p => checked.includes(p.category));
   }
 
-  if (state.sort === 'newest') list.sort((a, b) => b.id - a.id);
+  if (state.sort === 'newest') {
+    list.sort((a, b) => {
+      const aCreated = Date.parse(a.createdAt || '');
+      const bCreated = Date.parse(b.createdAt || '');
+      if (Number.isFinite(aCreated) && Number.isFinite(bCreated)) return bCreated - aCreated;
+      if (Number.isFinite(aCreated)) return -1;
+      if (Number.isFinite(bCreated)) return 1;
+      return String(b.id).localeCompare(String(a.id), undefined, { numeric: true });
+    });
+  }
   if (state.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
   if (state.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
   if (state.sort === 'rating') list.sort((a, b) => b.rating - a.rating);
@@ -508,7 +568,7 @@ function renderTags() {
 function bindCatalogActions() {
   document.querySelectorAll('[data-cart]').forEach(btn => {
     btn.onclick = () => {
-      const p = PRODUCTS.find(x => x.id === Number(btn.dataset.cart));
+      const p = PRODUCTS.find(x => String(x.id) === btn.dataset.cart);
       if (p && p.stock > 0 && typeof Cart !== 'undefined') {
         Cart.addItem({
           ...p,
@@ -521,9 +581,9 @@ function bindCatalogActions() {
 
   document.querySelectorAll('[data-wishlist]').forEach(btn => {
     btn.onclick = () => {
-      const id = Number(btn.dataset.wishlist);
+      const id = btn.dataset.wishlist;
       if (typeof Wishlist !== 'undefined') {
-        const product = PRODUCTS.find(item => item.id === id);
+        const product = PRODUCTS.find(item => String(item.id) === id);
         const added = Wishlist.toggle(product || id);
         btn.classList.toggle('active', added);
         btn.innerHTML = `<i class="${added ? 'fas' : 'far'} fa-heart"></i>`;
@@ -559,11 +619,11 @@ function bindMobileFilter() {
   overlay.addEventListener('click', close);
 }
 
-function initDetail() {
+function renderProductDetail() {
   const detail = document.getElementById('product-detail');
   if (!detail) return;
-  const requestedId = Number(params.get('id'));
-  const product = PRODUCTS.find(p => p.id === requestedId);
+  const requestedId = params.get('id');
+  const product = PRODUCTS.find(p => String(p.id) === requestedId);
   if (!product) {
     detail.innerHTML = '<div class="empty-products"><i class="fas fa-box-open"></i><h3>Sản phẩm không tồn tại</h3><a class="add-cart-btn" style="display:inline-block;max-width:200px;margin-top:16px;text-decoration:none;" href="products.html">Quay lại danh sách</a></div>';
     return;
@@ -574,40 +634,43 @@ function initDetail() {
   if (breadcrumb) breadcrumb.textContent = product.name;
 
   const wished = typeof Wishlist !== 'undefined' && Wishlist.has(product.id);
-  const stock = typeof product.stock === 'number' ? product.stock : 12;
+  const stock = Number.isInteger(Number(product.stock)) ? Number(product.stock) : 0;
   const image = product.image || product.placeholderImage || getProductPlaceholder(product.category);
   const imageFallback = product.placeholderImage || getProductPlaceholder(product.category);
   const colors = Array.isArray(product.colors) ? product.colors : [];
+  const sizes = Array.isArray(product.sizes) && product.sizes.length ? product.sizes : ['Free size'];
+  const rating = Number(product.rating) || 0;
+  const reviews = Number(product.reviews) || 0;
 
   detail.innerHTML = `<div class="detail-gallery">
     <div class="detail-image" id="detail-image" title="Bấm để phóng to ảnh">
-      <img src="${image}" alt="${product.name}" onerror="this.onerror=null;this.src='${imageFallback}'">
+      <img src="${escapeProductHtml(image)}" alt="${escapeProductHtml(product.name)}" onerror="this.onerror=null;this.src='${escapeProductHtml(imageFallback)}'">
     </div>
   </div>
   <div class="detail-info">
-    <div class="catalog-card-category">${product.category}</div>
-    <h1>${product.name}</h1>
+    <div class="catalog-card-category">${escapeProductHtml(product.category)}</div>
+    <h1>${escapeProductHtml(product.name)}</h1>
     <div class="detail-meta">
       <div class="rating-row">
-        <span>${'★'.repeat(Math.round(product.rating))}</span>
-        <span>${product.rating} (${product.reviews} đánh giá)</span>
+        <span>${'★'.repeat(Math.round(rating))}</span>
+        <span>${rating} (${reviews} đánh giá)</span>
       </div>
     </div>
     <div class="detail-price">
       ${formatMoney(product.price)}
       ${product.oldPrice ? `<span class="old">${formatMoney(product.oldPrice)}</span>` : ''}
     </div>
-    <p class="detail-desc">${product.description}</p>
+    <p class="detail-desc">${escapeProductHtml(product.description || 'Sản phẩm thể thao chất lượng từ SportZone.')}</p>
     ${colors.length ? `<div class="option-group">
       <span class="option-label">Màu sắc</span>
       <div class="color-options">
-        ${colors.map((color, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" aria-label="${color}">${color}</button>`).join('')}
+        ${colors.map((color, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" aria-label="${escapeProductHtml(color)}">${escapeProductHtml(color)}</button>`).join('')}
       </div>
     </div>` : ''}
     <div class="option-group">
       <span class="option-label">Kích thước</span>
       <div class="size-options">
-        ${product.sizes.map((s, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" data-size="${s}">${s}</button>`).join('')}
+        ${sizes.map((size, i) => `<button class="option-btn ${i === 0 ? 'active' : ''}" type="button" data-size="${escapeProductHtml(size)}">${escapeProductHtml(size)}</button>`).join('')}
       </div>
     </div>
     <div class="detail-actions">
@@ -619,9 +682,9 @@ function initDetail() {
       <button class="detail-buy" id="detail-add-cart"><i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng</button>
       <button class="detail-wishlist ${wished ? 'active' : ''}" id="detail-wishlist" aria-label="Yêu thích"><i class="${wished ? 'fas' : 'far'} fa-heart"></i></button>
     </div>
-    <div class="stock-note"><i class="fas fa-check-circle"></i> Còn ${stock} sản phẩm - giao hàng trong 2-4 ngày</div>
+    <div class="stock-note"><i class="fas fa-check-circle"></i> ${stock > 0 ? `Còn ${stock} sản phẩm - giao hàng trong 2-4 ngày` : 'Tạm hết hàng'}</div>
     <div class="detail-specs">
-      <div><span>Thương hiệu</span><strong>${product.brand || 'SportZone'}</strong></div>
+      <div><span>Thương hiệu</span><strong>${escapeProductHtml(product.brand || 'SportZone')}</strong></div>
       <div><span>Bảo hành</span><strong>12 tháng</strong></div>
       <div><span>Đổi trả</span><strong>Trong 30 ngày</strong></div>
     </div>
@@ -660,7 +723,7 @@ function initDetail() {
   // Thêm vào giỏ hàng kèm size, màu và số lượng
   document.getElementById('detail-add-cart')?.addEventListener('click', () => {
     if (typeof Cart === 'undefined' || stock < 1) return;
-    const selectedSize = document.querySelector('.size-options .option-btn.active')?.dataset.size || product.sizes[0];
+    const selectedSize = document.querySelector('.size-options .option-btn.active')?.dataset.size || sizes[0];
     const selectedColor = document.querySelector('.color-options .option-btn.active')?.textContent.trim() || '';
     const qty = parseInt(qtyInput?.value || '1', 10);
     Cart.addItem({ ...product, selectedSize, selectedColor, quantity: qty });
@@ -677,8 +740,8 @@ function initDetail() {
   // Sản phẩm liên quan
   const relatedContainer = document.getElementById('related-products');
   if (relatedContainer) {
-    const relatedList = PRODUCTS.filter(p => p.category === product.category && p.id !== product.id)
-      .concat(PRODUCTS.filter(p => p.category !== product.category && p.id !== product.id))
+    const relatedList = PRODUCTS.filter(p => p.category === product.category && String(p.id) !== String(product.id))
+      .concat(PRODUCTS.filter(p => p.category !== product.category && String(p.id) !== String(product.id)))
       .slice(0, 3);
     relatedContainer.innerHTML = relatedList.map(productCard).join('');
   }
@@ -688,5 +751,5 @@ function initDetail() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initCatalog();
-  initDetail();
+  renderProductDetail();
 });
