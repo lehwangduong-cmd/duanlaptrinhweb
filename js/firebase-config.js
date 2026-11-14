@@ -2,20 +2,20 @@
  * ============================================================
  * SPORTZONE - CẤU HÌNH KẾT NỐI FIREBASE CHO TOÀN BỘ HỆ THỐNG
  * ============================================================
- * Dự án: sportzone-shop (sportzone-shop-4cbac)
+ * Dự án: sportzone-sync-v2
  * Chức năng: Đồng bộ tài khoản, quyền Quản trị viên (Admin)
  * và hồ sơ người dùng thời gian thực (Realtime) qua Cloud Firestore.
  * ============================================================
  */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC05ygruSudg7aJDOsWLU1WurDQ4EHxJek",
-  authDomain: "sportzone-shop-4cbac.firebaseapp.com",
-  projectId: "sportzone-shop-4cbac",
-  storageBucket: "sportzone-shop-4cbac.firebasestorage.app",
-  messagingSenderId: "299328790494",
-  appId: "1:299328790494:web:2242ce8e47c1a867e2c74f",
-  measurementId: "G-J14K5X20BX"
+  apiKey: "AIzaSyBMpsMRnJUVfIhNC6Pmh9zOegxEJkWdDsM",
+  authDomain: "sportzone-sync-v2.firebaseapp.com",
+  projectId: "sportzone-sync-v2",
+  storageBucket: "sportzone-sync-v2.firebasestorage.app",
+  messagingSenderId: "244588608516",
+  appId: "1:244588608516:web:b99aa9881ef7e032a38951",
+  measurementId: "G-NYMV1XHMZV"
 };
 
 // Đưa vào window scope để các script Auth, Shared đều truy cập được
@@ -38,7 +38,7 @@ if (typeof window !== 'undefined') {
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
   try {
     firebase.initializeApp(firebaseConfig);
-    console.log('🔥 [SportZone Firebase] Đã kết nối dự án sportzone-shop-4cbac thành công!');
+    console.log('🔥 [SportZone Firebase] Đã kết nối dự án sportzone-sync-v2 thành công!');
   } catch (err) {
     console.warn('⚠️ [SportZone Firebase] Khởi tạo Firebase thất bại:', err);
   }

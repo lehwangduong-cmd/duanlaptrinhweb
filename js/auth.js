@@ -973,7 +973,12 @@ var Auth = (function () {
     }
     if (updatedData.gender) users[idx].gender = updatedData.gender;
     if (updatedData.birthday) users[idx].birthday = updatedData.birthday;
-    if (updatedData.avatar) users[idx].avatar = updatedData.avatar;
+    if (updatedData.avatar) {
+      users[idx].avatar = updatedData.avatar;
+      users[idx].avatarCustomized = true;
+    }
+
+    users[idx].updatedAt = Date.now();
 
     saveUsers(users);
     setCurrentUser(users[idx]);

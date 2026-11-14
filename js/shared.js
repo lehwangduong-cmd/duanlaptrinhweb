@@ -270,7 +270,7 @@ var Wishlist = (function() {
   function toggle(productOrId) {
     const productId = typeof productOrId === 'object' && productOrId !== null ? productOrId.id : productOrId;
     const items = getItems();
-    const idx = items.findIndex(i => (typeof i === 'object' ? String(i.id) === String(productId) : String(i) === String(productId)));
+    const idx = items.findIndex(i => (typeof i === 'object' ? i.id === productId : i === productId));
     let added = false;
     if (idx === -1) {
       if (productOrId && typeof productOrId === 'object') {
@@ -306,7 +306,7 @@ var Wishlist = (function() {
   function addItem(product) {
     const items = getItems();
     const productId = typeof product === 'object' && product !== null ? product.id : product;
-    const exists = items.some(i => (typeof i === 'object' ? String(i.id) === String(productId) : String(i) === String(productId)));
+    const exists = items.some(i => (typeof i === 'object' ? i.id === productId : i === productId));
     if (!exists) {
       items.push(product);
       saveItems(items);
@@ -318,7 +318,7 @@ var Wishlist = (function() {
   }
 
   function has(productId) {
-    return getItems().some(i => (typeof i === 'object' ? String(i.id) === String(productId) : String(i) === String(productId)));
+    return getItems().some(i => (typeof i === 'object' ? i.id === productId : i === productId));
   }
 
   function getTotalQty() {
@@ -703,7 +703,7 @@ var Auth = (function () {
         });
 
         if (cloudUsers.length > 0) {
-          // Hợp nhất Cloud users với Local users & DEFAULT_USERS để không làm mất tài khoản cục bộ
+          // Hợp nhất Cloud users với Local users & DEFAULT_USERS một cách an toàn (tránh Cloud đè Local mới)
           let localUsers = [];
           try {
             localUsers = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
@@ -720,9 +720,22 @@ var Auth = (function () {
               mergedMap.set(u.id, u);
             }
           });
-          cloudUsers.forEach(u => {
-            if (u && u.id && !deletedList.includes(u.id) && !deletedList.includes((u.email || '').toLowerCase())) {
-              mergedMap.set(u.id, u);
+          
+          cloudUsers.forEach(cu => {
+            if (cu && cu.id && !deletedList.includes(cu.id) && !deletedList.includes((cu.email || '').toLowerCase())) {
+              const existingLocal = mergedMap.get(cu.id) || Array.from(mergedMap.values()).find(x => x.email && cu.email && x.email.toLowerCase() === cu.email.toLowerCase());
+              if (existingLocal) {
+                const localTime = Number(existingLocal.updatedAt || 0);
+                const cloudTime = Number(cu.updatedAt || 0);
+                // Nếu bản ghi Local có updatedAt mới hơn Cloud (người dùng vừa cập nhật avatar/profile ở máy này)
+                if (localTime > cloudTime) {
+                  // Giữ nguyên Local và đẩy ngược lên Cloud để đồng bộ cho Cloud!
+                  mergedMap.set(existingLocal.id, existingLocal);
+                  syncUserToCloud(existingLocal);
+                  return;
+                }
+              }
+              mergedMap.set(cu.id, cu);
             }
           });
 
@@ -736,14 +749,18 @@ var Auth = (function () {
               u => u.id === cur.id || (u.email && cur.email && u.email.toLowerCase() === cur.email.toLowerCase())
             );
             if (freshCur) {
-              localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(freshCur));
-              try { localStorage.setItem('sz_current_user', JSON.stringify(freshCur)); } catch (e) {}
+              const curTime = Number(cur.updatedAt || 0);
+              const freshTime = Number(freshCur.updatedAt || 0);
+              // Nếu cur ở local mới hơn thì giữ cur, ngược lại mới cập nhật từ freshCur
+              if (curTime <= freshTime) {
+                localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(freshCur));
+                try { localStorage.setItem('sz_current_user', JSON.stringify(freshCur)); } catch (e) {}
+              }
             }
           }
 
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('sz:cloud-sync', { detail: { users: finalUsers } }));
-            window.dispatchEvent(new Event('storage'));
           }
         }
       },
@@ -774,6 +791,7 @@ var Auth = (function () {
     if (!_cloudDb || !user || !user.id) return;
     try {
       const cleanData = JSON.parse(JSON.stringify(user));
+      if (!cleanData.updatedAt) cleanData.updatedAt = Date.now();
       _cloudDb.collection('sz_users').doc(user.id).set(cleanData, { merge: true })
         .then(() => console.log('[SportZone Cloud] Đã đồng bộ tài khoản ' + (user.email || user.id) + ' lên Cloud.'))
         .catch(err => console.warn('[SportZone Cloud] Lỗi đồng bộ tài khoản lên Cloud:', err));
@@ -1100,7 +1118,7 @@ var Auth = (function () {
       users.unshift(user);
     } else {
       if (googleId) user.googleId = googleId;
-      if (avatar) user.avatar = avatar;
+      if (avatar && (!user.avatar || !user.avatarCustomized)) user.avatar = avatar;
       if (fullName && (!user.fullName || user.fullName === cleanEmail)) user.fullName = fullName;
       user.loginMethod = 'google';
       if (isAdminEmail) user.role = 'admin';
@@ -1309,7 +1327,12 @@ var Auth = (function () {
     }
     if (updatedData.gender) users[idx].gender = updatedData.gender;
     if (updatedData.birthday) users[idx].birthday = updatedData.birthday;
-    if (updatedData.avatar) users[idx].avatar = updatedData.avatar;
+    if (updatedData.avatar) {
+      users[idx].avatar = updatedData.avatar;
+      users[idx].avatarCustomized = true;
+    }
+
+    users[idx].updatedAt = Date.now(); // Mốc thời gian cập nhật mới nhất
 
     saveUsers(users);
     setCurrentUser(users[idx]);

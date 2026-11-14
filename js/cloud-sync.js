@@ -31,7 +31,9 @@
   let hasProductSnapshot = false;
   let pendingProducts = null;
   let isSyncingProducts = false;
-  let hasFailedProductSync = false;
+  let _ordersDebounceTimer = null;
+  let _productsDebounceTimer = null;
+  let remoteOrders = new Map();
 
   // Lấy cấu hình Firebase
   function getConfig() {
@@ -77,18 +79,15 @@
   // ============================================================
   // 1. ĐỒNG BỘ SẢN PHẨM & KHO HÀNG (sz_products)
   // ============================================================
-  const _syncedProductsMap = new Map();
-
   function setupProductsListener() {
     if (!_db) return;
     if (_unsubProducts) _unsubProducts();
 
     _unsubProducts = _db.collection('sz_products').onSnapshot(
       snapshot => {
-        const cloudProducts = [];
+        const products = [];
         const nextRemoteProducts = new Map();
         let hasEmptyMarker = false;
-
         snapshot.forEach(doc => {
           const data = doc.data();
           if (doc.id === EMPTY_PRODUCTS_MARKER) {
@@ -96,15 +95,13 @@
             return;
           }
           if (data && data.id !== undefined) {
-            cloudProducts.push(data);
+            products.push(data);
             nextRemoteProducts.set(doc.id, data);
-            try {
-              _syncedProductsMap.set(String(data.id), JSON.stringify(data));
-            } catch (e) {}
           }
         });
 
-        cloudProducts.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
+        // Sắp xếp theo ID
+        products.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
         remoteProducts = nextRemoteProducts;
         remoteHasEmptyMarker = hasEmptyMarker;
         hasProductSnapshot = true;
@@ -124,62 +121,16 @@
           }
         }
 
-        // Đọc danh sách ID đã xóa từ trước
-        let deletedIds = [];
-        try {
-          const rawDel = localStorage.getItem('sz_deleted_product_ids');
-          if (rawDel) deletedIds = JSON.parse(rawDel);
-        } catch (e) {}
-        const deletedSet = new Set(deletedIds.map(String));
+        // Ghi vào localStorage mà không kích hoạt hook lặp
+        safeSetStorage(KEYS.PRODUCTS, JSON.stringify(products));
 
-        // Lọc bỏ sản phẩm đã xóa
-        const filteredCloud = cloudProducts.filter(p => !deletedSet.has(String(p.id)));
-
-        // Đọc sản phẩm hiện có trong localStorage để MERGE thông minh (không làm mất hàng vừa thêm khi F5)
-        let localProducts = [];
-        try {
-          const rawLocal = localStorage.getItem(KEYS.PRODUCTS);
-          if (rawLocal) localProducts = JSON.parse(rawLocal);
-        } catch (e) {}
-
-        const cloudIdMap = new Map(filteredCloud.map(p => [String(p.id), p]));
-        const merged = [];
-        const seenIds = new Set();
-
-        // Ưu tiên các sản phẩm local (giữ nguyên thứ tự và sản phẩm mới tạo offline/chưa kịp sync)
-        if (Array.isArray(localProducts)) {
-          localProducts.forEach(localP => {
-            const strId = String(localP.id);
-            if (deletedSet.has(strId)) return;
-
-            if (cloudIdMap.has(strId)) {
-              merged.push({ ...localP, ...cloudIdMap.get(strId) });
-            } else {
-              merged.push(localP);
-            }
-            seenIds.add(strId);
-          });
+        // Cập nhật mảng biến toàn cục PRODUCTS nếu có
+        if (typeof window.PRODUCTS !== 'undefined' && Array.isArray(window.PRODUCTS)) {
+          window.PRODUCTS = products;
         }
 
-        // Thêm các sản phẩm từ cloud chưa có trong local
-        filteredCloud.forEach(cloudP => {
-          const strId = String(cloudP.id);
-          if (!seenIds.has(strId)) {
-            merged.push(cloudP);
-            seenIds.add(strId);
-          }
-        });
-
-        if (merged.length > 0 || hasEmptyMarker) {
-          safeSetStorage(KEYS.PRODUCTS, JSON.stringify(merged));
-
-          if (typeof window.PRODUCTS !== 'undefined' && Array.isArray(window.PRODUCTS)) {
-            window.PRODUCTS = merged;
-          }
-
-          window.dispatchEvent(new CustomEvent('sz:products-updated', { detail: merged }));
-          window.dispatchEvent(new StorageEvent('storage', { key: KEYS.PRODUCTS }));
-        }
+        // Kích hoạt sự kiện toàn trang để TV5 Admin & TV2 Products tự render lại (không bắn storage giả)
+        window.dispatchEvent(new CustomEvent('sz:products-updated', { detail: products }));
       },
       err => console.warn('[Cloud Sync] Lỗi lắng nghe sz_products:', err)
     );
@@ -201,6 +152,7 @@
           const data = doc.data();
           if (data && (data.id || data.orderId)) {
             orders.push(data);
+            remoteOrders.set(String(data.id || data.orderId), data);
           }
         });
 
@@ -216,10 +168,8 @@
           safeSetStorage(KEYS.ORDERS, serialized);
           safeSetStorage(KEYS.SHOP_ORDERS, serialized);
 
-          // Bắn sự kiện để Admin Dashboard và My Orders cập nhật giao diện
+          // Bắn sự kiện để Admin Dashboard và My Orders cập nhật giao diện (không bắn storage giả)
           window.dispatchEvent(new CustomEvent('sz:orders-updated', { detail: orders }));
-          window.dispatchEvent(new StorageEvent('storage', { key: KEYS.ORDERS }));
-          window.dispatchEvent(new StorageEvent('storage', { key: KEYS.SHOP_ORDERS }));
         }
       },
       err => console.warn('[Cloud Sync] Lỗi lắng nghe sz_orders:', err)
@@ -230,47 +180,19 @@
   // 3. TIỆN ÍCH ĐẨY DỮ LIỆU TỪ LOCAL LÊN CLOUD
   // ============================================================
 
-  // Đồng bộ 1 sản phẩm cụ thể lên Cloud (nhanh, nhẹ, không gây tràn quota)
-  function syncSingleProduct(p) {
-    if (!_db || !p || p.id === undefined) return;
-    try {
-      const cleanDoc = JSON.parse(JSON.stringify(p));
-      _db.collection('sz_products').doc(String(p.id)).set(cleanDoc, { merge: true })
-        .then(() => {
-          _syncedProductsMap.set(String(p.id), JSON.stringify(cleanDoc));
-          console.log('⚡ [Cloud Sync] Đã lưu sản phẩm lên Cloud:', p.name || p.id);
-        })
-        .catch(e => console.warn('[Cloud Sync] Lưu sản phẩm cục bộ (Cloud offline/quota):', e?.message || e));
-    } catch (e) {
-      console.warn('[Cloud Sync] Lỗi parse sản phẩm:', e);
-    }
-  }
-
-  // Xóa sản phẩm trên Cloud Firestore khi Admin xóa
-  function deleteProduct(productId) {
-    if (!_db || productId === undefined) return;
-    try {
-      _db.collection('sz_products').doc(String(productId)).delete()
-        .then(() => {
-          _syncedProductsMap.delete(String(productId));
-          console.log('⚡ [Cloud Sync] Đã xóa sản phẩm trên Cloud:', productId);
-        })
-        .catch(e => console.warn('[Cloud Sync] Lỗi xóa trên Cloud:', e?.message || e));
-    } catch (e) {
-      console.warn('[Cloud Sync] Lỗi gọi delete Cloud:', e);
-    }
-  }
-
-  // Đồng bộ sản phẩm cần cập nhật (sử dụng batch commit và xử lý hàng đợi)
+  // Đồng bộ toàn bộ mảng sản phẩm lên Cloud (khi TV5 thêm/sửa/xóa sản phẩm)
   function pushProductsToCloud(productsArray) {
     if (!_db || !Array.isArray(productsArray)) return;
     pendingProducts = productsArray
       .filter(product => product && product.id !== undefined)
       .map(product => JSON.parse(JSON.stringify(product)));
-    if (isSyncingProducts) return;
 
-    isSyncingProducts = true;
-    syncPendingProducts();
+    clearTimeout(_productsDebounceTimer);
+    _productsDebounceTimer = setTimeout(() => {
+      if (isSyncingProducts) return;
+      isSyncingProducts = true;
+      syncPendingProducts();
+    }, 600);
   }
 
   async function syncPendingProducts() {
@@ -369,18 +291,33 @@
   // Đồng bộ đơn hàng lên Cloud (khi TV4 đặt hàng mới hoặc TV5 duyệt đơn)
   function pushOrdersToCloud(ordersArray) {
     if (!_db || !Array.isArray(ordersArray)) return;
-    try {
-      ordersArray.forEach(o => {
-        const orderId = o.id || o.orderId;
-        if (orderId) {
-          const cleanDoc = JSON.parse(JSON.stringify(o));
-          _db.collection('sz_orders').doc(String(orderId)).set(cleanDoc, { merge: true })
-            .catch(e => console.warn('[Cloud Sync] Lỗi đẩy đơn hàng lên Cloud:', e));
+    clearTimeout(_ordersDebounceTimer);
+    _ordersDebounceTimer = setTimeout(() => {
+      try {
+        const batch = _db.batch();
+        let changedCount = 0;
+        ordersArray.forEach(o => {
+          const orderId = String(o.id || o.orderId || '');
+          if (orderId) {
+            const cleanDoc = JSON.parse(JSON.stringify(o));
+            const cached = remoteOrders.get(orderId);
+            // Chỉ ghi nếu đơn hàng mới hoặc có thay đổi trạng thái
+            if (!cached || stableStringify(cached) !== stableStringify(cleanDoc)) {
+              batch.set(_db.collection('sz_orders').doc(orderId), cleanDoc, { merge: true });
+              remoteOrders.set(orderId, cleanDoc);
+              changedCount++;
+            }
+          }
+        });
+        if (changedCount > 0) {
+          batch.commit()
+            .then(() => console.log(`[Cloud Sync] Đã đồng bộ ${changedCount} đơn hàng mới/cập nhật lên Cloud.`))
+            .catch(e => console.warn('[Cloud Sync] Lỗi commit đơn hàng lên Cloud:', e));
         }
-      });
-    } catch (e) {
-      console.warn('[Cloud Sync] Lỗi parse đơn hàng đẩy Cloud:', e);
-    }
+      } catch (e) {
+        console.warn('[Cloud Sync] Lỗi parse đơn hàng đẩy Cloud:', e);
+      }
+    }, 800);
   }
 
   // Ghi vào localStorage mà không gây vòng lặp đồng bộ
@@ -449,8 +386,6 @@
         if (raw) pushProductsToCloud(JSON.parse(raw));
       } catch (e) {}
     },
-    syncSingleProduct,
-    deleteProduct,
     syncOrders: () => {
       try {
         const raw = localStorage.getItem(KEYS.ORDERS);

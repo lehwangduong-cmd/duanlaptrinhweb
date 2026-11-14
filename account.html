@@ -453,6 +453,9 @@
                     <i class="fas fa-folder-open"></i> Tải ảnh từ thiết bị
                   </button>
                   <span id="avatar-file-name" class="avatar-file-name"></span>
+                  <div style="font-size:11.5px; color:#10b981; display:flex; align-items:center; justify-content:center; gap:4px; margin-top:6px;">
+                    <i class="fas fa-bolt"></i> Tự động lưu & đồng bộ ngay lập tức
+                  </div>
 
                   <div style="width:100%; height:1px; background:#e5e7eb; margin:12px 0;"></div>
 
@@ -1165,11 +1168,26 @@
   // Chọn avatar mẫu
   function selectPresetAvatar(url) {
     currentAvatarUrl = url;
-    document.getElementById('prof-avatar-preview').src = url;
+    const previewEl = document.getElementById('prof-avatar-preview');
+    if (previewEl) previewEl.src = url;
+
     const nameEl = document.getElementById('avatar-file-name');
     if (nameEl) {
-      nameEl.textContent = '';
-      nameEl.style.display = 'none';
+      nameEl.textContent = '✓ Đã chọn avatar mẫu';
+      nameEl.style.display = 'block';
+    }
+
+    // Tự động lưu ngay lập tức vào hồ sơ tài khoản & Cloud
+    if (typeof Auth !== 'undefined' && Auth.isLoggedIn()) {
+      const res = Auth.updateProfile({ avatar: url });
+      if (res && res.success) {
+        Auth.showToast('Đã lưu ảnh đại diện mới thành công!', 'success');
+        const headerAvt = document.getElementById('user-header-avatar');
+        if (headerAvt) headerAvt.src = url;
+        if (typeof Auth.renderNavbarAuth === 'function') Auth.renderNavbarAuth();
+      } else {
+        Auth.showToast((res && res.message) || 'Lỗi khi lưu ảnh đại diện!', 'error');
+      }
     }
   }
 
@@ -1192,7 +1210,7 @@
     reader.onload = function(e) {
       const img = new Image();
       img.onload = function() {
-        // Nén ảnh về kích thước tối ưu (max 250x250) để lưu nhẹ nhàng vào LocalStorage
+        // Nén ảnh về kích thước tối ưu (max 250x250) để lưu nhẹ nhàng vào LocalStorage & Cloud
         const canvas = document.createElement('canvas');
         const MAX_SIZE = 250;
         let width = img.width;
@@ -1217,7 +1235,9 @@
 
         const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
         currentAvatarUrl = optimizedDataUrl;
-        document.getElementById('prof-avatar-preview').src = optimizedDataUrl;
+        
+        const previewEl = document.getElementById('prof-avatar-preview');
+        if (previewEl) previewEl.src = optimizedDataUrl;
 
         const nameEl = document.getElementById('avatar-file-name');
         if (nameEl) {
@@ -1225,7 +1245,18 @@
           nameEl.style.display = 'block';
         }
 
-        Auth.showToast('Đã tải ảnh lên! Hãy nhấn "Lưu thay đổi" để cập nhật.', 'info');
+        // Tự động lưu ngay lập tức vào hồ sơ tài khoản & Cloud
+        if (typeof Auth !== 'undefined' && Auth.isLoggedIn()) {
+          const res = Auth.updateProfile({ avatar: optimizedDataUrl });
+          if (res && res.success) {
+            Auth.showToast('Đã tải lên và lưu ảnh đại diện thành công!', 'success');
+            const headerAvt = document.getElementById('user-header-avatar');
+            if (headerAvt) headerAvt.src = optimizedDataUrl;
+            if (typeof Auth.renderNavbarAuth === 'function') Auth.renderNavbarAuth();
+          } else {
+            Auth.showToast((res && res.message) || 'Lỗi khi lưu ảnh đại diện!', 'error');
+          }
+        }
       };
 
       img.onerror = function() {
