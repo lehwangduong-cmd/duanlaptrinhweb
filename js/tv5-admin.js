@@ -261,6 +261,7 @@
     document.getElementById('productPrice').value = product ? getProductPrice(product) : '';
     document.getElementById('productStock').value = product ? getStock(product) : '';
     document.getElementById('productSku').value = product?.sku || '';
+    document.getElementById('productDescription').value = product?.description || '';
     document.getElementById('productSizes').value = Array.isArray(product?.sizes) ? product.sizes.join(', ') : '';
     document.getElementById('productImage').value = '';
     document.getElementById('productDialogTitle').textContent = product ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm';
@@ -323,11 +324,12 @@
       price: Number(document.getElementById('productPrice').value),
       stock: Number(document.getElementById('productStock').value),
       sku,
+      description: document.getElementById('productDescription').value.trim() ||
+        existingProduct?.description || 'Sản phẩm thể thao chất lượng từ SportZone.',
       rating: existingProduct?.rating ?? 0,
       reviews: existingProduct?.reviews ?? 0,
       sizes: sizes.length ? sizes : ['Free size'],
       image: image || existingProduct?.image || '',
-      description: existingProduct?.description || 'Sản phẩm thể thao chất lượng từ SportZone.',
       createdAt: existingProduct?.createdAt || new Date().toISOString(),
     };
     if (!product.name || !product.category || !Number.isFinite(product.price) || product.price <= 0 ||
