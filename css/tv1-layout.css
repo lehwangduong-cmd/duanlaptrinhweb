@@ -442,13 +442,13 @@ button { cursor: pointer; font-family: inherit; }
   display: flex;
   align-items: stretch;
 }
-.nav-menu ul {
+.nav-menu > .container > ul {
   display: flex;
   align-items: stretch;
   width: 100%;
 }
-.nav-menu ul li { position: relative; }
-.nav-menu ul li > a {
+.nav-menu > .container > ul > li { position: relative; }
+.nav-menu > .container > ul > li > a {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -461,12 +461,13 @@ button { cursor: pointer; font-family: inherit; }
   transition: background var(--transition);
   white-space: nowrap;
 }
-.nav-menu ul li > a i { font-size: 15px; }
-.nav-menu ul li > a:hover,
-.nav-menu ul li.active > a { background: var(--primary-dark); }
+.nav-menu > .container > ul > li > a i { font-size: 15px; }
+.nav-menu > .container > ul > li > a:hover,
+.nav-menu > .container > ul > li > a:focus-visible,
+.nav-menu > .container > ul > li.active > a { background: var(--primary-dark); }
 
 /* Sale badge on menu */
-.nav-menu ul li.sale > a::after {
+.nav-menu > .container > ul > li.sale > a::after {
   content: "SALE";
   background: var(--red);
   color: #fff;
@@ -482,8 +483,11 @@ button { cursor: pointer; font-family: inherit; }
   position: absolute;
   top: 100%;
   left: 0;
+  display: flex;
+  flex-direction: column;
   background: var(--bg-white);
   min-width: 220px;
+  width: max-content;
   box-shadow: var(--shadow);
   border-radius: 0 0 var(--radius) var(--radius);
   opacity: 0;
@@ -492,12 +496,13 @@ button { cursor: pointer; font-family: inherit; }
   transition: opacity var(--transition), transform var(--transition);
   z-index: 500;
 }
-.nav-menu ul li:hover .dropdown {
+.nav-menu > .container > ul > li:hover > .dropdown,
+.nav-menu > .container > ul > li:focus-within > .dropdown {
   opacity: 1;
   pointer-events: all;
   transform: translateY(0);
 }
-.dropdown li a {
+.dropdown li > a {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -507,8 +512,9 @@ button { cursor: pointer; font-family: inherit; }
   font-weight: 500;
   transition: background var(--transition), color var(--transition);
 }
-.dropdown li a:hover { background: var(--primary-light); color: var(--primary); }
-.dropdown li a i { width: 20px; text-align: center; color: var(--primary); }
+.dropdown li > a:hover,
+.dropdown li > a:focus-visible { background: var(--primary-light); color: var(--primary-dark); }
+.dropdown li > a i { width: 20px; text-align: center; color: var(--primary); }
 
 /* ===== HERO BANNER / SLIDER ===== */
 .hero { position: relative; overflow: hidden; background: #000; }
