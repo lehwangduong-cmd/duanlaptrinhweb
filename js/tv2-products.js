@@ -34,8 +34,8 @@ const SEED_PRODUCT_GROUPS = [
       ['Tất chạy bộ Cushion', 99000, 'Tất đệm êm hỗ trợ giảm ma sát và giữ bàn chân khô ráo.', ['Trắng','Đen'], ['S/M','L/XL'], 40, 'images/products/running-cushion-socks.png'],
       ['Đai chạy bộ phản quang', 159000, 'Đai đeo gọn nhẹ có ngăn điện thoại và dải phản quang buổi tối.', ['Đen','Xanh'], ['Free size'], 16, 'images/products/running-reflective-belt.png'],
       ['Bình nước chạy bộ 700ml', 129000, 'Bình thể thao nắp bật chống rò, dung tích phù hợp khi luyện chạy.', ['Xanh','Đen','Cam'], ['700 ml'], 30, 'images/products/running-700ml-bottle.png'],
-      ['Mũ chạy bộ thoáng khí', 199000, 'Mũ lưỡi trai thể thao có lỗ thoáng khí và khóa điều chỉnh phía sau.', ['Trắng','Đen','Xanh navy'], ['Free size'], 21],
-      ['Găng tay chạy bộ mùa lạnh', 229000, 'Găng tay co giãn nhẹ, đầu ngón tương thích màn hình cảm ứng.', ['Đen','Xám'], ['S','M','L'], 14]
+      ['Mũ chạy bộ thoáng khí', 199000, 'Mũ lưỡi trai thể thao có lỗ thoáng khí và khóa điều chỉnh phía sau.', ['Trắng','Đen','Xanh navy'], ['Free size'], 21, 'images/products/running-breathable-cap.png'],
+      ['Găng tay chạy bộ mùa lạnh', 229000, 'Găng tay co giãn nhẹ, đầu ngón tương thích màn hình cảm ứng.', ['Đen','Xám'], ['S','M','L'], 14, 'images/products/running-touchscreen-gloves.png']
     ]
   },
   {
@@ -47,8 +47,8 @@ const SEED_PRODUCT_GROUPS = [
       ['Quần short bóng đá Flex', 199000, 'Quần short co giãn linh hoạt, cạp chun chắc chắn và thoải mái.', ['Đen','Xanh navy'], ['S','M','L','XL','XXL'], 22, 'images/products/football-shorts-flex.png'],
       ['Túi đựng giày đá bóng', 179000, 'Túi đựng giày riêng biệt bằng chất liệu dễ vệ sinh, có quai xách.', ['Đen','Đỏ'], ['Free size'], 17, 'images/products/football-shoe-bag.png'],
       ['Bảo vệ ống đồng Shield', 149000, 'Ốp ống đồng nhẹ vừa vặn, hỗ trợ bảo vệ khi tập luyện và thi đấu.', ['Đen','Trắng'], ['S','M','L'], 20, 'images/products/football-shin-guards.png'],
-      ['Găng tay thủ môn Grip', 459000, 'Găng thủ môn có lòng bàn tay tăng độ bám và cổ tay quấn chắc chắn.', ['Đen','Xanh lá'], ['7','8','9','10'], 9],
-      ['Băng đội trưởng sân cỏ', 89000, 'Băng đội trưởng co giãn, dễ đeo và giữ cố định trong trận đấu.', ['Đỏ','Xanh','Vàng'], ['Free size'], 32]
+      ['Găng tay thủ môn Grip', 459000, 'Găng thủ môn có lòng bàn tay tăng độ bám và cổ tay quấn chắc chắn.', ['Đen','Xanh lá'], ['7','8','9','10'], 9, 'images/products/football-goalkeeper-gloves.png'],
+      ['Băng đội trưởng sân cỏ', 89000, 'Băng đội trưởng co giãn, dễ đeo và giữ cố định trong trận đấu.', ['Đỏ','Xanh','Vàng'], ['Free size'], 32, 'images/products/football-captain-armband.png']
     ]
   },
   {
