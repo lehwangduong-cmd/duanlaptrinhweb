@@ -895,7 +895,8 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/cloud-sync.js"></script>
 
-<!-- Shared Core API (Auth & Wishlist - TV3) -->
+<!-- API Client & Shared Core API (Auth & Wishlist - TV3) -->
+<script src="js/api.js"></script>
 <script src="js/shared.js"></script>
 <!-- Main Project Script -->
 <script src="js/main.js"></script>
@@ -994,7 +995,8 @@
   }
 
     // Xử lý nộp form Đăng nhập
-  function handleLoginSubmit(e) {
+  // Xử lý nộp form Đăng nhập (Tích hợp Backend SQLite & Fallback LocalStorage)
+  async function handleLoginSubmit(e) {
     if (e && e.preventDefault) e.preventDefault();
     const emailInput = document.getElementById('login-email');
     const passwordInput = document.getElementById('login-password');
@@ -1003,7 +1005,7 @@
 
     // Nếu người dùng không nhập mà bấm luôn
     if (!email) {
-      email = 'nhomanhdangcapso1vn@gmail.com';
+      email = 'admin@sportzone.vn';
       password = 'admin123';
       if (emailInput) emailInput.value = email;
       if (passwordInput) passwordInput.value = password;
@@ -1013,7 +1015,23 @@
       if (passwordInput) passwordInput.value = password;
     }
 
-    const res = Auth.login(email, password);
+    let res = null;
+    // 1. Gọi Backend API nếu có kết nối
+    if (window.SportZoneAPI && typeof window.SportZoneAPI.login === 'function') {
+      try {
+        const apiRes = await window.SportZoneAPI.login(email, password);
+        if (apiRes && apiRes.success && apiRes.user) {
+          Auth.setCurrentUser(apiRes.user);
+          res = apiRes;
+        }
+      } catch (err) {}
+    }
+
+    // 2. Fallback sang LocalStorage nếu chưa đăng nhập được
+    if (!res || !res.success) {
+      res = Auth.login(email, password);
+    }
+
     if (res.success) {
       Auth.showToast(res.message, 'success');
       checkPageState();
@@ -1023,12 +1041,26 @@
   }
 
   // Đăng nhập nhanh 1-Click
-  function quickFillLogin(email, password) {
+  async function quickFillLogin(email, password) {
     const emailInput = document.getElementById('login-email');
     const passwordInput = document.getElementById('login-password');
     if (emailInput) emailInput.value = email;
     if (passwordInput) passwordInput.value = password;
-    const res = Auth.login(email, password);
+    
+    let res = null;
+    if (window.SportZoneAPI && typeof window.SportZoneAPI.login === 'function') {
+      try {
+        const apiRes = await window.SportZoneAPI.login(email, password);
+        if (apiRes && apiRes.success && apiRes.user) {
+          Auth.setCurrentUser(apiRes.user);
+          res = apiRes;
+        }
+      } catch (err) {}
+    }
+    if (!res || !res.success) {
+      res = Auth.login(email, password);
+    }
+
     if (res.success) {
       Auth.showToast(res.message, 'success');
       checkPageState();
@@ -1037,8 +1069,8 @@
     }
   }
 
-  // Xử lý nộp form Đăng ký
-  function handleRegisterSubmit(e) {
+  // Xử lý nộp form Đăng ký (Đồng bộ cả Backend SQLite lẫn LocalStorage)
+  async function handleRegisterSubmit(e) {
     e.preventDefault();
     const fullName = document.getElementById('reg-fullname').value;
     const email = document.getElementById('reg-email').value;
@@ -1052,14 +1084,39 @@
     }
 
     const role = 'user';
+    let res = null;
 
-    const res = Auth.register({
+    // 1. Ghi vào CSDL SQLite Backend nếu server đang chạy
+    if (window.SportZoneAPI && typeof window.SportZoneAPI.register === 'function') {
+      try {
+        const apiRes = await window.SportZoneAPI.register({
+          fullName,
+          email,
+          phone,
+          password
+        });
+        if (apiRes && apiRes.success && apiRes.user) {
+          Auth.setCurrentUser(apiRes.user);
+          res = apiRes;
+        } else if (apiRes && !apiRes.success && apiRes.message) {
+          Auth.showToast(apiRes.message, 'error');
+          return;
+        }
+      } catch (err) {}
+    }
+
+    // 2. Ghi tiếp vào LocalStorage & Cloud để đồng bộ 2 chiều
+    const localRes = Auth.register({
       fullName,
       email,
       phone,
       password,
       role
     });
+
+    if (!res || !res.success) {
+      res = localRes;
+    }
 
     if (res.success) {
       Auth.showToast(res.message, 'success');

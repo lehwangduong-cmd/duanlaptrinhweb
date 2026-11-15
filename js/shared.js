@@ -379,7 +379,6 @@ var Auth = (function () {
   const BLACKLIST_EMAILS = [
     'cocanhkhong@gmail.com',
     'minhgialapnhua2k7@gmail.com',
-    'user@sportzone.vn',
     'nam.le@gmail.com'
   ];
   const BLACKLIST_IDS = [
@@ -396,6 +395,7 @@ var Auth = (function () {
       let deletedList = [];
       try {
         deletedList = JSON.parse(localStorage.getItem('sz_deleted_users') || '[]');
+        deletedList = deletedList.filter(x => x !== 'admin@sportzone.vn' && x !== 'user@sportzone.vn' && x !== 'usr-admin-02' && x !== 'usr-demo-01');
       } catch (e) {}
 
       let updated = false;
@@ -487,6 +487,58 @@ var Auth = (function () {
           district: 'Quận 1',
           ward: 'Phường Bến Nghé',
           addressDetail: '123 Nguyễn Huệ',
+          isDefault: true
+        }
+      ]
+    },
+    {
+      id: 'USR-ADMIN-02',
+      fullName: 'Quản Trị Viên SportZone',
+      email: 'admin@sportzone.vn',
+      phone: '0901234567',
+      password: 'admin123',
+      role: 'admin',
+      status: 'active',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+      gender: 'male',
+      birthday: '1990-01-01',
+      membership: 'Quản trị viên SportZone',
+      joinedDate: '2024-01-01',
+      addresses: [
+        {
+          id: 'ADDR-ADMIN',
+          recipientName: 'Quản Trị Viên SportZone',
+          phone: '0901234567',
+          city: 'Hồ Chí Minh',
+          district: 'Quận 1',
+          ward: 'Phường Bến Nghé',
+          addressDetail: 'Số 123 Đường Thể Thao',
+          isDefault: true
+        }
+      ]
+    },
+    {
+      id: 'USR-DEMO-01',
+      fullName: 'Nguyễn Văn Khách',
+      email: 'user@sportzone.vn',
+      phone: '0987654321',
+      password: 'user123',
+      role: 'user',
+      status: 'active',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+      gender: 'male',
+      birthday: '1998-10-20',
+      membership: 'Thành viên thân thiết',
+      joinedDate: '2024-02-15',
+      addresses: [
+        {
+          id: 'ADDR-USER',
+          recipientName: 'Nguyễn Văn Khách',
+          phone: '0987654321',
+          city: 'Hồ Chí Minh',
+          district: 'Quận 1',
+          ward: 'Phường Bến Nghé',
+          addressDetail: 'Số 456 Nguyễn Huệ',
           isDefault: true
         }
       ]
@@ -844,10 +896,18 @@ var Auth = (function () {
       let deletedList = [];
       try {
         deletedList = JSON.parse(localStorage.getItem('sz_deleted_users') || '[]');
+        deletedList = deletedList.filter(x => x !== 'admin@sportzone.vn' && x !== 'user@sportzone.vn' && x !== 'usr-admin-02' && x !== 'usr-demo-01');
       } catch (e) {}
 
       // Lọc bỏ triệt để mọi tài khoản đã bị xóa bởi Quản trị viên
       users = users.filter(x => !deletedList.includes(x.id) && !deletedList.includes((x.email || '').toLowerCase().trim()));
+
+      // Tự động nạp tài khoản mẫu nếu chưa có trong LocalStorage
+      DEFAULT_USERS.forEach(defUser => {
+        if (!users.some(u => (u.email || '').toLowerCase() === defUser.email.toLowerCase())) {
+          users.push(defUser);
+        }
+      });
 
       ADMIN_EMAILS.forEach(adminEmail => {
         if (deletedList.includes(adminEmail.toLowerCase())) return;
@@ -1633,11 +1693,22 @@ var Auth = (function () {
    * ============================================================
    */
 
-  // Chuyển đổi vai trò Admin <-> User
+  // Chuyển đổi vai trò Admin <-> User (Chỉ duy nhất Admin Chủ mới có quyền)
   function toggleUserRole(userId) {
     const cur = getCurrentUser();
     if (!isAdmin()) {
       return { success: false, message: 'Từ chối truy cập: Bạn không có quyền Quản trị viên!' };
+    }
+
+    const SUPER_ADMIN_EMAIL = 'nhomanhdangcapso1vn@gmail.com';
+    const curEmail = (cur && cur.email ? cur.email.toLowerCase().trim() : '');
+
+    // 1. Chỉ tài khoản Admin Chủ mới có quyền nâng cấp / hạ cấp
+    if (curEmail !== SUPER_ADMIN_EMAIL) {
+      return {
+        success: false,
+        message: 'Từ chối: Chỉ tài khoản Admin Chủ (nhomanhdangcapso1vn@gmail.com) mới có quyền nâng cấp hoặc hạ cấp vai trò người dùng!'
+      };
     }
 
     if (cur.id === userId) {
@@ -1647,6 +1718,11 @@ var Auth = (function () {
     const users = getUsers();
     const idx = users.findIndex(u => u.id === userId);
     if (idx === -1) return { success: false, message: 'Không tìm thấy người dùng!' };
+
+    // 2. Không ai được phép hạ cấp Admin Chủ
+    if ((users[idx].email || '').toLowerCase().trim() === SUPER_ADMIN_EMAIL) {
+      return { success: false, message: 'Không thể thay đổi vai trò của tài khoản Admin Chủ!' };
+    }
 
     const newRole = users[idx].role === 'admin' ? 'user' : 'admin';
     users[idx].role = newRole;
@@ -1700,6 +1776,14 @@ var Auth = (function () {
     const users = getUsers();
     const target = users.find(u => u.id === userId);
     if (!target) return { success: false, message: 'Không tìm thấy tài khoản!' };
+
+    // Tuyệt đối không ai xóa được tài khoản Admin Chủ
+    if ((target.email || '').toLowerCase().trim() === 'nhomanhdangcapso1vn@gmail.com') {
+      return {
+        success: false,
+        message: 'Hành động bị cấm: Không thể xóa tài khoản Admin Chủ (nhomanhdangcapso1vn@gmail.com)!'
+      };
+    }
 
     const filtered = users.filter(u => u.id !== userId);
     saveUsers(filtered);

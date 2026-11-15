@@ -126,14 +126,45 @@ git push origin tv2-sanpham
 
 ---
 
-## 🚀 Chạy thử dự án
+## 🚀 Chạy thử dự án (Fullstack: Frontend + Backend SQLite)
 
+### 1. Khởi động Backend API & SQLite Database
 ```bash
-# Dùng Python (cần Python 3)
-python -m http.server 5500
+cd server
+npm start
+# Server sẽ tự động nạp CSDL SQLite (sportzone.db) và chạy tại http://localhost:5000
+```
 
+### 2. Khởi động Frontend
+```bash
+# Từ thư mục gốc dự án:
+python -m http.server 5500
+# Hoặc dùng extension "Live Server" trong VS Code (cổng 5500)
 # Mở trình duyệt: http://localhost:5500
 ```
+
+### 📡 Danh sách RESTful API Backend (Node.js + SQLite)
+* **Auth:**
+  * `POST /api/auth/register`: Đăng ký tài khoản (băm mật khẩu `bcrypt`)
+  * `POST /api/auth/login`: Đăng nhập cấp mã `JWT Token`
+  * `GET  /api/auth/me`: Lấy thông tin user hiện tại qua JWT
+  * `PUT  /api/auth/profile`: Cập nhật thông tin cá nhân
+  * `POST /api/auth/google`: Xác minh Google OAuth ID Token
+* **Products:**
+  * `GET    /api/products`: Lấy danh sách sản phẩm (có tìm kiếm, lọc danh mục, giá, phân trang)
+  * `GET    /api/products/:id`: Xem chi tiết sản phẩm
+  * `POST   /api/products`: (Admin) Thêm sản phẩm mới vào SQLite
+  * `PUT    /api/products/:id`: (Admin) Chỉnh sửa sản phẩm
+  * `DELETE /api/products/:id`: (Admin) Xóa sản phẩm
+* **Orders:**
+  * `POST   /api/orders`: Đặt hàng mới (tự động trừ số lượng tồn kho trong SQLite)
+  * `GET    /api/orders/my-orders`: Xem đơn hàng của tôi
+  * `GET    /api/orders`: (Admin) Xem toàn bộ đơn hàng
+  * `PUT    /api/orders/:id/status`: (Admin) Cập nhật trạng thái đơn (chờ duyệt, đang giao, hoàn thành, hủy)
+* **Admin Dashboard:**
+  * `GET    /api/admin/stats`: Thống kê doanh thu, tổng đơn hàng, sản phẩm, khách hàng, biểu đồ danh mục
+  * `GET    /api/admin/users`: Quản lý danh sách thành viên
+  * `PUT    /api/admin/users/:id/role`: Thăng/hạ quyền Admin & User
 
 ### TV4: Cart, Checkout, Payment và Order History
 

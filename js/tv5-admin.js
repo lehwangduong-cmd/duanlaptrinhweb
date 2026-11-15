@@ -47,6 +47,19 @@
     bindFilters();
     loadData();
     renderAll();
+    restoreActiveView();
+  }
+
+  function restoreActiveView() {
+    const rawHash = window.location.hash ? window.location.hash.replace(/^#/, '').trim() : '';
+    const saved = sessionStorage.getItem('sz_admin_active_view');
+    const target = (rawHash && Object.prototype.hasOwnProperty.call(titles, rawHash))
+      ? rawHash
+      : ((saved && Object.prototype.hasOwnProperty.call(titles, saved)) ? saved : 'dashboard');
+
+    if (target && target !== 'dashboard') {
+      showView(target, false);
+    }
   }
 
   function bindNavigation() {
@@ -55,6 +68,12 @@
     });
     document.querySelectorAll('[data-open-view]').forEach(button => {
       button.addEventListener('click', () => showView(button.dataset.openView));
+    });
+    window.addEventListener('hashchange', () => {
+      const rawHash = window.location.hash ? window.location.hash.replace(/^#/, '').trim() : '';
+      if (rawHash && Object.prototype.hasOwnProperty.call(titles, rawHash)) {
+        showView(rawHash, false);
+      }
     });
   }
 
@@ -123,7 +142,7 @@
     renderRevenue();
   }
 
-  function showView(name) {
+  function showView(name, updateUrl = true) {
     if (!Object.prototype.hasOwnProperty.call(titles, name)) return;
     document.querySelectorAll('[data-view-panel]').forEach(panel => {
       const active = panel.dataset.viewPanel === name;
@@ -137,6 +156,14 @@
       else button.removeAttribute('aria-current');
     });
     document.getElementById('pageTitle').textContent = titles[name];
+
+    // Lưu lại tab hiện tại để khi F5 trang không bị quay về Tổng quan
+    try {
+      sessionStorage.setItem('sz_admin_active_view', name);
+      if (updateUrl && window.location.hash !== '#' + name) {
+        history.replaceState(null, '', '#' + name);
+      }
+    } catch (e) {}
   }
 
   function renderDashboard() {

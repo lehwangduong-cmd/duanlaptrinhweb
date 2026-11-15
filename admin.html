@@ -290,6 +290,7 @@
 <script src="js/cloud-sync.js"></script>
 
 <!-- Main Script & Shared Core Script (TV3) -->
+<script src="js/api.js"></script>
 <script src="js/shared.js"></script>
 <script src="js/main.js"></script>
 
@@ -399,6 +400,8 @@
     const tbody = document.getElementById('users-table-body');
     const users = customList || Auth.getUsers();
     const cur = Auth.getCurrentUser();
+    const SUPER_ADMIN = 'nhomanhdangcapso1vn@gmail.com';
+    const isCurrentSuperAdmin = (cur && (cur.email || '').toLowerCase().trim() === SUPER_ADMIN);
 
     if (users.length === 0) {
       tbody.innerHTML = `
@@ -413,14 +416,47 @@
 
     tbody.innerHTML = users.map(u => {
       const isSelf = (cur && cur.id === u.id);
-      
-      const roleBadge = u.role === 'admin' 
-        ? `<span class="badge-role badge-admin" style="font-size:11.5px;"><i class="fas fa-crown"></i> Admin</span>`
-        : `<span class="badge-role badge-user" style="background:#e0f2fe; color:#0369a1; font-size:11.5px;"><i class="fas fa-user"></i> Khách hàng</span>`;
+      const isTargetSuperAdmin = ((u.email || '').toLowerCase().trim() === SUPER_ADMIN);
+
+      let roleBadge = '';
+      if (isTargetSuperAdmin) {
+        roleBadge = `<span class="badge-role badge-admin" style="background: linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:11.5px; box-shadow:0 2px 6px rgba(245,158,11,0.3);"><i class="fas fa-crown"></i> Admin Chủ</span>`;
+      } else if (u.role === 'admin') {
+        roleBadge = `<span class="badge-role badge-admin" style="font-size:11.5px;"><i class="fas fa-user-shield"></i> Admin</span>`;
+      } else {
+        roleBadge = `<span class="badge-role badge-user" style="background:#e0f2fe; color:#0369a1; font-size:11.5px;"><i class="fas fa-user"></i> Khách hàng</span>`;
+      }
 
       const statusBadge = u.status === 'active'
         ? `<span class="badge-status active"><i class="fas fa-circle" style="font-size:8px;"></i> Hoạt động</span>`
         : `<span class="badge-status locked"><i class="fas fa-lock" style="font-size:8px;"></i> Đã khóa</span>`;
+
+      // Render các nút hành động phân quyền
+      let actionsHtml = '';
+      if (isTargetSuperAdmin) {
+        // Tài khoản Admin Chủ: Bất khả xâm phạm, không ai có thể xóa hoặc hạ cấp
+        actionsHtml = `<span style="font-size:11.5px; color:#d97706; font-weight:600; padding:4px 8px; background:#fef3c7; border-radius:6px;"><i class="fas fa-shield-alt"></i> Admin Tối Cao</span>`;
+      } else if (isSelf) {
+        actionsHtml = `<span style="font-size:12px; color:#94a3b8; font-style:italic;">Tài khoản hiện tại</span>`;
+      } else {
+        // Tài khoản khác:
+        // Nút phân quyền (Chỉ duy nhất Admin Chủ mới thấy và thao tác được)
+        const roleBtnHtml = isCurrentSuperAdmin ? `
+          <button type="button" class="btn-tbl-action btn-tbl-role" onclick="handleToggleRole('${u.id}', '${u.role}')" title="Chuyển vai trò Admin ⇄ Khách hàng">
+            <i class="fas fa-sync-alt"></i> ${u.role === 'admin' ? 'Hạ xuống User' : 'Nâng cấp Admin'}
+          </button>
+        ` : '';
+
+        actionsHtml = `
+          ${roleBtnHtml}
+          <button type="button" class="btn-tbl-action btn-tbl-lock" onclick="handleToggleLock('${u.id}', '${u.status}')" title="${u.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa'}">
+            <i class="fas ${u.status === 'active' ? 'fa-lock' : 'fa-lock-open'}"></i> ${u.status === 'active' ? 'Khóa' : 'Mở'}
+          </button>
+          <button type="button" class="btn-tbl-action btn-tbl-delete" onclick="handleDeleteUser('${u.id}', '${u.fullName}')" title="Xóa tài khoản vĩnh viễn">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        `;
+      }
 
       return `
         <tr>
@@ -445,19 +481,7 @@
           <td style="color:#64748b; font-size:12.5px;">${u.joinedDate || '2024-01-01'}</td>
           <td style="text-align: right;">
             <div class="table-actions" style="justify-content: flex-end;">
-              ${!isSelf ? `
-                <button type="button" class="btn-tbl-action btn-tbl-role" onclick="handleToggleRole('${u.id}', '${u.role}')" title="Chuyển vai trò Admin ⇄ Khách hàng">
-                  <i class="fas fa-sync-alt"></i> ${u.role === 'admin' ? 'Hạ xuống User' : 'Nâng cấp Admin'}
-                </button>
-                <button type="button" class="btn-tbl-action btn-tbl-lock" onclick="handleToggleLock('${u.id}', '${u.status}')" title="${u.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa'}">
-                  <i class="fas ${u.status === 'active' ? 'fa-lock' : 'fa-lock-open'}"></i> ${u.status === 'active' ? 'Khóa' : 'Mở'}
-                </button>
-                <button type="button" class="btn-tbl-action btn-tbl-delete" onclick="handleDeleteUser('${u.id}', '${u.fullName}')" title="Xóa tài khoản vĩnh viễn">
-                  <i class="fas fa-trash-alt"></i>
-                </button>
-              ` : `
-                <span style="font-size:12px; color:#94a3b8; font-style:italic;">Tài khoản hiện tại</span>
-              `}
+              ${actionsHtml}
             </div>
           </td>
         </tr>
@@ -465,10 +489,34 @@
     }).join('');
   }
 
-  // Thao tác đổi quyền Admin <-> User
-  function handleToggleRole(userId, currentRole) {
+  // Thao tác đổi quyền Admin <-> User (Chỉ duy nhất Admin Chủ mới có quyền)
+  async function handleToggleRole(userId, currentRole) {
+    const cur = Auth.getCurrentUser();
+    const SUPER_ADMIN = 'nhomanhdangcapso1vn@gmail.com';
+    if (!cur || (cur.email || '').toLowerCase().trim() !== SUPER_ADMIN) {
+      Auth.showToast('Từ chối: Chỉ tài khoản Admin Chủ (nhomanhdangcapso1vn@gmail.com) mới có quyền phân quyền!', 'error');
+      return;
+    }
+
     const targetRoleText = currentRole === 'admin' ? 'Khách hàng (User)' : 'Quản trị viên (Admin)';
+    const nextRole = currentRole === 'admin' ? 'user' : 'admin';
     if (confirm(`Bạn có chắc chắn muốn chuyển vai trò tài khoản này thành "${targetRoleText}" không?`)) {
+      // 1. Đồng bộ lên Backend SQLite API
+      try {
+        const token = localStorage.getItem('sz_jwt_token');
+        if (token) {
+          await fetch(`http://localhost:5000/api/admin/users/${userId}/role`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ role: nextRole })
+          });
+        }
+      } catch (err) {}
+
+      // 2. Cập nhật LocalStorage & Cloud
       const res = Auth.toggleUserRole(userId);
       if (res.success) {
         Auth.showToast(res.message, 'success');
@@ -495,9 +543,21 @@
     }
   }
 
-  // Thao tác Xóa tài khoản
-  function handleDeleteUser(userId, name) {
+  // Thao tác Xóa tài khoản (Đồng bộ cả Backend SQLite lẫn LocalStorage)
+  async function handleDeleteUser(userId, name) {
     if (confirm(`Hành động này không thể hoàn tác!\nBạn có chắc chắn muốn XÓA vĩnh viễn tài khoản "${name}" khỏi cơ sở dữ liệu?`)) {
+      // 1. Xóa trong Backend SQLite Database nếu server đang chạy
+      try {
+        const token = localStorage.getItem('sz_jwt_token');
+        if (token) {
+          await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+        }
+      } catch (err) {}
+
+      // 2. Xóa trong LocalStorage & Cloud
       const res = Auth.deleteUser(userId);
       if (res.success) {
         Auth.showToast(res.message, 'success');
@@ -514,7 +574,7 @@
     openModal('modal-create-user');
   }
 
-  function handleAdminCreateUser(e) {
+  async function handleAdminCreateUser(e) {
     e.preventDefault();
     const fullName = document.getElementById('new-user-name').value;
     const email = document.getElementById('new-user-email').value;
@@ -522,6 +582,14 @@
     const password = document.getElementById('new-user-pass').value;
     const role = document.getElementById('new-user-role').value;
 
+    // 1. Lưu vào SQLite Backend nếu server online
+    if (window.SportZoneAPI && typeof window.SportZoneAPI.register === 'function') {
+      try {
+        await window.SportZoneAPI.register({ fullName, email, phone, password, role });
+      } catch (err) {}
+    }
+
+    // 2. Lưu vào LocalStorage & Cloud
     const res = Auth.adminCreateUser({ fullName, email, phone, password, role });
     if (res.success) {
       Auth.showToast(res.message, 'success');

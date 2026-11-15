@@ -1,140 +1,87 @@
 /**
  * ============================================================
- * SportZone - Backend Google ID Token Verification Server
+ * SportZone - Fullstack Express & SQLite Backend Server
  * ============================================================
- * Chức năng:
- *  1. Tiếp nhận Google ID Token (JWT) từ client gửi lên
- *  2. Xác minh chữ ký số bằng Google Public Keys (google-auth-library)
- *  3. Kiểm tra Issuer (accounts.google.com), Audience (Client ID) và Expiry (thời hạn)
- *  4. Trích xuất thông tin người dùng: User ID (sub), Email, Tên, Avatar
- *  5. Tạo phiên đăng nhập an toàn và trả dữ liệu về frontend
+ * Cung cấp toàn bộ RESTful API cho dự án SportZone:
+ *  - /api/auth     : Đăng ký, Đăng nhập, Profile, Google OAuth, Đổi mật khẩu
+ *  - /api/products : Lấy danh sách, Tìm kiếm, Lọc, Chi tiết, Thêm/Sửa/Xóa (Admin)
+ *  - /api/orders   : Đặt hàng, Lịch sử đơn hàng, Quản lý đơn hàng (Admin)
+ *  - /api/admin    : Thống kê doanh thu, Quản lý người dùng
  * ============================================================
  */
 
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const { OAuth2Client } = require('google-auth-library');
+const path = require('path');
 
-// Đọc cấu hình từ file .env
+// Đọc cấu hình từ .env
 dotenv.config();
+
+// Khởi tạo và nạp database SQLite
+const db = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
-
-// Khởi tạo OAuth2Client chính thức của Google
-const oauth2Client = new OAuth2Client(CLIENT_ID);
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000'],
-  credentials: true
+  origin: '*', // Cho phép gọi từ Live Server (5500), Python server, hoặc file://
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Endpoint kiểm tra trạng thái server
+// Health Check API
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    service: 'SportZone Google Auth Verification Backend',
-    hasClientId: !!CLIENT_ID && !CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')
+    service: 'SportZone SQLite & Express Fullstack Backend',
+    database: 'SQLite (sportzone.db)',
+    timestamp: new Date().toISOString()
   });
 });
 
-/**
- * POST /api/auth/google
- * Body: { idToken: string }
- */
-app.post('/api/auth/google', async (req, res) => {
-  const { idToken } = req.body;
+// Import các routes
+const authRoutes = require('./routes/auth');
+const productRoutes = require('./routes/products');
+const orderRoutes = require('./routes/orders');
+const adminRoutes = require('./routes/admin');
 
-  if (!idToken) {
-    return res.status(400).json({
-      success: false,
-      message: 'Yêu cầu không hợp lệ: Không tìm thấy Google ID Token trong request body!'
-    });
-  }
+// Đăng ký routes vào app
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes);
 
-  if (!CLIENT_ID || CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) {
-    return res.status(500).json({
-      success: false,
-      message: 'Server chưa được cấu hình GOOGLE_CLIENT_ID trong file .env!'
-    });
-  }
-
-  try {
-    // 1. Xác minh Token bằng thư viện google-auth-library chính thức
-    // Tự động kiểm tra:
-    // - Chữ ký (Signature) với các chứng chỉ công khai của Google (certs.googleapis.com)
-    // - Issuer (iss phải là 'https://accounts.google.com' hoặc 'accounts.google.com')
-    // - Audience (aud phải khớp đúng GOOGLE_CLIENT_ID của ứng dụng)
-    // - Expiration Time (exp không được quá hạn)
-    const ticket = await oauth2Client.verifyIdToken({
-      idToken: idToken,
-      audience: CLIENT_ID
-    });
-
-    // 2. Trích xuất Payload đã được chứng thực bảo mật
-    const payload = ticket.getPayload();
-
-    const googleUserId = payload['sub'];
-    const email = payload['email'];
-    const emailVerified = payload['email_verified'];
-    const name = payload['name'];
-    const picture = payload['picture'];
-
-    // Kiểm tra trạng thái xác thực email từ Google
-    if (!emailVerified) {
-      return res.status(401).json({
-        success: false,
-        message: 'Tài khoản Google này chưa được xác minh địa chỉ email!'
-      });
-    }
-
-    // 3. Phân quyền người dùng (Role-Based Access Control)
-    const ADMIN_EMAILS = [
-      'nhomanhdangcapso1vn@gmail.com',
-      'admin@sportzone.vn'
-    ];
-    const role = ADMIN_EMAILS.some(e => e.toLowerCase() === email.toLowerCase()) ? 'admin' : 'user';
-
-    // 4. Tạo thông tin phiên người dùng an toàn
-    const userSession = {
-      id: 'USR-GGL-' + googleUserId.slice(-6),
-      googleId: googleUserId,
-      email: email,
-      fullName: name,
-      avatar: picture,
-      role: role,
-      emailVerified: emailVerified,
-      membership: role === 'admin' ? 'Quản trị viên cấp cao' : 'Thành viên Google',
-      loginMethod: 'google',
-      verifiedAt: new Date().toISOString()
-    };
-
-    console.log(`[Google Auth Success] Người dùng: ${name} (${email}) - Google ID: ${googleUserId} - Quyền: ${role}`);
-
-    return res.json({
-      success: true,
-      message: `Xác thực Google thành công! Xin chào ${name}.`,
-      user: userSession
-    });
-
-  } catch (error) {
-    console.error('[Google Auth Error] Xác minh Token thất bại:', error.message);
-    return res.status(401).json({
-      success: false,
-      message: 'Google ID Token không hợp lệ hoặc đã hết hạn!',
-      error: error.message
-    });
-  }
+// Xử lý 404 cho API
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Endpoint không tồn tại: ${req.method} ${req.originalUrl}`
+  });
 });
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('❌ Lỗi hệ thống:', err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Lỗi máy chủ nội bộ.'
+  });
+});
+
+// Khởi động server
 app.listen(PORT, () => {
   console.log(`=======================================================`);
-  console.log(`SportZone Google Auth Backend đang chạy tại: http://localhost:${PORT}`);
-  console.log(`Cấu hình Client ID: ${CLIENT_ID || 'Chưa thiết lập (vui lòng cập nhật .env)'}`);
+  console.log(`🏆 SportZone Fullstack Backend đang chạy tại: http://localhost:${PORT}`);
+  console.log(`📦 Database: SQLite (${path.join(__dirname, 'sportzone.db')})`);
+  console.log(`📡 Endpoints khả dụng:`);
+  console.log(`   - Auth     : http://localhost:${PORT}/api/auth`);
+  console.log(`   - Products : http://localhost:${PORT}/api/products`);
+  console.log(`   - Orders   : http://localhost:${PORT}/api/orders`);
+  console.log(`   - Admin    : http://localhost:${PORT}/api/admin/stats`);
+  console.log(`   - Health   : http://localhost:${PORT}/api/health`);
   console.log(`=======================================================`);
 });
-
