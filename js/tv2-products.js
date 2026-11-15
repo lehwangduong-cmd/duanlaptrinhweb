@@ -14,11 +14,11 @@ const DEFAULT_PRODUCTS = [
   {id:2,name:'Bóng đá UCL Size 5',category:'Bóng đá',brand:'Kipsta',price:450000,oldPrice:0,rating:4.8,reviews:94,badge:'Mới',image:'images/products-real/bong-da.jpg',icon:'fa-futbol',sizes:['Size 5'],stock:25,description:'Bóng thi đấu size 5 với lớp da PU chắc chắn, độ bền cao và độ nảy ổn định.'},
   {id:3,name:'Áo chạy bộ Dry Feel nam',category:'Chạy bộ',brand:'Kalenji',price:249000,oldPrice:399000,rating:4.5,reviews:76,badge:'-38%',image:'images/products-real/ao-chay-bo.jpg',icon:'fa-shirt',sizes:['S','M','L','XL'],stock:30,description:'Áo thể thao co giãn nhẹ, thoáng khí và thấm hút mồ hôi nhanh trong mọi hoạt động.'},
   {id:4,name:'Bộ vợt cầu lông BR 500',category:'Cầu lông',brand:'Artengo',price:329000,oldPrice:0,rating:4.4,reviews:61,image:'images/products-real/vot-cau-long.jpg',icon:'fa-table-tennis-paddle-ball',sizes:['Cặp vợt'],stock:15,description:'Bộ vợt phù hợp cho người mới bắt đầu, khung nhẹ và dễ điều khiển cú đánh.'},
-  {id:5,name:'Kính bơi chống sương mù',category:'Bơi lội',brand:'Nabaiji',price:189000,oldPrice:290000,rating:4.6,reviews:52,badge:'-35%',image:'images/products-real/kinh-boi.jpg',icon:'fa-glasses',sizes:['Free size'],stock:20,description:'Kính bơi co giãn mềm, tròng chống sương mù và khóa điều chỉnh dễ sử dụng.'},
+  {id:5,name:'Kính bơi chống sương mù',category:'Bơi lội',brand:'Nabaiji',price:189000,oldPrice:290000,rating:4.6,reviews:52,badge:'-35%',image:'images/products/swim-blue-goggles.png',icon:'fa-glasses',sizes:['Free size'],stock:20,description:'Kính bơi co giãn mềm, tròng chống sương mù và khóa điều chỉnh dễ sử dụng.'},
   {id:6,name:'Bình tập yoga 8mm',category:'Gym',brand:'Domyos',price:399000,oldPrice:599000,rating:4.9,reviews:113,badge:'Bán chạy',image:'images/products-real/tham-yoga.jpg',icon:'fa-person-praying',sizes:['183 x 61 cm'],stock:14,description:'Thảm yoga 8mm giúp tăng độ êm và ổn định, phù hợp cả yoga lẫn luyện sức mạnh.'},
   {id:7,name:'Tạ tay vinyl 2kg',category:'Gym',brand:'Domyos',price:279000,oldPrice:320000,rating:4.3,reviews:38,badge:'-13%',image:'images/products-real/ta-tay.jpg',icon:'fa-dumbbell',sizes:['2 kg','4 kg'],stock:22,description:'Tạ tay bọc vinyl dễ vệ sinh, cầm chắc tay và phù hợp tập sức mạnh tại nhà.'},
   {id:8,name:'Giày đá bóng Viralto III',category:'Bóng đá',brand:'Kipsta',price:1190000,oldPrice:1690000,rating:4.8,reviews:87,badge:'-30%',image:'images/products-real/giay-da-bong.jpg',icon:'fa-futbol',sizes:['39','40','41','42','43'],stock:10,description:'Giày sân cỏ nhân tạo có độ bám tốt, thiết kế ôm chân và hỗ trợ tăng tốc.'},
-  {id:9,name:'Mũ bơi silicone',category:'Bơi lội',brand:'Nabaiji',price:99000,oldPrice:0,rating:4.2,reviews:44,image:'images/products-real/mu-boi.jpg',icon:'fa-water',sizes:['Free size'],stock:40,description:'Mũ bơi silicone mềm, bám đầu tốt và phù hợp cho cả tập luyện lẫn thi đấu.'},
+  {id:9,name:'Mũ bơi silicone',category:'Bơi lội',brand:'Nabaiji',price:99000,oldPrice:0,rating:4.2,reviews:44,image:'images/products/swim-blue-cap.png',icon:'fa-water',sizes:['Free size'],stock:40,description:'Mũ bơi silicone mềm, bám đầu tốt và phù hợp cho cả tập luyện lẫn thi đấu.'},
   {id:10,name:'Đồng hồ thể thao GPS',category:'Chạy bộ',brand:'Kalenji',price:1590000,oldPrice:1990000,rating:4.7,reviews:105,badge:'-20%',image:'images/products-real/dong-ho-gps.jpg',icon:'fa-clock',sizes:['38 mm'],stock:8,description:'Đồng hồ theo dõi quãng đường, nhịp tim, pace và GPS cho mọi buổi luyện chạy.'},
   {id:11,name:'Áo đấu đội tuyển Việt Nam',category:'Bóng đá',brand:'Kipsta',price:399000,oldPrice:499000,rating:4.6,reviews:71,badge:'Mới',image:'images/products-real/ao-dau.jpg',icon:'fa-shirt',sizes:['S','M','L','XL','XXL'],stock:16,description:'Áo thi đấu thể thao fabric thoáng mát, sắc đỏ truyền thống và đường may chắc chắn.'},
   {id:12,name:'Balo gym 30L',category:'Gym',brand:'Domyos',price:349000,oldPrice:449000,rating:4.5,reviews:49,image:'images/products-real/balo-gym.jpg',icon:'fa-bag-shopping',sizes:['30L'],stock:19,description:'Balo thể thao nhiều ngăn, quai đeo êm và ngăn riêng chống thấm cho đồ dùng tập luyện.'}
@@ -67,14 +67,14 @@ const SEED_PRODUCT_GROUPS = [
   {
     category: 'Bơi lội', brand: 'Nabaiji', image: 'images/products/kinh-boi.svg', icon: 'fa-person-swimming',
     products: [
-      ['Đồ bơi liền thân AquaFit', 459000, 'Đồ bơi co giãn nhanh khô, ôm vừa vặn cho buổi tập trong hồ.', ['Xanh navy','Đen','Tím'], ['S','M','L','XL'], 15],
-      ['Quần bơi nam SwimFast', 279000, 'Quần bơi vải co giãn nhanh khô, dây rút điều chỉnh chắc chắn.', ['Đen','Xanh navy'], ['S','M','L','XL'], 18],
-      ['Kính bơi trẻ em ClearView', 159000, 'Kính bơi có dây điều chỉnh và tròng nhìn rõ dưới nước.', ['Xanh','Hồng','Vàng'], ['Free size'], 23],
-      ['Phao tập bơi kẹp chân', 189000, 'Phao nhẹ hỗ trợ tập kỹ thuật chân và giữ tư thế ổn định.', ['Xanh','Vàng'], ['Free size'], 12],
-      ['Dép hồ bơi chống trượt', 219000, 'Dép thoát nước nhanh với đế chống trượt trên bề mặt ướt.', ['Đen','Xanh'], ['38','39','40','41','42','43'], 19],
-      ['Khăn microfiber bơi lội', 119000, 'Khăn mềm nhẹ, thấm hút nhanh và gấp gọn sau khi bơi.', ['Xanh','Hồng','Xám'], ['40 x 80 cm'], 34],
-      ['Túi đựng đồ bơi chống nước', 249000, 'Túi gọn nhẹ giúp tách đồ ướt sau khi bơi khỏi vật dụng khô.', ['Đen','Xanh biển'], ['Free size'], 16],
-      ['Áo phao tập bơi trẻ em', 389000, 'Áo phao có khóa cài điều chỉnh, hỗ trợ trẻ làm quen với nước.', ['Cam','Vàng'], ['S','M','L'], 8]
+      ['Đồ bơi liền thân AquaFit', 459000, 'Đồ bơi co giãn nhanh khô, ôm vừa vặn cho buổi tập trong hồ.', ['Xanh navy','Đen','Tím'], ['S','M','L','XL'], 15, 'images/products/swim-one-piece-suit.png'],
+      ['Quần bơi nam SwimFast', 279000, 'Quần bơi vải co giãn nhanh khô, dây rút điều chỉnh chắc chắn.', ['Đen','Xanh navy'], ['S','M','L','XL'], 18, 'images/products/swim-shorts-blue.png'],
+      ['Kính bơi trẻ em ClearView', 159000, 'Kính bơi có dây điều chỉnh và tròng nhìn rõ dưới nước.', ['Xanh','Hồng','Vàng'], ['Free size'], 23, 'images/products/swim-kids-goggles.png'],
+      ['Phao tập bơi kẹp chân', 189000, 'Phao nhẹ hỗ trợ tập kỹ thuật chân và giữ tư thế ổn định.', ['Xanh','Vàng'], ['Free size'], 12, 'images/products/swim-pull-buoy.png'],
+      ['Dép hồ bơi chống trượt', 219000, 'Dép thoát nước nhanh với đế chống trượt trên bề mặt ướt.', ['Đen','Xanh'], ['38','39','40','41','42','43'], 19, 'images/products/swim-aqua-shoes.png'],
+      ['Khăn microfiber bơi lội', 119000, 'Khăn mềm nhẹ, thấm hút nhanh và gấp gọn sau khi bơi.', ['Xanh','Hồng','Xám'], ['40 x 80 cm'], 34, 'images/products/swim-microfiber-towel.png'],
+      ['Túi đựng đồ bơi chống nước', 249000, 'Túi gọn nhẹ giúp tách đồ ướt sau khi bơi khỏi vật dụng khô.', ['Đen','Xanh biển'], ['Free size'], 16, 'images/products/swim-waterproof-bag.png'],
+      ['Áo phao tập bơi trẻ em', 389000, 'Áo phao có khóa cài điều chỉnh, hỗ trợ trẻ làm quen với nước.', ['Cam','Vàng'], ['S','M','L'], 8, 'images/products/swim-kids-life-vest.png']
     ]
   },
   {
@@ -138,9 +138,9 @@ const PARTNER_BRAND_PRODUCTS = [
   {id:2004,name:'La bàn du lịch cầm tay',category:'Ngoài trời',brand:'Geologic',price:229000,oldPrice:0,rating:4.5,reviews:14,image:'images/products/dong-ho-gps.svg',icon:'fa-compass',sizes:['Free size'],stock:20,description:'La bàn nhỏ gọn hỗ trợ định hướng cơ bản trong các hoạt động khám phá ngoài trời.'},
   {id:2005,name:'Ống nhòm du lịch 10x25',category:'Ngoài trời',brand:'Geologic',price:699000,oldPrice:0,rating:4.6,reviews:11,image:'images/products/balo-gym.svg',icon:'fa-binoculars',sizes:['10 x 25'],stock:8,description:'Ống nhòm nhỏ gọn dễ mang theo khi quan sát thiên nhiên và du lịch.'},
   {id:2006,name:'Gậy trekking gấp gọn',category:'Ngoài trời',brand:'Geologic',price:459000,oldPrice:0,rating:4.4,reviews:17,image:'images/products/ta-tay.svg',icon:'fa-person-hiking',sizes:['Điều chỉnh'],stock:14,description:'Gậy trekking điều chỉnh độ dài, hỗ trợ giữ nhịp bước trên cung đường đi bộ.'},
-  {id:2007,name:'Kính bơi Snorkeling Easy',category:'Bơi lội',brand:'Tribord',price:329000,oldPrice:0,rating:4.6,reviews:21,image:'images/products/kinh-boi.svg',icon:'fa-mask',sizes:['Free size'],stock:16,description:'Kính snorkeling có dây đeo điều chỉnh, phù hợp cho hoạt động bơi và khám phá mặt nước.'},
-  {id:2008,name:'Áo bơi chống nắng Rashguard',category:'Bơi lội',brand:'Tribord',price:499000,oldPrice:0,rating:4.5,reviews:18,image:'images/products/ao-chay-bo.svg',icon:'fa-shirt',sizes:['S','M','L','XL'],stock:13,description:'Áo bơi dài tay co giãn nhẹ, giúp che phủ da khi tham gia hoạt động ngoài trời.'},
-  {id:2009,name:'Túi chống nước đi biển 10L',category:'Bơi lội',brand:'Tribord',price:259000,oldPrice:0,rating:4.4,reviews:16,image:'images/products/balo-gym.svg',icon:'fa-water',sizes:['10L'],stock:24,description:'Túi cuộn miệng dung tích gọn nhẹ giúp bảo vệ vật dụng cá nhân khỏi nước bắn.'},
+  {id:2007,name:'Kính bơi Snorkeling Easy',category:'Bơi lội',brand:'Tribord',price:329000,oldPrice:0,rating:4.6,reviews:21,image:'images/products/swim-snorkel-mask.png',icon:'fa-mask',sizes:['Free size'],stock:16,description:'Kính snorkeling có dây đeo điều chỉnh, phù hợp cho hoạt động bơi và khám phá mặt nước.'},
+  {id:2008,name:'Áo bơi chống nắng Rashguard',category:'Bơi lội',brand:'Tribord',price:499000,oldPrice:0,rating:4.5,reviews:18,image:'images/products/swim-rashguard.png',icon:'fa-shirt',sizes:['S','M','L','XL'],stock:13,description:'Áo bơi dài tay co giãn nhẹ, giúp che phủ da khi tham gia hoạt động ngoài trời.'},
+  {id:2009,name:'Túi chống nước đi biển 10L',category:'Bơi lội',brand:'Tribord',price:259000,oldPrice:0,rating:4.4,reviews:16,image:'images/products/swim-waterproof-bag.png',icon:'fa-water',sizes:['10L'],stock:24,description:'Túi cuộn miệng dung tích gọn nhẹ giúp bảo vệ vật dụng cá nhân khỏi nước bắn.'},
   {id:2010,name:'Giày chạy bộ Run Active Pro',category:'Chạy bộ',brand:'Kalenji',price:3180000,oldPrice:4539000,rating:4.8,reviews:0,badge:'-30%',image:'assets/products/featured-running-shoe.png',icon:'fa-shoe-prints',sizes:['39','40','41','42','43','44'],colors:['Tím','Xanh'],stock:15,description:'Giày chạy bộ nhẹ và êm, thiết kế đế hỗ trợ độ bám và chuyển động linh hoạt trên đường chạy.'},
   {id:2011,name:'Áo thi đấu CLB Man City 2026',category:'Bóng đá',brand:'Kipsta',price:2800000,oldPrice:3000000,rating:4.7,reviews:0,badge:'Mới',image:'assets/products/featured-man-city-jersey.png',icon:'fa-shirt',sizes:['S','M','L','XL','XXL'],colors:['Xanh da trời','Trắng'],stock:20,description:'Áo thi đấu bóng đá chất liệu thoáng khí, phom thể thao thoải mái khi tập luyện và cổ vũ.'},
   {id:2012,name:'Thảm Yoga TPE 6mm cao cấp',category:'Yoga',brand:'Domyos',price:1590000,oldPrice:1900000,rating:4.8,reviews:0,badge:'-40%',image:'assets/products/featured-yoga-mat.png',icon:'fa-person-praying',sizes:['183 x 61 cm'],colors:['Tím'],stock:18,description:'Thảm TPE dày 6mm có bề mặt bám tốt, hỗ trợ giữ thăng bằng và êm khi tập yoga.'},
@@ -173,6 +173,13 @@ const SEED_PRODUCTS = [
   ...PARTNER_BRAND_PRODUCTS
 ];
 
+const LEGACY_PRODUCT_IMAGES = new Map([
+  ['5', 'images/products-real/kinh-boi.jpg'],
+  ['9', 'images/products-real/mu-boi.jpg'],
+  ['2008', 'images/products/ao-chay-bo.svg'],
+  ['2009', 'images/products/balo-gym.svg']
+]);
+
 function mergeSeedProducts(products, includeMissing = false) {
   let deletedIds = [];
   try {
@@ -182,15 +189,22 @@ function mergeSeedProducts(products, includeMissing = false) {
   const deletedSet = new Set(deletedIds.map(String));
 
   const seedById = new Map(SEED_PRODUCTS.map(product => [String(product.id), product]));
+  const defaultSeedById = new Map(DEFAULT_PRODUCTS.map(product => [String(product.id), product]));
   const merged = products
     .filter(product => !deletedSet.has(String(product.id)))
     .map(product => {
-      const seed = seedById.get(String(product.id));
+      const id = String(product.id);
+      const seed = seedById.get(id) || defaultSeedById.get(id);
       const needsBrand = seed && (!product.brand || product.brand === 'SportZone');
+      const shouldUpdateImage = seed && (
+        product.image === product.placeholderImage ||
+        product.image === getProductPlaceholder(product.category) ||
+        product.image === LEGACY_PRODUCT_IMAGES.get(id)
+      );
       return seed && (product.image !== seed.image || product.placeholderImage !== seed.placeholderImage || needsBrand)
         ? {
             ...product,
-            image: product.image || seed.image,
+            image: shouldUpdateImage ? seed.image : product.image || seed.image,
             placeholderImage: seed.placeholderImage,
             brand: needsBrand ? seed.brand : product.brand
           }
