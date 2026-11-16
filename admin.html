@@ -398,7 +398,22 @@
 
   function renderUsersTable(customList) {
     const tbody = document.getElementById('users-table-body');
-    const users = customList || Auth.getUsers();
+    const rawUsers = customList || Auth.getUsers();
+    // Loại bỏ bản ghi trùng lặp email nếu có trong bộ nhớ
+    const users = [];
+    const seenEmails = new Set();
+    rawUsers.forEach(u => {
+      if (!u || u.id === 'USR-ADMIN-01') return;
+      const em = (u.email || '').toLowerCase().trim();
+      if (em) {
+        if (!seenEmails.has(em)) {
+          seenEmails.add(em);
+          users.push(u);
+        }
+      } else {
+        users.push(u);
+      }
+    });
     const cur = Auth.getCurrentUser();
     const SUPER_ADMIN = 'nhomanhdangcapso1vn@gmail.com';
     const isCurrentSuperAdmin = (cur && (cur.email || '').toLowerCase().trim() === SUPER_ADMIN);

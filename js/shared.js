@@ -387,7 +387,8 @@ var Auth = (function () {
     'USR-189805',
     'USR-423996',
     'USR-002',
-    'USR-003'
+    'USR-003',
+    'USR-ADMIN-01'
   ];
 
   function cleanupBlacklist() {
@@ -776,6 +777,14 @@ var Auth = (function () {
           
           cloudUsers.forEach(cu => {
             if (cu && cu.id && !deletedList.includes(cu.id) && !deletedList.includes((cu.email || '').toLowerCase())) {
+              if (cu.email) {
+                const cleanEmail = cu.email.toLowerCase().trim();
+                for (const [key, val] of mergedMap.entries()) {
+                  if (val && val.email && val.email.toLowerCase().trim() === cleanEmail && val.id !== cu.id) {
+                    mergedMap.delete(key);
+                  }
+                }
+              }
               mergedMap.set(cu.id, cu);
             }
           });

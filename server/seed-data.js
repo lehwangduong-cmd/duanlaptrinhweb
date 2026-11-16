@@ -5,7 +5,7 @@
 
 const DEFAULT_USERS = [
   {
-    id: 'USR-ADMIN-01',
+    id: 'USR-001',
     email: 'nhomanhdangcapso1vn@gmail.com',
     password: 'admin123', // Will be hashed with bcrypt
     fullName: 'Quản Trị Viên Nhóm',
