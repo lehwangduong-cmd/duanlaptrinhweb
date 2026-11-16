@@ -907,6 +907,14 @@
   let activeOrderFilter = 'all';
 
   function initAccountPage() {
+    try {
+      let del = JSON.parse(localStorage.getItem('sz_deleted_users') || '[]');
+      if (del.includes('user@sportzone.vn') || del.includes('usr-demo-01') || del.includes('admin@sportzone.vn') || del.includes('usr-admin-02')) {
+        del = del.filter(x => x !== 'user@sportzone.vn' && x !== 'usr-demo-01' && x !== 'admin@sportzone.vn' && x !== 'usr-admin-02');
+        localStorage.setItem('sz_deleted_users', JSON.stringify(del));
+      }
+    } catch (e) {}
+
     checkPageState();
     initGoogleIdentityServices();
 
@@ -930,14 +938,26 @@
 
   // Tự động làm mới khi Cloud Firestore hoặc Storage cập nhật dữ liệu Realtime
   window.addEventListener('sz:cloud-sync', () => {
-    if (typeof Auth !== 'undefined') checkPageState();
+    if (typeof Auth !== 'undefined') {
+      checkPageState();
+      if (typeof Auth.renderNavbarAuth === 'function') Auth.renderNavbarAuth();
+    }
   });
   window.addEventListener('sz:orders-updated', () => {
     if (typeof Auth !== 'undefined') checkPageState();
   });
+  window.addEventListener('sz:auth-changed', () => {
+    if (typeof Auth !== 'undefined') {
+      checkPageState();
+      if (typeof Auth.renderNavbarAuth === 'function') Auth.renderNavbarAuth();
+    }
+  });
   window.addEventListener('storage', (e) => {
-    if (!e || e.key === 'sz_orders' || e.key === 'sportzone_orders' || e.key === 'sz_current_user') {
-      if (typeof Auth !== 'undefined') checkPageState();
+    if (!e || !e.key || e.key === 'sz_orders' || e.key === 'sportzone_orders' || e.key === 'sz_current_user' || e.key === 'sz_currentUser' || e.key === 'sz_user' || e.key === 'sz_users') {
+      if (typeof Auth !== 'undefined') {
+        checkPageState();
+        if (typeof Auth.renderNavbarAuth === 'function') Auth.renderNavbarAuth();
+      }
     }
   });
 
@@ -1139,6 +1159,13 @@
     document.getElementById('user-header-email').textContent = user.email;
     document.getElementById('user-header-phone').textContent = user.phone || 'Chưa cập nhật';
 
+    // Cập nhật ngay avatar trên thanh navbar
+    if (user.avatar) {
+      document.querySelectorAll('.nav-user-avatar, #nav-user-btn img, .user-dropdown-header img').forEach(img => {
+        img.src = user.avatar;
+      });
+    }
+
     const badgesContainer = document.getElementById('user-header-badges');
     const btnGotoAdmin = document.getElementById('btn-goto-admin');
     const navItemAdmin = document.getElementById('nav-item-admin');
@@ -1228,6 +1255,14 @@
     const previewEl = document.getElementById('prof-avatar-preview');
     if (previewEl) previewEl.src = url;
 
+    const headerAvt = document.getElementById('user-header-avatar');
+    if (headerAvt) headerAvt.src = url;
+
+    // Cập nhật ngay lập tức ảnh trên thanh navbar (không cần F5)
+    document.querySelectorAll('.nav-user-avatar, #nav-user-btn img, .user-dropdown-header img').forEach(img => {
+      img.src = url;
+    });
+
     const nameEl = document.getElementById('avatar-file-name');
     if (nameEl) {
       nameEl.textContent = '✓ Đã chọn avatar mẫu';
@@ -1239,12 +1274,15 @@
       const res = Auth.updateProfile({ avatar: url });
       if (res && res.success) {
         Auth.showToast('Đã lưu ảnh đại diện mới thành công!', 'success');
-        const headerAvt = document.getElementById('user-header-avatar');
-        if (headerAvt) headerAvt.src = url;
         if (typeof Auth.renderNavbarAuth === 'function') Auth.renderNavbarAuth();
       } else {
         Auth.showToast((res && res.message) || 'Lỗi khi lưu ảnh đại diện!', 'error');
       }
+    }
+
+    // Đồng bộ lên Backend SQLite nếu có
+    if (window.SportZoneAPI && typeof window.SportZoneAPI.updateProfile === 'function') {
+      window.SportZoneAPI.updateProfile({ avatar: url }).catch(() => {});
     }
   }
 
@@ -1296,6 +1334,14 @@
         const previewEl = document.getElementById('prof-avatar-preview');
         if (previewEl) previewEl.src = optimizedDataUrl;
 
+        const headerAvt = document.getElementById('user-header-avatar');
+        if (headerAvt) headerAvt.src = optimizedDataUrl;
+
+        // Cập nhật ngay lập tức ảnh trên thanh navbar góc trên bên phải (không cần F5)
+        document.querySelectorAll('.nav-user-avatar, #nav-user-btn img, .user-dropdown-header img').forEach(img => {
+          img.src = optimizedDataUrl;
+        });
+
         const nameEl = document.getElementById('avatar-file-name');
         if (nameEl) {
           nameEl.textContent = `✓ Đã chọn: ${file.name}`;
@@ -1307,12 +1353,15 @@
           const res = Auth.updateProfile({ avatar: optimizedDataUrl });
           if (res && res.success) {
             Auth.showToast('Đã tải lên và lưu ảnh đại diện thành công!', 'success');
-            const headerAvt = document.getElementById('user-header-avatar');
-            if (headerAvt) headerAvt.src = optimizedDataUrl;
             if (typeof Auth.renderNavbarAuth === 'function') Auth.renderNavbarAuth();
           } else {
             Auth.showToast((res && res.message) || 'Lỗi khi lưu ảnh đại diện!', 'error');
           }
+        }
+
+        // Đồng bộ lên Backend SQLite nếu có
+        if (window.SportZoneAPI && typeof window.SportZoneAPI.updateProfile === 'function') {
+          window.SportZoneAPI.updateProfile({ avatar: optimizedDataUrl }).catch(() => {});
         }
       };
 
@@ -1331,7 +1380,7 @@
   }
 
   // Cập nhật thông tin cá nhân
-  function handleUpdateProfile(e) {
+  async function handleUpdateProfile(e) {
     e.preventDefault();
     const fullName = document.getElementById('prof-fullname').value;
     const phone = document.getElementById('prof-phone').value;
@@ -1346,9 +1395,24 @@
       avatar: currentAvatarUrl
     });
 
+    // Đồng bộ lên Backend SQLite nếu có
+    if (window.SportZoneAPI && typeof window.SportZoneAPI.updateProfile === 'function') {
+      try {
+        await window.SportZoneAPI.updateProfile({
+          fullName,
+          phone,
+          avatar: currentAvatarUrl
+        });
+      } catch (err) {}
+    }
+
     if (res.success) {
       Auth.showToast(res.message, 'success');
       renderUserProfile(res.user);
+      document.querySelectorAll('.nav-user-avatar, #nav-user-btn img, .user-dropdown-header img').forEach(img => {
+        if (res.user && res.user.avatar) img.src = res.user.avatar;
+      });
+      if (typeof Auth.renderNavbarAuth === 'function') Auth.renderNavbarAuth();
     } else {
       Auth.showToast(res.message, 'error');
     }

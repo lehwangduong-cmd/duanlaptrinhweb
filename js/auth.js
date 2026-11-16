@@ -405,6 +405,7 @@ var Auth = (function () {
         let deletedList = [];
         try {
           deletedList = JSON.parse(localStorage.getItem('sz_deleted_users') || '[]');
+          deletedList = deletedList.filter(x => x !== 'admin@sportzone.vn' && x !== 'user@sportzone.vn' && x !== 'usr-admin-02' && x !== 'usr-demo-01');
         } catch (e) {}
 
         snapshot.forEach(doc => {
@@ -454,8 +455,19 @@ var Auth = (function () {
             if (freshCur) {
               localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(freshCur));
               try { localStorage.setItem('sz_current_user', JSON.stringify(freshCur)); } catch (e) {}
+              try { localStorage.setItem('sz_user', JSON.stringify(freshCur)); } catch (e) {}
+
+              // Cập nhật ngay tất cả ảnh đại diện trên giao diện trang hiện tại (Navbar, Profile preview, Banner)
+              if (freshCur.avatar && typeof document !== 'undefined') {
+                document.querySelectorAll('.nav-user-avatar, #nav-user-btn img, .user-dropdown-header img, #prof-avatar-preview, #user-header-avatar').forEach(img => {
+                  img.src = freshCur.avatar;
+                });
+              }
             }
           }
+
+          // Cập nhật ngay lập tức Navbar và Avatar trên giao diện khi nhận dữ liệu từ Cloud Firestore
+          renderNavbarAuth();
 
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('sz:cloud-sync', { detail: { users: finalUsers } }));
@@ -659,8 +671,19 @@ var Auth = (function () {
       try { localStorage.setItem('sz_current_user', JSON.stringify(user)); } catch (e) {}
       try { localStorage.setItem('sz_user', JSON.stringify(user)); } catch (e) {}
     }
+    // Cập nhật ngay tức thì tất cả avatar trên navbar
+    if (user && user.avatar && typeof document !== 'undefined') {
+      document.querySelectorAll('.nav-user-avatar, #nav-user-btn img, .user-dropdown-header img').forEach(img => {
+        img.src = user.avatar;
+      });
+    }
     // Cập nhật lại thanh navbar trên trang hiện tại
     renderNavbarAuth();
+    if (typeof window !== 'undefined') {
+      try {
+        window.dispatchEvent(new CustomEvent('sz:auth-changed', { detail: user }));
+      } catch (e) {}
+    }
   }
 
   // Tìm vị trí người dùng hiện tại trong mảng users một cách tuyệt đối an toàn
@@ -1576,34 +1599,61 @@ var Auth = (function () {
   function renderNavbarAuth() {
     if (typeof document === 'undefined') return;
     const cur = getCurrentUser();
-    // Tìm các thẻ a trỏ tới account.html trong navbar
-    const accountLinks = document.querySelectorAll('.navbar-actions a[href*="account.html"]');
 
-    accountLinks.forEach(link => {
-      // Nếu đã có dropdown bọc thì reset
-      const parent = link.closest('.navbar-user-dropdown-wrapper');
-      
+    // 1. Nếu dropdown đã tồn tại trên giao diện navbar
+    const existingDropdown = document.querySelector('.navbar-user-dropdown-wrapper');
+    if (existingDropdown) {
       if (!cur) {
-        // Trạng thái: Chưa đăng nhập
-        if (parent) {
-          parent.replaceWith(link);
-        }
+        // Trạng thái: Đã đăng xuất -> khôi phục lại nút Tài khoản ban đầu
+        const link = document.createElement('a');
+        link.className = 'nav-action-btn';
+        link.setAttribute('aria-label', 'Tài khoản');
+        link.href = (typeof window !== 'undefined' && window.location.pathname.includes('/pages/')) ? '../account.html' : 'account.html';
         link.innerHTML = `
           <i class="far fa-user"></i>
           <span>Tài khoản</span>
         `;
-        link.href = link.href.includes('../') ? '../account.html' : 'account.html';
-        link.classList.remove('user-logged-in');
+        existingDropdown.replaceWith(link);
         return;
       }
 
-      // Trạng thái: ĐÃ ĐĂNG NHẬP
-      const isPathRelative = link.getAttribute('href').startsWith('../');
+      // Trạng thái: Vẫn đang đăng nhập -> Cập nhật trực tiếp Avatar & Tên ngay lập tức (KHÔNG cần F5)
+      const avatarSrc = cur.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150';
+      const nameParts = (cur.fullName || '').trim().split(' ');
+      const shortName = nameParts[nameParts.length - 1] || cur.fullName || 'User';
+
+      existingDropdown.querySelectorAll('.nav-user-avatar, #nav-user-btn img, .user-dropdown-header img').forEach(img => {
+        img.src = avatarSrc;
+        img.alt = cur.fullName;
+      });
+
+      const greetingStrong = existingDropdown.querySelector('.nav-user-greeting strong');
+      if (greetingStrong) greetingStrong.textContent = shortName;
+
+      const headerName = existingDropdown.querySelector('.user-dropdown-name');
+      if (headerName) headerName.textContent = cur.fullName;
+
+      const headerEmail = existingDropdown.querySelector('.user-dropdown-email');
+      if (headerEmail) headerEmail.textContent = cur.email;
+
+      return;
+    }
+
+    // 2. Nếu chưa có dropdown và chưa đăng nhập -> không cần làm gì
+    if (!cur) return;
+
+    // 3. Nếu chưa có dropdown và người dùng ĐÃ ĐĂNG NHẬP -> Tìm thẻ a tài khoản gốc để chuyển thành dropdown
+    const accountLinks = document.querySelectorAll('.navbar-actions > a[href*="account.html"], .navbar-actions a.nav-action-btn[href*="account.html"]');
+
+    accountLinks.forEach(link => {
+      if (link.closest('.navbar-user-dropdown-wrapper')) return;
+
+      const isPathRelative = (link.getAttribute('href') || '').startsWith('../');
       const prefix = isPathRelative ? '../' : '';
 
       // Tên hiển thị rút gọn (VD: Nguyễn Văn A -> A)
-      const nameParts = cur.fullName.trim().split(' ');
-      const shortName = nameParts[nameParts.length - 1] || cur.fullName;
+      const nameParts = (cur.fullName || '').trim().split(' ');
+      const shortName = nameParts[nameParts.length - 1] || cur.fullName || 'User';
 
       // Tạo cấu trúc dropdown
       const wrapper = document.createElement('div');
@@ -1673,11 +1723,7 @@ var Auth = (function () {
         </div>
       `;
 
-      if (parent) {
-        parent.replaceWith(wrapper);
-      } else {
-        link.replaceWith(wrapper);
-      }
+      link.replaceWith(wrapper);
 
       // Event listener cho Dropdown
       const triggerBtn = wrapper.querySelector('#nav-user-btn');
@@ -1696,15 +1742,18 @@ var Auth = (function () {
       });
     });
 
-    // Bấm ra ngoài thì đóng dropdown
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.navbar-user-dropdown-wrapper')) {
-        document.querySelectorAll('.user-dropdown-menu.show').forEach(m => {
-          m.classList.remove('show');
-          m.previousElementSibling?.setAttribute('aria-expanded', 'false');
-        });
-      }
-    });
+    // Bấm ra ngoài thì đóng dropdown (đảm bảo chỉ gắn 1 lần)
+    if (!window._szNavDropdownClickBound) {
+      window._szNavDropdownClickBound = true;
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.navbar-user-dropdown-wrapper')) {
+          document.querySelectorAll('.user-dropdown-menu.show').forEach(m => {
+            m.classList.remove('show');
+            m.previousElementSibling?.setAttribute('aria-expanded', 'false');
+          });
+        }
+      });
+    }
   }
 
   // Tự động khởi chạy khi script được tải
@@ -1715,6 +1764,18 @@ var Auth = (function () {
     } else {
       renderNavbarAuth();
     }
+  }
+
+  // Tự động đồng bộ Realtime Navbar giữa tất cả các Tab trình duyệt khi Avatar hoặc User thay đổi
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (e) => {
+      if (!e || !e.key || e.key === STORAGE_KEYS.CURRENT_USER || e.key === 'sz_current_user' || e.key === 'sz_user' || e.key === STORAGE_KEYS.USERS) {
+        renderNavbarAuth();
+      }
+    });
+    window.addEventListener('sz:auth-changed', () => {
+      renderNavbarAuth();
+    });
   }
 
   // Xuất API công khai
