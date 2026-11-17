@@ -22,6 +22,7 @@ db.pragma('foreign_keys = ON');
 
 function initDatabase() {
   console.log(`📦 Đang kết nối SQLite Database: ${DB_PATH}`);
+  const isProduction = process.env.NODE_ENV === 'production';
 
   // 1. Tạo bảng USERS
   db.exec(`
@@ -86,7 +87,7 @@ function initDatabase() {
 
   // Seed Users
   const userCount = db.prepare('SELECT COUNT(*) AS count FROM users').get().count;
-  if (userCount === 0) {
+  if (!isProduction && userCount === 0) {
     console.log('🌱 Đang khởi tạo tài khoản mặc định vào SQLite...');
     const insertUser = db.prepare(`
       INSERT INTO users (id, email, password, fullName, phone, role, avatar, address, createdAt)
@@ -152,7 +153,7 @@ function initDatabase() {
 
   // Seed Orders
   const orderCount = db.prepare('SELECT COUNT(*) AS count FROM orders').get().count;
-  if (orderCount === 0) {
+  if (!isProduction && orderCount === 0) {
     console.log('🌱 Đang khởi tạo đơn hàng mẫu vào SQLite...');
     const insertOrder = db.prepare(`
       INSERT INTO orders (id, userId, customerName, customerEmail, customerPhone, shippingAddress, paymentMethod, paymentStatus, orderStatus, items, subtotal, shippingFee, totalAmount, notes, createdAt)

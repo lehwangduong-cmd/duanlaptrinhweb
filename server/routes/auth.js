@@ -15,10 +15,12 @@ const { authenticateToken, JWT_SECRET } = require('../middleware/auth');
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const oauth2Client = new OAuth2Client(CLIENT_ID);
 
-const ADMIN_EMAILS = [
-  'nhomanhdangcapso1vn@gmail.com',
-  'admin@sportzone.vn'
-];
+const ADMIN_EMAILS = new Set(
+  (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map(email => email.trim().toLowerCase())
+    .filter(Boolean)
+);
 
 // Helper tạo JWT Token
 function generateToken(user) {
@@ -31,10 +33,10 @@ function generateToken(user) {
 
 /**
  * POST /api/auth/register
- * Body: { fullName, email, phone, password, secretKey }
+ * Body: { fullName, email, phone, password }
  */
 router.post('/register', (req, res) => {
-  const { fullName, email, phone, password, secretKey } = req.body;
+  const { fullName, email, phone, password } = req.body;
 
   if (!fullName || !email || !password) {
     return res.status(400).json({
@@ -61,11 +63,7 @@ router.post('/register', (req, res) => {
     });
   }
 
-  // Xác định quyền: Nếu có mã admin bí mật hoặc email nằm trong danh sách admin
-  let role = req.body.role === 'admin' ? 'admin' : 'user';
-  if (secretKey === 'SPORTZONE@ADMIN' || ADMIN_EMAILS.includes(normalizedEmail)) {
-    role = 'admin';
-  }
+  const role = 'user';
 
   const userId = 'USR-' + Math.floor(100000 + Math.random() * 900000);
   const passwordHash = bcrypt.hashSync(password, 10);
@@ -102,7 +100,7 @@ router.post('/register', (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: role === 'admin' ? 'Đăng ký tài khoản Quản trị viên thành công!' : 'Đăng ký tài khoản thành công!',
+      message: 'Đăng ký tài khoản thành công!',
       token,
       user
     });
@@ -265,28 +263,31 @@ router.post('/google', async (req, res) => {
   }
 
   try {
-    let payload = null;
-
-    if (CLIENT_ID && !CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) {
-      const ticket = await oauth2Client.verifyIdToken({
-        idToken: idToken,
-        audience: CLIENT_ID
+    if (!CLIENT_ID || CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) {
+      return res.status(503).json({
+        success: false,
+        message: 'Đăng nhập Google chưa được cấu hình.'
       });
-      payload = ticket.getPayload();
-    } else {
-      // Decode fallback nếu chưa cấu hình GOOGLE_CLIENT_ID
-      const base64Url = idToken.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-      payload = JSON.parse(jsonPayload);
     }
 
-    const email = payload['email'].toLowerCase();
+    const ticket = await oauth2Client.verifyIdToken({
+      idToken,
+      audience: CLIENT_ID
+    });
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email || payload.email_verified !== true) {
+      return res.status(401).json({
+        success: false,
+        message: 'Tài khoản Google chưa được xác minh.'
+      });
+    }
+
+    const email = payload.email.toLowerCase();
     const name = payload['name'] || email.split('@')[0];
     const picture = payload['picture'] || '';
     const googleUserId = payload['sub'] || 'gg-' + Date.now();
 
-    const role = ADMIN_EMAILS.includes(email) ? 'admin' : 'user';
+    const role = ADMIN_EMAILS.has(email) ? 'admin' : 'user';
 
     // Tìm hoặc tạo user trong SQLite
     let user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
@@ -298,6 +299,9 @@ router.post('/google', async (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(userId, email, randomPassword, name, '', role, picture, '', new Date().toISOString());
 
+      user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    } else if (role === 'admin' && user.role !== 'admin') {
+      db.prepare('UPDATE users SET role = ? WHERE id = ?').run('admin', user.id);
       user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     }
 

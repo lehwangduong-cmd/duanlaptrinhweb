@@ -151,7 +151,9 @@ python -m http.server 5500
 4. Thiết lập các biến môi trường:
    - `DATABASE_PATH=/data/sportzone.db` (hoặc `/tmp/sportzone.db` cho demo không volume)
    - `JWT_SECRET` là một chuỗi ngẫu nhiên dài, riêng cho production (tạo trực tiếp trong Railway, không lưu trong Git).
-   - `GOOGLE_CLIENT_ID` nếu bật đăng nhập Google.
+   - `GOOGLE_CLIENT_ID` nếu bật đăng nhập Google; API từ chối đăng nhập Google nếu chưa cấu hình biến này.
+   - `ADMIN_EMAILS` là danh sách email Google đã xác minh được cấp quyền quản trị, phân cách bằng dấu phẩy.
+   - Production không nạp tài khoản và đơn hàng mẫu; đăng ký mới luôn tạo tài khoản thường.
 5. Tạo domain công khai cho service. Frontend và API được phục vụ cùng domain; dữ liệu SQLite được lưu trong volume.
 
 `Dockerfile` cài Python/C++ toolchain để build `better-sqlite3`; `.dockerignore` loại file môi trường và database khỏi Docker image. Railway dùng cấu hình build/deploy trong `railway.json`. Sau deploy, kiểm tra `/api/health`. Nếu dùng Google OAuth, thêm domain Railway vào danh sách authorized JavaScript origins trong Google Cloud Console.
