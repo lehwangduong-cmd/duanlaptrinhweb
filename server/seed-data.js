@@ -114,14 +114,14 @@ const SEED_PRODUCT_GROUPS = [
   {
     category: 'Bơi lội', brand: 'Nabaiji', image: 'images/products/kinh-boi.svg', icon: 'fa-person-swimming',
     products: [
-      ['Đồ bơi liền thân AquaFit', 459000, 'Đồ bơi co giãn nhanh khô, ôm vừa vặn cho buổi tập trong hồ.', ['S','M','L','XL'], 15, 'images/products/kinh-boi.svg'],
-      ['Quần bơi nam SwimFast', 279000, 'Quần bơi vải co giãn nhanh khô, dây rút điều chỉnh chắc chắn.', ['S','M','L','XL'], 18, 'images/products/kinh-boi.svg'],
-      ['Kính bơi trẻ em ClearView', 159000, 'Kính bơi có dây điều chỉnh và tròng nhìn rõ dưới nước.', ['Free size'], 23, 'images/products/kinh-boi.svg'],
-      ['Phao tập bơi kẹp chân', 189000, 'Phao nhẹ hỗ trợ tập kỹ thuật chân và giữ tư thế ổn định.', ['Free size'], 12, 'images/products/kinh-boi.svg'],
-      ['Dép hồ bơi chống trượt', 219000, 'Dép thoát nước nhanh với đế chống trượt trên bề mặt ướt.', ['38','39','40','41','42','43'], 19, 'images/products/kinh-boi.svg'],
-      ['Khăn microfiber bơi lội', 119000, 'Khăn mềm nhẹ, thấm hút nhanh và gấp gọn sau khi bơi.', ['40 x 80 cm'], 34, 'images/products/kinh-boi.svg'],
-      ['Túi đựng đồ bơi chống nước', 249000, 'Túi gọn nhẹ giúp tách đồ ướt sau khi bơi khỏi vật dụng khô.', ['Free size'], 16, 'images/products/kinh-boi.svg'],
-      ['Áo phao tập bơi trẻ em', 389000, 'Áo phao có khóa cài điều chỉnh, hỗ trợ trẻ làm quen với nước.', ['S','M','L'], 8, 'images/products/kinh-boi.svg']
+      ['Đồ bơi liền thân AquaFit', 459000, 'Đồ bơi co giãn nhanh khô, ôm vừa vặn cho buổi tập trong hồ.', ['S','M','L','XL'], 15, 'images/products/swim-one-piece-suit.png'],
+      ['Quần bơi nam SwimFast', 279000, 'Quần bơi vải co giãn nhanh khô, dây rút điều chỉnh chắc chắn.', ['S','M','L','XL'], 18, 'images/products/swim-shorts-blue.png'],
+      ['Kính bơi trẻ em ClearView', 159000, 'Kính bơi có dây điều chỉnh và tròng nhìn rõ dưới nước.', ['Free size'], 23, 'images/products/swim-kids-goggles.png'],
+      ['Phao tập bơi kẹp chân', 189000, 'Phao nhẹ hỗ trợ tập kỹ thuật chân và giữ tư thế ổn định.', ['Free size'], 12, 'images/products/swim-pull-buoy.png'],
+      ['Dép hồ bơi chống trượt', 219000, 'Dép thoát nước nhanh với đế chống trượt trên bề mặt ướt.', ['38','39','40','41','42','43'], 19, 'images/products/swim-aqua-shoes.png'],
+      ['Khăn microfiber bơi lội', 119000, 'Khăn mềm nhẹ, thấm hút nhanh và gấp gọn sau khi bơi.', ['40 x 80 cm'], 34, 'images/products/swim-microfiber-towel.png'],
+      ['Túi đựng đồ bơi chống nước', 249000, 'Túi gọn nhẹ giúp tách đồ ướt sau khi bơi khỏi vật dụng khô.', ['Free size'], 16, 'images/products/swim-waterproof-bag.png'],
+      ['Áo phao tập bơi trẻ em', 389000, 'Áo phao có khóa cài điều chỉnh, hỗ trợ trẻ làm quen với nước.', ['S','M','L'], 8, 'images/products/swim-kids-life-vest.png']
     ]
   },
   {
