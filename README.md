@@ -146,15 +146,15 @@ python -m http.server 5500
 ### Deploy fullstack lên Railway
 
 1. Tạo một Railway project từ repository GitHub và chọn branch cần deploy.
-2. Trong cấu hình service, đặt **Root Directory** là `/server`.
+2. Trong cấu hình service, đặt **Root Directory** là `/` để Railway dùng `Dockerfile` ở thư mục gốc.
 3. Để giữ dữ liệu SQLite qua các lần deploy, thêm persistent volume và mount tại `/data`. Nếu chỉ chạy demo, bỏ qua volume và đặt `DATABASE_PATH=/tmp/sportzone.db`; dữ liệu demo có thể mất khi Railway khởi động lại service.
 4. Thiết lập các biến môi trường:
    - `DATABASE_PATH=/data/sportzone.db` (hoặc `/tmp/sportzone.db` cho demo không volume)
-   - `JWT_SECRET` là một chuỗi ngẫu nhiên dài, riêng cho production.
+   - `JWT_SECRET` là một chuỗi ngẫu nhiên dài, riêng cho production (tạo trực tiếp trong Railway, không lưu trong Git).
    - `GOOGLE_CLIENT_ID` nếu bật đăng nhập Google.
 5. Tạo domain công khai cho service. Frontend và API được phục vụ cùng domain; dữ liệu SQLite được lưu trong volume.
 
-Railway lấy lệnh build, start và health check từ `server/railway.json`. Không đưa `server/.env` hoặc database local vào Git. Sau deploy, kiểm tra `/api/health`. Nếu dùng Google OAuth, thêm domain Railway vào danh sách authorized JavaScript origins trong Google Cloud Console.
+`Dockerfile` cài Python/C++ toolchain để build `better-sqlite3`; `.dockerignore` loại file môi trường và database khỏi Docker image. Railway dùng cấu hình build/deploy trong `railway.json`. Sau deploy, kiểm tra `/api/health`. Nếu dùng Google OAuth, thêm domain Railway vào danh sách authorized JavaScript origins trong Google Cloud Console.
 
 ### 📡 Danh sách RESTful API Backend (Node.js + SQLite)
 * **Auth:**
