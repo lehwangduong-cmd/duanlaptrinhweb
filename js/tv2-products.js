@@ -173,6 +173,8 @@ const SEED_PRODUCTS = [
   ...PARTNER_BRAND_PRODUCTS
 ];
 
+const RETIRED_SEED_PRODUCTS = new Set(['1057']);
+
 function mergeSeedProducts(products, includeMissing = false) {
   let deletedIds = [];
   try {
@@ -183,7 +185,11 @@ function mergeSeedProducts(products, includeMissing = false) {
 
   const seedById = new Map(SEED_PRODUCTS.map(product => [String(product.id), product]));
   const merged = products
-    .filter(product => !deletedSet.has(String(product.id)))
+    .filter(product =>
+      !deletedSet.has(String(product.id)) &&
+      !RETIRED_SEED_PRODUCTS.has(String(product.id)) &&
+      product.name !== 'Bóng rổ Indoor Pro size 7'
+    )
     .map(product => {
       const seed = seedById.get(String(product.id));
       const needsBrand = seed && (!product.brand || product.brand === 'SportZone');
