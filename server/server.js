@@ -35,6 +35,15 @@ app.use('/api/orders/webhook/payment', express.text({ type: '*/*' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Phục vụ toàn bộ giao diện tĩnh của website SportZone (HTML, CSS, JS, hình ảnh)
+const rootDir = path.join(__dirname, '..');
+app.use(express.static(rootDir));
+
+// Phục vụ trang chủ index.html khi truy cập vào root /
+app.get('/', (req, res) => {
+  res.sendFile(path.join(rootDir, 'index.html'));
+});
+
 // Health Check API
 app.get('/api/health', (req, res) => {
   res.json({
