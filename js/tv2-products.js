@@ -350,7 +350,7 @@ function productCard(product) {
       <span class="catalog-card-brand">${brand}</span>
       <h3><a href="product-detail.html?id=${encodeURIComponent(String(product.id))}">${name}</a></h3>
       <div class="rating-row"><span>${'★'.repeat(Math.min(5, Math.max(1, Math.round(rating))))}</span><span>${rating.toFixed(1)} (${reviews})</span></div>
-      <div class="price-row"><strong class="current-price">${formatMoney(product.price)}</strong>${product.oldPrice?`<span class="old-price">${formatMoney(product.oldPrice)}</span>`:''}</div>
+      <div class="price-row"><strong class="current-price">${formatMoney(product.price)}</strong></div>
       <button class="add-cart-btn" data-cart="${id}" ${stock < 1 ? 'disabled' : ''}>${stock < 1 ? 'Hết hàng' : '<i class="fas fa-cart-plus"></i> Thêm vào giỏ'}</button>
     </div>
   </article>`;
@@ -686,7 +686,6 @@ function renderProductDetail() {
     </div>
     <div class="detail-price">
       ${formatMoney(product.price)}
-      ${product.oldPrice ? `<span class="old">${formatMoney(product.oldPrice)}</span>` : ''}
     </div>
     <p class="detail-desc">${escapeProductHtml(description)}</p>
     ${colors.length ? `<div class="option-group">
