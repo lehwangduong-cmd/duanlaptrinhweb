@@ -31,6 +31,7 @@
   let hasProductSnapshot = false;
   let pendingProducts = null;
   let isSyncingProducts = false;
+  let hasFailedProductSync = false;
   let _ordersDebounceTimer = null;
   let _productsDebounceTimer = null;
   let remoteOrders = new Map();
