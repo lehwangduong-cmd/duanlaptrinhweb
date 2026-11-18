@@ -308,16 +308,15 @@ function removeOrderedItemsFromCart(orderedItems) {
         const fullCart = loadFullCart();
         if (!fullCart) return false;
 
-        // Tập hợp ID+size+color của các SP đã đặt để xóa chính xác
-        const orderedSet = new Set(
-            orderedItems.map(item => `${item.id}__${item.size}__${item.color}`)
-        );
+        const getLineKey = item => JSON.stringify([
+            String(item.id),
+            String(item.size || item.selectedSize || item.sizes?.[0] || ''),
+            String(item.color || item.selectedColor || ''),
+        ]);
+        const orderedSet = new Set(orderedItems.map(getLineKey));
 
         // Giữ lại các SP KHÔNG nằm trong đơn hàng
-        const remainingCart = fullCart.filter(item => {
-            const key = `${item.id}__${item.size}__${item.color}`;
-            return !orderedSet.has(key);
-        });
+        const remainingCart = fullCart.filter(item => item && !orderedSet.has(getLineKey(item)));
 
         localStorage.setItem(CART_KEY, JSON.stringify(remainingCart));
         console.log(
