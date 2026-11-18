@@ -1781,7 +1781,15 @@
         });
 
         if (customLoginBtn && loginBtnContainer.children.length > 0) {
-          customLoginBtn.style.display = 'none';
+          // Kiểm tra xem iframe Google có hiển thị được không (phòng trường hợp origin chưa duyệt)
+          setTimeout(() => {
+            const iframe = loginBtnContainer.querySelector('iframe');
+            if (!iframe || iframe.offsetHeight === 0) {
+              customLoginBtn.style.display = 'inline-flex';
+            } else {
+              customLoginBtn.style.display = 'none';
+            }
+          }, 1200);
         }
       }
 
@@ -1799,7 +1807,14 @@
         });
 
         if (customSignupBtn && signupBtnContainer.children.length > 0) {
-          customSignupBtn.style.display = 'none';
+          setTimeout(() => {
+            const iframe = signupBtnContainer.querySelector('iframe');
+            if (!iframe || iframe.offsetHeight === 0) {
+              customSignupBtn.style.display = 'inline-flex';
+            } else {
+              customSignupBtn.style.display = 'none';
+            }
+          }, 1200);
         }
       }
     } catch (err) {
@@ -1820,14 +1835,27 @@
 
     // Nếu có Client ID thật: gọi Google prompt chính thức
     if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+      let promptShown = false;
       google.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed()) {
           console.warn('[GIS] Lý do prompt không hiển thị:', notification.getNotDisplayedReason());
           openModal('modal-google-signin');
+        } else if (notification.isDisplayed && notification.isDisplayed()) {
+          promptShown = true;
         } else if (notification.isSkippedMoment() || notification.isDismissedMoment()) {
           Auth.showToast('Đã đóng cửa sổ đăng nhập Google.', 'info');
         }
       });
+
+      // Tự động mở modal dự phòng sau 800ms nếu Google prompt bị chặn do domain chưa cấp quyền
+      setTimeout(() => {
+        if (!promptShown) {
+          const modal = document.getElementById('modal-google-signin');
+          if (modal && !modal.classList.contains('open')) {
+            openModal('modal-google-signin');
+          }
+        }
+      }, 800);
     } else {
       openModal('modal-google-signin');
     }
