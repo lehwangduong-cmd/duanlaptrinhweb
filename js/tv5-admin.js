@@ -300,8 +300,6 @@
     document.getElementById('productBrand').value = product?.brand || '';
     document.getElementById('productCategory').value = product?.category || '';
     document.getElementById('productPrice').value = product ? getProductPrice(product) : '';
-    const oldPriceInput = document.getElementById('productOldPrice');
-    if (oldPriceInput) oldPriceInput.value = (product && product.oldPrice) ? product.oldPrice : '';
     document.getElementById('productStock').value = product ? getStock(product) : '';
     document.getElementById('productSku').value = product?.sku || '';
     const sizesInput = document.getElementById('productSizes');
@@ -340,7 +338,6 @@
     const name = document.getElementById('productName').value.trim();
     const category = document.getElementById('productCategory').value;
     const price = Number(document.getElementById('productPrice').value);
-    const oldPrice = Number(document.getElementById('productOldPrice')?.value) || 0;
     const stock = Number(document.getElementById('productStock').value);
     const brand = document.getElementById('productBrand')?.value?.trim() || 'SportZone';
     const description = (document.getElementById('productDescription') || document.getElementById('productDesc'))?.value?.trim() || `${name} chính hãng chất lượng cao tại SportZone.`;
@@ -388,14 +385,14 @@
       category,
       brand,
       price,
-      oldPrice: oldPrice > 0 ? oldPrice : (existingProduct?.oldPrice || 0),
+      oldPrice: 0,
       stock,
       sku,
       image,
       description,
       rating: (existingProduct && existingProduct.rating !== undefined) ? existingProduct.rating : 5.0,
       reviews: (existingProduct && existingProduct.reviews !== undefined) ? existingProduct.reviews : 0,
-      badge: existingProduct?.badge || (oldPrice > price ? `-${Math.round((1 - price / oldPrice) * 100)}%` : 'Mới'),
+      badge: existingProduct?.badge && !/^-\d+%$/.test(existingProduct.badge) ? existingProduct.badge : 'Mới',
       sizes: sizes.length ? sizes : (existingProduct?.sizes || ['Free size']),
       colors: existingProduct?.colors || ['Mặc định'],
       createdAt: existingProduct?.createdAt || new Date().toISOString()
