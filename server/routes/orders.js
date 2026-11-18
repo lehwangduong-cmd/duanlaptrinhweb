@@ -242,27 +242,38 @@ router.post('/webhook/payment', (req, res) => {
   }
 
   try {
+    // 1. Cập nhật vào SQLite nếu đơn hàng có trong cơ sở dữ liệu server
     const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(targetOrderId);
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: `Không tìm thấy đơn hàng: ${targetOrderId}`
-      });
+    if (order) {
+      db.prepare(`
+        UPDATE orders
+        SET paymentStatus = 'paid',
+            orderStatus = CASE WHEN orderStatus = 'pending' THEN 'processing' ELSE orderStatus END
+        WHERE id = ?
+      `).run(targetOrderId);
     }
 
-    db.prepare(`
-      UPDATE orders
-      SET paymentStatus = 'paid',
-          orderStatus = CASE WHEN orderStatus = 'pending' THEN 'processing' ELSE orderStatus END
-      WHERE id = ?
-    `).run(targetOrderId);
-
-    const updated = db.prepare('SELECT * FROM orders WHERE id = ?').get(targetOrderId);
+    // 2. Đồng bộ tức thì lên Cloud Firestore để màn hình web của khách hàng nhảy thành công Realtime
+    try {
+      fetch(`https://firestore.googleapis.com/v1/projects/sportzone-sync-v2/databases/(default)/documents/sz_orders/${encodeURIComponent(targetOrderId)}?updateMask.fieldPaths=paymentStatus&updateMask.fieldPaths=paymentStatusCode&updateMask.fieldPaths=paymentUpdatedAt`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: {
+            paymentStatus: { stringValue: 'Đã thanh toán' },
+            paymentStatusCode: { stringValue: 'paid' },
+            paymentUpdatedAt: { stringValue: new Date().toISOString() }
+          }
+        })
+      }).catch(err => console.warn('[Webhook] Lỗi đẩy Firestore:', err.message));
+    } catch (e) {
+      console.warn('[Webhook] Lỗi fetch Firestore:', e);
+    }
 
     return res.json({
       success: true,
       message: `Đã xác nhận thanh toán thành công cho đơn hàng ${targetOrderId}!`,
-      data: formatOrder(updated)
+      orderId: targetOrderId
     });
   } catch (err) {
     console.error('Lỗi webhook payment:', err);
