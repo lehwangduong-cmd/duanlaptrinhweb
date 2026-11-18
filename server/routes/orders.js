@@ -217,9 +217,11 @@ router.put('/:id/status', authenticateToken, requireAdmin, (req, res) => {
   }
 });
 
+const paidOrdersCache = new Map();
+
 /**
  * POST /api/orders/webhook/payment
- * Webhook nhận thông báo chuyển khoản tự động từ MacroDroid / VCB Digibank
+ * Webhook nhận thông báo chuyển khoản tự động từ MacroDroid
  */
 router.post('/webhook/payment', (req, res) => {
   const { orderId, amount, content, text } = req.body;
@@ -242,6 +244,9 @@ router.post('/webhook/payment', (req, res) => {
   }
 
   try {
+    // Lưu vào bộ nhớ cache tức thì để web truy vấn có ngay
+    paidOrdersCache.set(targetOrderId, { paid: true, time: Date.now() });
+
     // 1. Cập nhật vào SQLite nếu đơn hàng có trong cơ sở dữ liệu server
     const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(targetOrderId);
     if (order) {
@@ -283,6 +288,32 @@ router.post('/webhook/payment', (req, res) => {
       error: err.message
     });
   }
+});
+
+/**
+ * GET /api/orders/webhook/payment-status
+ * Web client kiểm tra trạng thái thanh toán trực tiếp qua backend Railway
+ */
+router.get('/webhook/payment-status', (req, res) => {
+  const orderId = String(req.query.orderId || '').toUpperCase().trim();
+  if (!orderId) {
+    return res.status(400).json({ success: false, paid: false, message: 'Thiếu orderId' });
+  }
+
+  // 1. Kiểm tra trong bộ nhớ cache
+  if (paidOrdersCache.has(orderId)) {
+    return res.json({ success: true, paid: true, status: 'paid', orderId });
+  }
+
+  // 2. Kiểm tra trong SQLite database
+  try {
+    const order = db.prepare('SELECT paymentStatus FROM orders WHERE id = ?').get(orderId);
+    if (order && (order.paymentStatus === 'paid' || order.paymentStatus === 'Đã thanh toán')) {
+      return res.json({ success: true, paid: true, status: 'paid', orderId });
+    }
+  } catch (e) {}
+
+  return res.json({ success: true, paid: false, status: 'unpaid', orderId });
 });
 
 module.exports = router;

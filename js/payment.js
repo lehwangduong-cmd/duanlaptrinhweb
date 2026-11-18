@@ -340,7 +340,33 @@ async function verifyBankPaymentLive(isManualClick = false) {
     }
 
     try {
-        // 1. Kiểm tra trực tiếp Firestore REST API từ Cloud
+        // 1. Kiểm tra trực tiếp API server Railway (cực nhanh, hoạt động 100% không phụ thuộc quota)
+        const srvRes = await fetch(`/api/orders/webhook/payment-status?orderId=${encodeURIComponent(currentId)}`);
+        if (srvRes.ok) {
+            const srvData = await srvRes.json();
+            if (srvData && srvData.paid) {
+                const freshOrder = {
+                    ...paymentState.order,
+                    paymentStatus: 'Đã thanh toán',
+                    paymentStatusCode: 'paid',
+                    status: paymentState.order.status === 'Chờ xác nhận' ? 'Đã thanh toán' : paymentState.order.status,
+                    paymentUpdatedAt: new Date().toISOString(),
+                };
+                saveOrderLocally(freshOrder);
+                paymentState.order = freshOrder;
+                renderPaymentStatus(freshOrder);
+                showResult(true);
+                playPaymentSuccessSound();
+                showToast('🎉 Đã nhận được chuyển khoản thành công!');
+                return;
+            }
+        }
+    } catch (err) {
+        // Bỏ qua nếu chạy thuần static hoặc offline
+    }
+
+    try {
+        // 2. Kiểm tra trực tiếp Firestore REST API từ Cloud
         const res = await fetch(`https://firestore.googleapis.com/v1/projects/sportzone-sync-v2/databases/(default)/documents/sz_orders/${encodeURIComponent(currentId)}`);
         if (res.ok) {
             const data = await res.json();
