@@ -30,6 +30,8 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+// Hỗ trợ nhận webhook thanh toán từ điện thoại (chấp nhận cả text thô, json có xuống dòng từ MacroDroid)
+app.use('/api/orders/webhook/payment', express.text({ type: '*/*' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 

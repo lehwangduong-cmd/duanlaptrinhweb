@@ -218,36 +218,43 @@ router.put('/:id/status', authenticateToken, requireAdmin, (req, res) => {
 });
 
 const paidOrdersCache = new Map();
+const webhookLogs = [];
 
-/**
- * POST /api/orders/webhook/payment
- * Webhook nhận thông báo chuyển khoản tự động từ MacroDroid
- */
-router.post('/webhook/payment', (req, res) => {
-  const { orderId, amount, content, text } = req.body;
+function handleWebhookPayment(req, res) {
+  const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});
+  const rawQuery = JSON.stringify(req.query || {});
+  const combinedText = `${rawBody} ${rawQuery}`;
 
-  // Hỗ trợ trích xuất orderId từ text nếu MacroDroid gửi nguyên nội dung thông báo
-  let targetOrderId = orderId;
-  if (!targetOrderId && (content || text)) {
-    const raw = (content || '') + ' ' + (text || '');
-    const match = raw.match(/SZ-[A-Za-z0-9\-]+/i);
-    if (match) {
-      targetOrderId = match[0].toUpperCase();
-    }
+  const logEntry = {
+    time: new Date().toISOString(),
+    method: req.method,
+    ip: req.ip || req.headers['x-forwarded-for'] || '',
+    body: rawBody.slice(0, 500),
+    query: req.query
+  };
+  webhookLogs.unshift(logEntry);
+  if (webhookLogs.length > 30) webhookLogs.pop();
+
+  // Tìm mã đơn hàng SZ-...
+  let targetOrderId = null;
+  const match = combinedText.match(/SZ-[A-Za-z0-9\-]+/i);
+  if (match) {
+    targetOrderId = match[0].toUpperCase();
   }
 
   if (!targetOrderId) {
     return res.status(400).json({
       success: false,
-      message: 'Không tìm thấy mã đơn hàng (orderId) trong nội dung chuyển khoản.'
+      message: 'Không tìm thấy mã đơn hàng (SZ-...) trong nội dung thông báo.',
+      received: rawBody.slice(0, 200)
     });
   }
 
-  try {
-    // Lưu vào bộ nhớ cache tức thì để web truy vấn có ngay
-    paidOrdersCache.set(targetOrderId, { paid: true, time: Date.now() });
+  // 1. Lưu vào cache bộ nhớ tức thì để web truy vấn có ngay
+  paidOrdersCache.set(targetOrderId, { paid: true, time: Date.now() });
 
-    // 1. Cập nhật vào SQLite nếu đơn hàng có trong cơ sở dữ liệu server
+  // 2. Cập nhật vào SQLite nếu đơn hàng có trong cơ sở dữ liệu server
+  try {
     const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(targetOrderId);
     if (order) {
       db.prepare(`
@@ -257,38 +264,34 @@ router.post('/webhook/payment', (req, res) => {
         WHERE id = ?
       `).run(targetOrderId);
     }
-
-    // 2. Đồng bộ tức thì lên Cloud Firestore để màn hình web của khách hàng nhảy thành công Realtime
-    try {
-      fetch(`https://firestore.googleapis.com/v1/projects/sportzone-sync-v2/databases/(default)/documents/sz_orders/${encodeURIComponent(targetOrderId)}?updateMask.fieldPaths=paymentStatus&updateMask.fieldPaths=paymentStatusCode&updateMask.fieldPaths=paymentUpdatedAt`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fields: {
-            paymentStatus: { stringValue: 'Đã thanh toán' },
-            paymentStatusCode: { stringValue: 'paid' },
-            paymentUpdatedAt: { stringValue: new Date().toISOString() }
-          }
-        })
-      }).catch(err => console.warn('[Webhook] Lỗi đẩy Firestore:', err.message));
-    } catch (e) {
-      console.warn('[Webhook] Lỗi fetch Firestore:', e);
-    }
-
-    return res.json({
-      success: true,
-      message: `Đã xác nhận thanh toán thành công cho đơn hàng ${targetOrderId}!`,
-      orderId: targetOrderId
-    });
   } catch (err) {
-    console.error('Lỗi webhook payment:', err);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi cập nhật đơn hàng từ webhook.',
-      error: err.message
-    });
+    console.warn('[Webhook] Lỗi update SQLite:', err.message);
   }
-});
+
+  // 3. Đồng bộ tức thì lên Cloud Firestore
+  try {
+    fetch(`https://firestore.googleapis.com/v1/projects/sportzone-sync-v2/databases/(default)/documents/sz_orders/${encodeURIComponent(targetOrderId)}?updateMask.fieldPaths=paymentStatus&updateMask.fieldPaths=paymentStatusCode&updateMask.fieldPaths=paymentUpdatedAt`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fields: {
+          paymentStatus: { stringValue: 'Đã thanh toán' },
+          paymentStatusCode: { stringValue: 'paid' },
+          paymentUpdatedAt: { stringValue: new Date().toISOString() }
+        }
+      })
+    }).catch(err => console.warn('[Webhook] Lỗi đẩy Firestore:', err.message));
+  } catch (e) {}
+
+  return res.json({
+    success: true,
+    message: `Đã xác nhận thanh toán thành công cho đơn hàng ${targetOrderId}!`,
+    orderId: targetOrderId
+  });
+}
+
+router.post('/webhook/payment', handleWebhookPayment);
+router.get('/webhook/payment', handleWebhookPayment);
 
 /**
  * GET /api/orders/webhook/payment-status
@@ -314,6 +317,19 @@ router.get('/webhook/payment-status', (req, res) => {
   } catch (e) {}
 
   return res.json({ success: true, paid: false, status: 'unpaid', orderId });
+});
+
+/**
+ * GET /api/orders/webhook/debug
+ * Xem lịch sử các request webhook gần nhất để gỡ lỗi
+ */
+router.get('/webhook/debug', (req, res) => {
+  res.json({
+    success: true,
+    totalLogs: webhookLogs.length,
+    recentLogs: webhookLogs,
+    paidOrders: Array.from(paidOrdersCache.keys())
+  });
 });
 
 module.exports = router;
