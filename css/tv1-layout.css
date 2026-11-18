@@ -851,6 +851,7 @@ button { cursor: pointer; font-family: inherit; }
 .product-price { display: flex; align-items: center; gap: 10px; }
 .price-current { font-size: 18px; font-weight: 800; color: var(--primary); }
 .price-old { font-size: 13px; color: var(--text-light); text-decoration: line-through; }
+.price-old { display: none !important; }
 .product-actions {
   display: flex;
   gap: 8px;
