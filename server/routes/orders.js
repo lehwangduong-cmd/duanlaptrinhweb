@@ -220,6 +220,10 @@ router.put('/:id/status', authenticateToken, requireAdmin, (req, res) => {
 const paidOrdersCache = new Map();
 const webhookLogs = [];
 
+function normalizeOrderCode(str) {
+  return String(str || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+}
+
 function handleWebhookPayment(req, res) {
   const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});
   const rawQuery = JSON.stringify(req.query || {});
@@ -235,9 +239,9 @@ function handleWebhookPayment(req, res) {
   webhookLogs.unshift(logEntry);
   if (webhookLogs.length > 30) webhookLogs.pop();
 
-  // Tìm mã đơn hàng SZ-...
+  // Tìm mã đơn hàng SZ... (chấp nhận cả có dấu gạch ngang như SZ-20261118-V944 hoặc viết liền như SZ20261118V944 do ngân hàng bỏ dấu)
   let targetOrderId = null;
-  const match = combinedText.match(/SZ-[A-Za-z0-9\-]+/i);
+  const match = combinedText.match(/SZ[-_]?[A-Za-z0-9\-_]+/i);
   if (match) {
     targetOrderId = match[0].toUpperCase();
   }
@@ -245,32 +249,45 @@ function handleWebhookPayment(req, res) {
   if (!targetOrderId) {
     return res.status(400).json({
       success: false,
-      message: 'Không tìm thấy mã đơn hàng (SZ-...) trong nội dung thông báo.',
+      message: 'Không tìm thấy mã đơn hàng (SZ...) trong nội dung thông báo.',
       received: rawBody.slice(0, 200)
     });
   }
 
-  // 1. Lưu vào cache bộ nhớ tức thì để web truy vấn có ngay
-  paidOrdersCache.set(targetOrderId, { paid: true, time: Date.now() });
+  const normTarget = normalizeOrderCode(targetOrderId);
+
+  // Tìm đơn hàng chuẩn trong SQLite nếu có
+  let canonicalId = targetOrderId;
+  try {
+    const all = db.prepare('SELECT id FROM orders ORDER BY createdAt DESC LIMIT 100').all();
+    const found = all.find(o => normalizeOrderCode(o.id) === normTarget);
+    if (found) {
+      canonicalId = found.id;
+    }
+  } catch (e) {}
+
+  // 1. Lưu vào cache bộ nhớ tức thì để web truy vấn có ngay (lưu cả mã gốc, mã nhận được và mã chuẩn hóa)
+  const paidInfo = { paid: true, time: Date.now(), canonicalId, targetOrderId };
+  paidOrdersCache.set(canonicalId, paidInfo);
+  paidOrdersCache.set(targetOrderId, paidInfo);
+  paidOrdersCache.set(normTarget, paidInfo);
 
   // 2. Cập nhật vào SQLite nếu đơn hàng có trong cơ sở dữ liệu server
   try {
-    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(targetOrderId);
-    if (order) {
-      db.prepare(`
-        UPDATE orders
-        SET paymentStatus = 'paid',
-            orderStatus = CASE WHEN orderStatus = 'pending' THEN 'processing' ELSE orderStatus END
-        WHERE id = ?
-      `).run(targetOrderId);
-    }
+    db.prepare(`
+      UPDATE orders
+      SET paymentStatus = 'paid',
+          orderStatus = CASE WHEN orderStatus = 'pending' THEN 'processing' ELSE orderStatus END
+      WHERE id = ? OR id = ?
+    `).run(canonicalId, targetOrderId);
   } catch (err) {
     console.warn('[Webhook] Lỗi update SQLite:', err.message);
   }
 
   // 3. Đồng bộ tức thì lên Cloud Firestore
-  try {
-    fetch(`https://firestore.googleapis.com/v1/projects/sportzone-sync-v2/databases/(default)/documents/sz_orders/${encodeURIComponent(targetOrderId)}?updateMask.fieldPaths=paymentStatus&updateMask.fieldPaths=paymentStatusCode&updateMask.fieldPaths=paymentUpdatedAt`, {
+  const syncToFirestore = (docId) => {
+    if (!docId) return;
+    fetch(`https://firestore.googleapis.com/v1/projects/sportzone-sync-v2/databases/(default)/documents/sz_orders/${encodeURIComponent(docId)}?updateMask.fieldPaths=paymentStatus&updateMask.fieldPaths=paymentStatusCode&updateMask.fieldPaths=paymentUpdatedAt`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -281,12 +298,18 @@ function handleWebhookPayment(req, res) {
         }
       })
     }).catch(err => console.warn('[Webhook] Lỗi đẩy Firestore:', err.message));
-  } catch (e) {}
+  };
+
+  syncToFirestore(canonicalId);
+  if (canonicalId !== targetOrderId) {
+    syncToFirestore(targetOrderId);
+  }
 
   return res.json({
     success: true,
-    message: `Đã xác nhận thanh toán thành công cho đơn hàng ${targetOrderId}!`,
-    orderId: targetOrderId
+    message: `Đã xác nhận thanh toán thành công cho đơn hàng ${canonicalId}!`,
+    orderId: canonicalId,
+    receivedCode: targetOrderId
   });
 }
 
@@ -298,20 +321,35 @@ router.get('/webhook/payment', handleWebhookPayment);
  * Web client kiểm tra trạng thái thanh toán trực tiếp qua backend Railway
  */
 router.get('/webhook/payment-status', (req, res) => {
-  const orderId = String(req.query.orderId || '').toUpperCase().trim();
-  if (!orderId) {
+  const rawId = String(req.query.orderId || '').trim();
+  if (!rawId) {
     return res.status(400).json({ success: false, paid: false, message: 'Thiếu orderId' });
   }
 
-  // 1. Kiểm tra trong bộ nhớ cache
-  if (paidOrdersCache.has(orderId)) {
+  const orderId = rawId.toUpperCase();
+  const normId = normalizeOrderCode(orderId);
+
+  // 1. Kiểm tra trực tiếp trong bộ nhớ cache
+  if (paidOrdersCache.has(orderId) || paidOrdersCache.has(normId)) {
     return res.json({ success: true, paid: true, status: 'paid', orderId });
+  }
+
+  // Duyệt qua cache đối chiếu mã chuẩn hóa (phòng trường hợp 1 bên có dấu gạch ngang, 1 bên không)
+  for (const [key, val] of paidOrdersCache.entries()) {
+    if (normalizeOrderCode(key) === normId && val && val.paid) {
+      return res.json({ success: true, paid: true, status: 'paid', orderId });
+    }
   }
 
   // 2. Kiểm tra trong SQLite database
   try {
     const order = db.prepare('SELECT paymentStatus FROM orders WHERE id = ?').get(orderId);
     if (order && (order.paymentStatus === 'paid' || order.paymentStatus === 'Đã thanh toán')) {
+      return res.json({ success: true, paid: true, status: 'paid', orderId });
+    }
+    const all = db.prepare('SELECT id, paymentStatus FROM orders ORDER BY createdAt DESC LIMIT 100').all();
+    const found = all.find(o => normalizeOrderCode(o.id) === normId);
+    if (found && (found.paymentStatus === 'paid' || found.paymentStatus === 'Đã thanh toán')) {
       return res.json({ success: true, paid: true, status: 'paid', orderId });
     }
   } catch (e) {}

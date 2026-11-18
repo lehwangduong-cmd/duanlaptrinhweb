@@ -551,11 +551,12 @@ function setupRealtimePaymentListener() {
         }
     }
 
-    // 4. Polling dự phòng mỗi 3 giây kiểm tra lại cả Cloud Firestore và localStorage
+    // 4. Polling tự động cực nhanh mỗi 1.5 giây kiểm tra biến động số dư từ server và ngân hàng
+    verifyBankPaymentLive(false);
     setInterval(() => {
         if (!paymentState.order || isPaid(paymentState.order)) return;
         verifyBankPaymentLive(false);
-    }, 3000);
+    }, 1500);
 }
 
 function handleIncomingOrders(orders) {
