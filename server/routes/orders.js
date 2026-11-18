@@ -217,4 +217,61 @@ router.put('/:id/status', authenticateToken, requireAdmin, (req, res) => {
   }
 });
 
+/**
+ * POST /api/orders/webhook/payment
+ * Webhook nhận thông báo chuyển khoản tự động từ MacroDroid / VCB Digibank
+ */
+router.post('/webhook/payment', (req, res) => {
+  const { orderId, amount, content, text } = req.body;
+
+  // Hỗ trợ trích xuất orderId từ text nếu MacroDroid gửi nguyên nội dung thông báo
+  let targetOrderId = orderId;
+  if (!targetOrderId && (content || text)) {
+    const raw = (content || '') + ' ' + (text || '');
+    const match = raw.match(/SZ-[A-Za-z0-9\-]+/i);
+    if (match) {
+      targetOrderId = match[0].toUpperCase();
+    }
+  }
+
+  if (!targetOrderId) {
+    return res.status(400).json({
+      success: false,
+      message: 'Không tìm thấy mã đơn hàng (orderId) trong nội dung chuyển khoản.'
+    });
+  }
+
+  try {
+    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(targetOrderId);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: `Không tìm thấy đơn hàng: ${targetOrderId}`
+      });
+    }
+
+    db.prepare(`
+      UPDATE orders
+      SET paymentStatus = 'paid',
+          orderStatus = CASE WHEN orderStatus = 'pending' THEN 'processing' ELSE orderStatus END
+      WHERE id = ?
+    `).run(targetOrderId);
+
+    const updated = db.prepare('SELECT * FROM orders WHERE id = ?').get(targetOrderId);
+
+    return res.json({
+      success: true,
+      message: `Đã xác nhận thanh toán thành công cho đơn hàng ${targetOrderId}!`,
+      data: formatOrder(updated)
+    });
+  } catch (err) {
+    console.error('Lỗi webhook payment:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi cập nhật đơn hàng từ webhook.',
+      error: err.message
+    });
+  }
+});
+
 module.exports = router;
