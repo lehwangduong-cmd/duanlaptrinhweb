@@ -8,6 +8,8 @@ const vm = require('node:vm');
 
 const cartScript = fs.readFileSync(path.join(__dirname, '..', 'js', 'cart.js'), 'utf8');
 const checkoutScript = fs.readFileSync(path.join(__dirname, '..', 'js', 'checkout.js'), 'utf8');
+const cartPage = fs.readFileSync(path.join(__dirname, '..', 'pages', 'cart.html'), 'utf8');
+const checkoutPage = fs.readFileSync(path.join(__dirname, '..', 'pages', 'checkout.html'), 'utf8');
 
 function createBrowserContext(script, initialStorage = {}) {
     const values = new Map(Object.entries(initialStorage));
@@ -132,4 +134,9 @@ test('checkout removes the selected legacy cart variant without matching a diffe
     const remaining = JSON.parse(localStorage.getItem('sportzone_cart'));
     assert.equal(remaining.length, 1);
     assert.equal(remaining[0].id, 'a');
+});
+
+test('account links in cart and checkout lead to the account page', () => {
+    assert.match(cartPage, /<a href="\.\.\/account\.html" class="header__action-btn" title="Tài khoản">/);
+    assert.match(checkoutPage, /<a href="\.\.\/account\.html" class="header__action-btn" title="Tài khoản">/);
 });
