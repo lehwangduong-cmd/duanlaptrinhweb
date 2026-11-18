@@ -83,10 +83,11 @@
         <span>Yêu thích</span>
         <span class="badge" id="wishlist-count">0</span>
       </a>
-      <a href="#" class="nav-action-btn" aria-label="Giỏ hàng">
+      <a href="pages/cart.html" class="nav-action-btn" aria-label="Giỏ hàng">
         <i class="fas fa-shopping-cart"></i>
         <span>Giỏ hàng</span>
-        <span class="badge">5</span>
+        <!-- cart-badge + id="cart-count" để shared.js → Cart.updateBadge() tự động cập nhật số lượng -->
+        <span class="badge cart-badge" id="cart-count">0</span>
       </a>
     </nav>
 
