@@ -173,6 +173,8 @@ const SEED_PRODUCTS = [
   ...PARTNER_BRAND_PRODUCTS
 ];
 
+const RETIRED_SEED_PRODUCTS = new Set(['1057']);
+
 function mergeSeedProducts(products, includeMissing = false) {
   let deletedIds = [];
   try {
@@ -183,14 +185,20 @@ function mergeSeedProducts(products, includeMissing = false) {
 
   const seedById = new Map(SEED_PRODUCTS.map(product => [String(product.id), product]));
   const merged = products
-    .filter(product => !deletedSet.has(String(product.id)))
+    .filter(product =>
+      !deletedSet.has(String(product.id)) &&
+      !RETIRED_SEED_PRODUCTS.has(String(product.id)) &&
+      product.name !== 'Bóng rổ Indoor Pro size 7'
+    )
     .map(product => {
       const seed = seedById.get(String(product.id));
       const needsBrand = seed && (!product.brand || product.brand === 'SportZone');
       return seed && (product.image !== seed.image || product.placeholderImage !== seed.placeholderImage || needsBrand)
         ? {
             ...product,
-            image: product.image || seed.image,
+            image: !product.image || product.image === seed.placeholderImage || product.image === product.placeholderImage
+              ? seed.image
+              : product.image,
             placeholderImage: seed.placeholderImage,
             brand: needsBrand ? seed.brand : product.brand
           }
@@ -251,7 +259,11 @@ window.addEventListener('storage', (e) => {
 
 window.addEventListener('sz:products-updated', (e) => {
   if (Array.isArray(e.detail)) {
-    PRODUCTS = prioritizeNewProducts(e.detail);
+    const merged = mergeSeedProducts(e.detail);
+    if (JSON.stringify(merged) !== JSON.stringify(e.detail)) {
+      localStorage.setItem('sportzone_products', JSON.stringify(merged));
+    }
+    PRODUCTS = prioritizeNewProducts(merged);
     if (typeof renderCatalog === 'function' && document.getElementById('products-grid')) {
       renderCategoryFilters();
       state.page = 1;
